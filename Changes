@@ -1,0 +1,12 @@
+Revision history for Perl extension HH::Unispool::Config.
+
+0.2   Sat Mar 22 06:33:47 CET 2003
+        - Made code compliant to PerlBean 0.7
+
+0.1   Thu Jan 30 14:55:56 CET 2003
+        - First release
+
+0.01  Thu Jan 30 15:58:16 2003
+	- original version; created by h2xs 1.22 with options
+		-X HH::Unispool::Config
+

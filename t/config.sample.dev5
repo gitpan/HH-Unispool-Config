@@ -1,0 +1,3 @@
+D 5   ;DEVTYPE5        ;5 ;         ;   ;    ;   ;  ;REMSYS          ;LP
+I 5   ;DEV;A short description for this device
+X 5   ;                ;HEADER          ;TRAILER         ;cexpand

@@ -1,0 +1,4 @@
+D 1   ;DEVTYPE0        ;0 ;p1       ;   ;    ;   ;  ;                ;                ; IN U ;CS
+P 1   ;DEV;6
+I 1   ;DEV;A short description for this device
+X 1   ;                ;HEADER          ;TRAILER         ;cexpand

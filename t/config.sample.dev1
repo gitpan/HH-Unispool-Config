@@ -1,0 +1,3 @@
+D 2   ;DEVTYPE1        ;1 ;p2       ;   ;2048;132;66;                ;                ;  N   ;DS
+I 2   ;DEV;A short description for this device
+X 2   ;PROFILE         ;HEADER          ;TRAILER         ;cexpand

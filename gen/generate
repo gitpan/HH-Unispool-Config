@@ -1,0 +1,326 @@
+#!/usr/bin/perl
+
+use strict;
+use PerlBean;
+use PerlBean::Attribute::Factory;
+use PerlBean::Collection;
+use PerlBean::Described::ExportTag;
+use PerlBean::Symbol;
+
+@::bean_desc = ();
+
+foreach my $fn (<attr-*.pl>) {
+    require $fn;
+}
+
+my $collection = PerlBean::Collection->new ({
+    license => <<EOF,
+This file is part of the C<HH::Unispool::Config> module hierarchy for Perl by
+Vincenzo Zocca.
+
+The HH::Unispool::Config module hierarchy is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2 of
+the License, or (at your option) any later version.
+
+The HH::Unispool::Config module hierarchy is distributed in the hope that it will
+be useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with the HH::Unispool::Config module hierarchy; if not, write to
+the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+Boston, MA 02111-1307 USA
+EOF
+});
+my $factory = PerlBean::Attribute::Factory->new ();
+
+foreach my $bean_desc (@::bean_desc) {
+    # Set 'use 5.006' on all beans
+    $bean_desc->{bean_opt}{use_perl_version} = '5.006';
+
+    # Creat bean
+    my $bean = PerlBean->new ($bean_desc->{bean_opt});
+
+    # Add bean to collection
+    foreach my $attr_opt (@{$bean_desc->{attr_opt}}) {
+        my $attr = $factory->create_attribute ($attr_opt);
+        $bean->add_attribute ($attr);
+    }
+
+    # Add attributes to bean
+    foreach my $meth_opt ( @{ $bean_desc->{meth_opt} } ) {
+        if (  $meth_opt->{method_name} eq 'diff' &&
+                        &do_mk_diff( $bean_desc->{bean_opt}{package} ) ) {
+
+            $meth_opt->{body} = &mk_diff_body($bean_desc->{attr_opt},
+                        $bean_desc->{bean_opt}{base},
+                        $bean_desc->{bean_opt}{package} );
+        }
+        require PerlBean::Method;
+        my $meth = PerlBean::Method->new ($meth_opt);
+        $bean->add_method ($meth);
+    }
+
+    # Add methods to bean
+    foreach my $meth_opt (@{$bean_desc->{constr_opt}}) {
+        require PerlBean::Method::Constructor;
+        my $meth = PerlBean::Method::Constructor->new ($meth_opt);
+        $bean->add_method ($meth);
+    }
+    $collection->add_perl_bean ($bean);
+
+    # Add symbols to bean
+    foreach my $sym_opt ( @{ $bean_desc->{sym_opt} } ) {
+        my $sym = PerlBean::Symbol->new($sym_opt);
+        $bean->add_symbol($sym);
+    }
+
+    # Add tag descriptions to bean
+    foreach my $tag_opt ( @{ $bean_desc->{tag_opt} } ) {
+        my $tdesc = PerlBean::Described::ExportTag->new($tag_opt);
+        $bean->add_export_tag_description($tdesc);
+    }
+
+    # Add dependencies to bean
+    foreach my $use_opt ( @{ $bean_desc->{use_opt} } ) {
+        my $dep = PerlBean::Dependency::Use->new($use_opt);
+        $bean->add_dependency($dep);
+    }
+}
+
+# Revove the old tmp directory
+system ('rm -rf tmp');
+
+# Make a new tmp directory
+mkdir ('tmp');
+
+# Write the hierarch
+$collection->write ('tmp');
+
+# SUBROUTINES
+
+sub read_synopsis {
+    my $fn = shift;
+
+    my $ffn =undef;
+
+    foreach my $dir (@_) {
+        ( -f "$dir/$fn" ) || next;
+        $ffn = "$dir/$fn";
+    }
+
+    defined($ffn) || return('TODO');
+
+    use IO::File;
+    my $fh = IO::File->new("< $ffn");
+    my $syn = '';
+    my $prev = $fh->getline();
+    while (my $line = $fh->getline() ) {
+        $syn .= ' ' . $prev;
+        $prev = $line;
+    }
+    return($syn);
+}
+
+sub mk_diff_body {
+    my $attr_opt = shift;
+    my $base = shift || [];
+    my $pkg = shift;
+
+    my $do_number = &do_number($pkg);
+
+    my $body = <<EOF;
+    my \$from = shift;
+    my \$to = shift;
+EOF
+
+    if ($do_number) {
+        $body .= <<EOF;
+    my \$diff_number = shift;
+    \$diff_number = \$from->is_diff_number() if ( ! defined( \$diff_number ) );
+EOF
+    }
+
+    $body .= "\n";
+
+    $body .= <<EOF;
+    # Reference types must be identical
+    if ( ref(\$from) ne ref(\$to) ) {
+        my \$rf = ref(\$from);
+        my \$rt = ref(\$to);
+
+        throw Error::Simple("ERROR: ${pkg}::diff, FROM (\$rf) and TO (\$rt) reference types differ.");
+    }
+
+EOF
+
+    if ( scalar( @{$base} ) ) {
+        my $count = 0;
+        foreach my $b ( @{$base} ) {
+            $count ++ ;
+
+            my $do_super_number = &do_number($b);
+            my $post = $do_super_number ? ', $diff_number' : '';
+
+            if ( $count == 1 ) {
+                $body .= <<EOF;
+    # Diff message
+    my \$diff = \$from->SUPER::diff(\$to$post);
+
+EOF
+            }
+            else {
+                $body .= <<EOF;
+    # Diff message
+    my \$diff = ${b}::diff(\$from, \$to$post);
+
+EOF
+            }
+        }
+    }
+    else {
+        $body .= <<EOF;
+    # Diff message
+    my \$diff = '';
+
+EOF
+    }
+
+    # Write diff checks
+    foreach my $attr (sort by_attribute_name @{$attr_opt}) {
+        next if ( $attr->{attribute_name} =~ /diff_/ );
+        $body .= &mk_diff_body_attr($attr, $pkg);
+    }
+
+    # Write return body code
+    $body .= <<EOF;
+    # Return diff
+    return(\$diff);
+EOF
+    # Return body
+    return($body);
+}
+
+sub by_attribute_name {
+    $a->{attribute_name} cmp $b->{attribute_name};
+}
+
+sub do_mk_diff {
+    return(shift !~ /Token/);
+}
+
+sub mk_diff_body_attr {
+    my $attr = shift;
+    my $pkg = shift;
+
+    my $do_name = &do_name($pkg);
+    my $do_number = &do_number($pkg);
+    my $body = '';
+
+    my $attr_comment = $attr->{attribute_name};
+    $attr_comment =~ s/_+/ /g;
+    my $name_number = '';
+
+    if (&class_diff($attr->{attribute_name})) {
+        $body .= <<EOF;
+    # Diff the $attr_comment
+    \$diff .= \$from->get_$attr->{attribute_name}()->diff( \$to->get_$attr->{attribute_name}() );
+
+EOF
+    }
+    elsif ( $attr->{type} eq 'BOOLEAN' ) {
+
+        $body .= <<EOF;
+    # Diff the $attr_comment state
+    if ( \$from->is_$attr->{attribute_name}() != \$to->is_$attr->{attribute_name}() ) {
+        my \$ref = ref(\$from);
+        my \$vf = \$from->is_$attr->{attribute_name}();
+        my \$vt = \$to->is_$attr->{attribute_name}();
+EOF
+
+        if ($do_name && $attr->{attribute_name} ne 'name') {
+            $name_number .= '/$name';
+            $body .= <<EOF;
+        my \$name = \$from->get_name();
+EOF
+
+        if ($do_number) {
+            $name_number .= '/$number';
+            $body .= <<EOF;
+        my \$number = \$from->get_number();
+EOF
+        }
+
+        $body .= <<EOF;
+        \$diff .= "\$ref$name_number: $attr_comment difference: \$vf <-> \$vt\\n";
+    }
+
+EOF
+        }
+
+    }
+    elsif ( $attr->{type} eq 'MULTI' ) {
+    }
+    elsif ( ! $attr->{type} || $attr->{type} eq 'SINGLE' ) {
+
+        my $pre_cond = $attr->{attribute_name} eq 'number' ? '$from->is_diff_number() && ' : '';
+
+        $body .= <<EOF;
+    # Diff the $attr_comment
+    if ( ${pre_cond}\$from->get_$attr->{attribute_name}() ne \$to->get_$attr->{attribute_name}() ) {
+        my \$ref = ref(\$from);
+        my \$vf = \$from->get_$attr->{attribute_name}();
+        my \$vt = \$to->get_$attr->{attribute_name}();
+EOF
+
+        if ($do_name && $attr->{attribute_name} ne 'name') {
+            $name_number .= '/$name';
+            $body .= <<EOF;
+        my \$name = \$from->get_name();
+EOF
+        }
+
+        if ($do_number) {
+            $name_number .= '/$number';
+            $body .= <<EOF;
+        my \$number = \$from->get_number();
+EOF
+        }
+
+        $body .= <<EOF;
+        \$diff .= "\$ref$name_number: $attr_comment difference: \$vf <-> \$vt\\n";
+    }
+
+EOF
+    }
+
+}
+
+sub do_name {
+    my $pkg = shift;
+
+    return( $pkg =~ /HH::Unispool::Config::Entry/ );
+}
+
+sub do_number {
+    my $pkg = shift;
+
+    return( $pkg =~ /HH::Unispool::Config::Entry::Numbered/ ||
+                $pkg =~ /HH::Unispool::Config::Entry::Device/ ||
+                $pkg =~ /HH::Unispool::Config::Entry::RemoteSystem/ ||
+                $pkg =~ /HH::Unispool::Config::Entry::System/
+    );
+}
+
+sub class_diff {
+    my $attr = shift;
+
+    return( $attr eq 'execution_priority' ||
+            $attr eq 'type' ||
+            $attr eq 'date_format' ||
+            $attr eq 'device' ||
+            $attr eq 'os'
+    );
+}

@@ -1,0 +1,8 @@
+D 8   ;DEVTYPE_3       ;3 ;         ;   ;    ;   ;  ;                ;                ; IN   ;DS
+I 8   ;DEV;A short description for this device
+X 8   ;                ;                ;                ;cexpand
+
+* Group configuration for [foo.bar.org]
+
+G 8   ;PRT1             ;PRT2             ;PRT3             ;PRT4
+G 8   ;PRT5             ;PRT6             ;PRT7             ;PRT8

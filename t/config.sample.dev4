@@ -1,0 +1,3 @@
+D 4   ;DEVTYPE4        ;4 ;         ;   ;    ;   ;  ;                ;LP              ; IN   ;DS
+I 4   ;DEV;A short description for this device
+X 4   ;                ;HEADER          ;TRAILER         ;cexpand

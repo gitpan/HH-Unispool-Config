@@ -1,0 +1,47 @@
+* Miscellaneous configuration items for [_Network_]
+
+H     [Network]
+
+* Remote system configuration for [_Network_]
+
+S 1   ;TYPE3           ;3;HOUSE   ;PASS1    ;PASS2    ;    ;180;   ;    ; I  ;CS
+I 1   ;SYS;A short description for this system
+N 1   ;TYPE3.STATEFARM.COM
+S 2   ;TYPE6           ;6;        ;         ;         ;    ;   ;   ;0   ; I  ;CS
+I 2   ;SYS;A short description for this system
+N 2   ;TYPE6.STATEFARM.COM                               ;MPE
+S 3   ;TYPE7           ;7;        ;         ;         ;    ;   ;   ;0   ; I  ;CS
+I 3   ;SYS;A short description for this system
+S 4   ;TYPE8           ;8;        ;         ;         ;    ;   ;   ;0   ; I  ;CS
+I 4   ;SYS;A short description for this system
+N 4   ;TYPE8.STATEFARM.COM                               ;MPE     ;4098;180
+
+* Device configuration for [_Network_]
+
+D 1   ;DEVTYPE0        ;0 ;p1       ;   ;    ;   ;  ;                ;                ; IN U ;CS
+P 1   ;DEV;6
+I 1   ;DEV;A short description for this device
+X 1   ;                ;HEADER          ;TRAILER         ;cexpand
+D 2   ;DEVTYPE1        ;1 ;p2       ;   ;2048;132;66;                ;                ;  N   ;DS
+I 2   ;DEV;A short description for this device
+X 2   ;PROFILE         ;HEADER          ;TRAILER         ;cexpand
+D 3   ;DEVTYPE2        ;2 ;p3       ;   ;2048;132;66;                ;                ;  N   ;DS
+I 3   ;DEV;A short description for this device
+P 3   ;DEV;18
+X 3   ;PROFILE         ;HEADER          ;TRAILER         ;cexpand
+D 4   ;DEVTYPE4        ;4 ;         ;   ;    ;   ;  ;                ;LP              ; IN   ;DS
+I 4   ;DEV;A short description for this device
+X 4   ;                ;HEADER          ;TRAILER         ;cexpand
+D 5   ;DEVTYPE5        ;5 ;         ;   ;    ;   ;  ;REMSYS          ;LP
+I 5   ;DEV;A short description for this device
+X 5   ;                ;HEADER          ;TRAILER         ;cexpand
+D 6   ;DEVTYPE6        ;6 ;         ;   ;0   ;0  ;  ;                ;                ; IN   ;CS
+I 6   ;DEV;A short description for this device
+N 6   ;PRINTER.STATEFARM.COM                             ;PJL;SERVER;9100
+X 6   ;                ;                ;                ;cexpand
+D 7   ;DEVTYPE7        ;7 ;         ;   ;    ;   ;  ;                ;LP              ; IN   ;DS
+I 7   ;DEV;A short description for this device
+X 7   ;                ;HEADER          ;TRAILER         ;cexpand
+
+* Group configuration for [_Network_]
+

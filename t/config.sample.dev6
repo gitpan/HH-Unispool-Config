@@ -1,0 +1,4 @@
+D 6   ;DEVTYPE6        ;6 ;         ;   ;0   ;0  ;  ;                ;                ; IN   ;CS
+I 6   ;DEV;A short description for this device
+N 6   ;PRINTER.STATEFARM.COM                             ;PJL;SERVER;9100
+X 6   ;                ;                ;                ;cexpand
