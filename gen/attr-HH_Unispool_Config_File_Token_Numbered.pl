@@ -15,7 +15,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'number',
+             method_factory_name => 'number',
              allow_rx => [ qw(^\d*$) ],
              short_description => 'the number of the entry',
         },

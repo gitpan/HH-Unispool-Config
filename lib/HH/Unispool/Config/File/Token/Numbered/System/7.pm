@@ -9,7 +9,7 @@ use Error qw(:try);
 use HH::Unispool::Config::File::Token qw( :rx :frm );
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -103,7 +103,7 @@ Passed to L<set_upass()>.
 
 =item new_from_string(LINE)
 
-This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Creates a new object from the specified Unispool config file line string.
+Creates a new object from the specified Unispool config file line string.
 
 =back
 
@@ -111,75 +111,209 @@ This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Cr
 
 =over
 
+=item get_acct()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Returns the remote login account (is not available on development system used).
+
+=item get_apass()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Returns the account password (is not available on development system used).
+
+=item get_block_delay()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Returns the time in seconds UNISPOOL should pause between sending two blocks.
+
+=item get_execution_priority()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Returns the execution priority of the driver process on MPE hosts.
+
+=item get_input_line_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Returns the line number from from which the token is read.
+
+=item get_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Returns the number of the entry.
+
+=item get_remote_system_name()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Returns the unique name for the remote system.
+
+=item get_timeout()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Returns the delay before closing the link after transfering the last request (in seconds) (is not available on development system used).
+
+=item get_upass()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Returns the user paccword (is not available on development system used).
+
+=item is_high_priority_login()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Returns whether the login must be high priotity (is not available on development system used) or not.
+
+=item is_initially_open()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Returns whether the communication link should be opened at the moment UNISPOOL is started or not.
+
 =item read_string(LINE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered::System'>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered::System>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
+
+=item set_acct(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Set the remote login account (is not available on development system used). C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.*$
+
+=back
+
+=back
+
+=item set_apass(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Set the account password (is not available on development system used). C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.*$
+
+=back
+
+=back
+
+=item set_block_delay(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Set the time in seconds UNISPOOL should pause between sending two blocks. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_execution_priority(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Set the execution priority of the driver process on MPE hosts. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must be a (sub)class of:
+
+=over
+
+=item HH::Unispool::Config::ExecPri
+
+=back
+
+=back
+
+=item set_high_priority_login(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. State that the login must be high priotity (is not available on development system used). C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=item set_initially_open(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. State that the communication link should be opened at the moment UNISPOOL is started. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=item set_input_line_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Set the line number from from which the token is read. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Set the number of the entry. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_remote_system_name(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Set the unique name for the remote system. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.+$
+
+=back
+
+=back
+
+=item set_timeout(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Set the delay before closing the link after transfering the last request (in seconds) (is not available on development system used). C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_upass(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::System>. Set the user paccword (is not available on development system used). C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.*$
+
+=back
+
+=back
 
 =item write_string()
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered::System'>. Returns a Unispool config file token line string.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token
-
-=over
-
-=item To access attribute named B<C<input_line_number>>:
-
-set_input_line_number(), get_input_line_number()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token::Numbered
-
-=over
-
-=item To access attribute named B<C<number>>:
-
-set_number(), get_number()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token::Numbered::System
-
-=over
-
-=item To access attribute named B<C<acct>>:
-
-set_acct(), get_acct()
-
-=item To access attribute named B<C<apass>>:
-
-set_apass(), get_apass()
-
-=item To access attribute named B<C<block_delay>>:
-
-set_block_delay(), get_block_delay()
-
-=item To access attribute named B<C<execution_priority>>:
-
-set_execution_priority(), get_execution_priority()
-
-=item To access attribute named B<C<high_priority_login>>:
-
-set_high_priority_login(), is_high_priority_login()
-
-=item To access attribute named B<C<initially_open>>:
-
-set_initially_open(), is_initially_open()
-
-=item To access attribute named B<C<remote_system_name>>:
-
-set_remote_system_name(), get_remote_system_name()
-
-=item To access attribute named B<C<timeout>>:
-
-set_timeout(), get_timeout()
-
-=item To access attribute named B<C<upass>>:
-
-set_upass(), get_upass()
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered::System>. Returns a Unispool config file token line string.
 
 =back
 
@@ -260,6 +394,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 

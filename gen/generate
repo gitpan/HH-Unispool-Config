@@ -46,7 +46,7 @@ foreach my $bean_desc (@::bean_desc) {
     # Add bean to collection
     foreach my $attr_opt (@{$bean_desc->{attr_opt}}) {
         my $attr = $factory->create_attribute ($attr_opt);
-        $bean->add_attribute ($attr);
+        $bean->add_method_factory ($attr);
     }
 
     # Add attributes to bean
@@ -189,8 +189,8 @@ EOF
     }
 
     # Write diff checks
-    foreach my $attr (sort by_attribute_name @{$attr_opt}) {
-        next if ( $attr->{attribute_name} =~ /diff_/ );
+    foreach my $attr (sort by_method_factory_name @{$attr_opt}) {
+        next if ( $attr->{method_factory_name} =~ /diff_/ );
         $body .= &mk_diff_body_attr($attr, $pkg);
     }
 
@@ -203,8 +203,8 @@ EOF
     return($body);
 }
 
-sub by_attribute_name {
-    $a->{attribute_name} cmp $b->{attribute_name};
+sub by_method_factory_name {
+    $a->{method_factory_name} cmp $b->{method_factory_name};
 }
 
 sub do_mk_diff {
@@ -219,14 +219,14 @@ sub mk_diff_body_attr {
     my $do_number = &do_number($pkg);
     my $body = '';
 
-    my $attr_comment = $attr->{attribute_name};
+    my $attr_comment = $attr->{method_factory_name};
     $attr_comment =~ s/_+/ /g;
     my $name_number = '';
 
-    if (&class_diff($attr->{attribute_name})) {
+    if (&class_diff($attr->{method_factory_name})) {
         $body .= <<EOF;
     # Diff the $attr_comment
-    \$diff .= \$from->get_$attr->{attribute_name}()->diff( \$to->get_$attr->{attribute_name}() );
+    \$diff .= \$from->get_$attr->{method_factory_name}()->diff( \$to->get_$attr->{method_factory_name}() );
 
 EOF
     }
@@ -234,13 +234,13 @@ EOF
 
         $body .= <<EOF;
     # Diff the $attr_comment state
-    if ( \$from->is_$attr->{attribute_name}() != \$to->is_$attr->{attribute_name}() ) {
+    if ( \$from->is_$attr->{method_factory_name}() != \$to->is_$attr->{method_factory_name}() ) {
         my \$ref = ref(\$from);
-        my \$vf = \$from->is_$attr->{attribute_name}();
-        my \$vt = \$to->is_$attr->{attribute_name}();
+        my \$vf = \$from->is_$attr->{method_factory_name}();
+        my \$vt = \$to->is_$attr->{method_factory_name}();
 EOF
 
-        if ($do_name && $attr->{attribute_name} ne 'name') {
+        if ($do_name && $attr->{method_factory_name} ne 'name') {
             $name_number .= '/$name';
             $body .= <<EOF;
         my \$name = \$from->get_name();
@@ -265,17 +265,17 @@ EOF
     }
     elsif ( ! $attr->{type} || $attr->{type} eq 'SINGLE' ) {
 
-        my $pre_cond = $attr->{attribute_name} eq 'number' ? '$from->is_diff_number() && ' : '';
+        my $pre_cond = $attr->{method_factory_name} eq 'number' ? '$from->is_diff_number() && ' : '';
 
         $body .= <<EOF;
     # Diff the $attr_comment
-    if ( ${pre_cond}\$from->get_$attr->{attribute_name}() ne \$to->get_$attr->{attribute_name}() ) {
+    if ( ${pre_cond}\$from->get_$attr->{method_factory_name}() ne \$to->get_$attr->{method_factory_name}() ) {
         my \$ref = ref(\$from);
-        my \$vf = \$from->get_$attr->{attribute_name}();
-        my \$vt = \$to->get_$attr->{attribute_name}();
+        my \$vf = \$from->get_$attr->{method_factory_name}();
+        my \$vt = \$to->get_$attr->{method_factory_name}();
 EOF
 
-        if ($do_name && $attr->{attribute_name} ne 'name') {
+        if ($do_name && $attr->{method_factory_name} ne 'name') {
             $name_number .= '/$name';
             $body .= <<EOF;
         my \$name = \$from->get_name();

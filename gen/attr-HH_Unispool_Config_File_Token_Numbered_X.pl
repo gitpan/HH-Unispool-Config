@@ -15,22 +15,22 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'profile_name',
+             method_factory_name => 'profile_name',
              allow_rx => [ qw(^.*$) ],
              short_description => 'the name of the profile containing the device initialisation and status checking specification',
         },
         {
-             attribute_name => 'header_name',
+             method_factory_name => 'header_name',
              allow_rx => [ qw(^.*$) ],
              short_description => 'the control procedure to be executed before printing the printfile',
         },
         {
-             attribute_name => 'trailer_name',
+             method_factory_name => 'trailer_name',
              allow_rx => [ qw(^.*$) ],
              short_description => 'the control procedure to be executed after printing the printfile',
         },
         {
-             attribute_name => 'filter_name',
+             method_factory_name => 'filter_name',
              allow_rx => [ qw(^.*$) ],
              short_description => 'the name of the filter file to be used when printfiles for this device are generated',
         },

@@ -28,13 +28,13 @@ our %ALLOW_VALUE = (
     },
 );
 
-# Used by _value_is_allowed
+# Used by _initialize
 our %DEFAULT_VALUE = (
     'type' => 'default',
 );
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -138,9 +138,13 @@ Passed to L<set_type()>. Defaults to B<'default'>.
 
 Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown.
 
+=item get_type()
+
+Returns the type of the filter.
+
 =item set_type(VALUE)
 
-Set the type of the filter. C<VALUE> is the value. Default value at initialization is C<'default'>. C<VALUE> may not be C<undef>. On error an exception C<Error::Simple> is thrown.
+Set the type of the filter. C<VALUE> is the value. Default value at initialization is C<default>. C<VALUE> may not be C<undef>. On error an exception C<Error::Simple> is thrown.
 
 =over
 
@@ -165,10 +169,6 @@ Set the type of the filter. C<VALUE> is the value. Default value at initializati
 =back
 
 =back
-
-=item get_type()
-
-Returns the type of the filter.
 
 =back
 
@@ -249,6 +249,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -302,53 +303,6 @@ sub _initialize {
     return($self);
 }
 
-sub diff {
-    my $from = shift;
-    my $to = shift;
-
-    # Reference types must be identical
-    if ( ref($from) ne ref($to) ) {
-        my $rf = ref($from);
-        my $rt = ref($to);
-
-        throw Error::Simple("ERROR: HH::Unispool::Config::FilterType::diff, FROM ($rf) and TO ($rt) reference types differ.");
-    }
-
-    # Diff message
-    my $diff = '';
-
-    # Diff the type
-    if ( $from->get_type() ne $to->get_type() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_type();
-        my $vt = $to->get_type();
-        $diff .= "$ref: type difference: $vf <-> $vt\n";
-    }
-
-    # Return diff
-    return($diff);
-}
-
-sub set_type {
-    my $self = shift;
-    my $val = shift;
-
-    # Value for 'type' is not allowed to be empty
-    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::FilterType::set_type, value may not be empty.");
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'type', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::FilterType::set_type, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_FilterType}{type} = $val;
-}
-
-sub get_type {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_FilterType}{type} );
-}
-
 sub _value_is_allowed {
     my $name = shift;
 
@@ -390,5 +344,52 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub diff {
+    my $from = shift;
+    my $to = shift;
+
+    # Reference types must be identical
+    if ( ref($from) ne ref($to) ) {
+        my $rf = ref($from);
+        my $rt = ref($to);
+
+        throw Error::Simple("ERROR: HH::Unispool::Config::FilterType::diff, FROM ($rf) and TO ($rt) reference types differ.");
+    }
+
+    # Diff message
+    my $diff = '';
+
+    # Diff the type
+    if ( $from->get_type() ne $to->get_type() ) {
+        my $ref = ref($from);
+        my $vf = $from->get_type();
+        my $vt = $to->get_type();
+        $diff .= "$ref: type difference: $vf <-> $vt\n";
+    }
+
+    # Return diff
+    return($diff);
+}
+
+sub get_type {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_FilterType}{type} );
+}
+
+sub set_type {
+    my $self = shift;
+    my $val = shift;
+
+    # Value for 'type' is not allowed to be empty
+    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::FilterType::set_type, value may not be empty.");
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'type', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::FilterType::set_type, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_FilterType}{type} = $val;
 }
 

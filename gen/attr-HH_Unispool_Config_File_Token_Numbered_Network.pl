@@ -15,38 +15,38 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'remote_node_name',
+             method_factory_name => 'remote_node_name',
              allow_rx => [ qw(^.+$) ],
              mandatory => 1,
              short_description => 'the name of the system as it can be resolved by the network software',
         },
         {
-             attribute_name => 'os',
+             method_factory_name => 'os',
              allow_isa => [ qw(HH::Unispool::Config::OS) ],
              short_description => 'the operating system running on this system',
         },
         {
-             attribute_name => 'transfer_size',
+             method_factory_name => 'transfer_size',
              allow_rx => [ qw(^\d*$) ],
              short_description => 'the size of the data blocks to be transfered',
         },
         {
-             attribute_name => 'transfer_time_out',
+             method_factory_name => 'transfer_time_out',
              allow_rx => [ qw(^\d*$) ],
              short_description => 'the time in which a transfer must be completed to be considered successful',
         },
         {
-             attribute_name => 'protocol',
+             method_factory_name => 'protocol',
              allow_value => [ qw( TCP LPD PJL XPP ) ],
              short_description => 'the protocol to be used for the device',
         },
         {
-             attribute_name => 'server_tcp_port',
+             method_factory_name => 'server_tcp_port',
              allow_rx => [ qw(^.*$) ],
              short_description => 'the TCP port assigned on the print server',
         },
         {
-             attribute_name => 'device_token',
+             method_factory_name => 'device_token',
              type => 'BOOLEAN',
              short_description => 'this is a device token',
         },

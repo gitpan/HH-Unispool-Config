@@ -25,12 +25,8 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
-our %DEFAULT_VALUE = (
-);
-
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -92,7 +88,7 @@ Passed to L<set_number()>.
 
 =item new_from_string(LINE)
 
-This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Creates a new object from the specified Unispool config file line string.
+Creates a new object from the specified Unispool config file line string.
 
 =back
 
@@ -100,33 +96,9 @@ This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Cr
 
 =over
 
-=item read_string(LINE)
-
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered'>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
-
-=item write_string()
-
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered'>. Returns a Unispool config file token line string.
-
-=item set_member_device_name(ARRAY)
-
-Set the name of a device that can be accessed through the group device absolutely. C<ARRAY> is the list value. Each element in the list is allowed to occur only once. Multiple occurences of the same element yield in the last occuring element to be inserted and the rest to be ignored. On error an exception C<Error::Simple> is thrown.
-
-=over
-
-=item The values in C<ARRAY> must match regular expression:
-
-=over
-
-=item ^.+$
-
-=back
-
-=back
-
 =item add_member_device_name(ARRAY)
 
-Add additional values on the name of a device that can be accessed through the group device. C<ARRAY> is the list value. The addition may not yield to multiple identical elements in the list. Hence, multiple occurences of the same element cause the last occurence to be inserted. On error an exception C<Error::Simple> is thrown.
+Add additional values on the name of a device that can be accessed through the group device. C<ARRAY> is the list value. The addition may not yield to multiple identical elements in the list. Hence, multiple occurrences of the same element cause the last occurrence to be inserted. On error an exception C<Error::Simple> is thrown.
 
 =over
 
@@ -148,29 +120,73 @@ Delete elements from the name of a device that can be accessed through the group
 
 Returns the count of items in C<ARRAY> that are in the name of a device that can be accessed through the group device.
 
+=item get_input_line_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Returns the line number from from which the token is read.
+
+=item get_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Returns the number of the entry.
+
+=item read_string(LINE)
+
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
+
+=item set_input_line_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Set the line number from from which the token is read. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_member_device_name(ARRAY)
+
+Set the name of a device that can be accessed through the group device absolutely. C<ARRAY> is the list value. Each element in the list is allowed to occur only once. Multiple occurrences of the same element yield in the last occurring element to be inserted and the rest to be ignored. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item The values in C<ARRAY> must match regular expression:
+
+=over
+
+=item ^.+$
+
+=back
+
+=back
+
+=item set_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Set the number of the entry. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
 =item values_member_device_name()
 
 Returns an C<ARRAY> containing all values of the name of a device that can be accessed through the group device.
 
-=back
+=item write_string()
 
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token
-
-=over
-
-=item To access attribute named B<C<input_line_number>>:
-
-set_input_line_number(), get_input_line_number()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token::Numbered
-
-=over
-
-=item To access attribute named B<C<number>>:
-
-set_number(), get_number()
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered>. Returns a Unispool config file token line string.
 
 =back
 
@@ -251,6 +267,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -305,99 +322,6 @@ sub _initialize {
     return($self);
 }
 
-sub read_string {
-    my $self = shift;
-    my $line = shift;
-
-    # Parse line for name
-    my ($number, $tail) = $line =~ /$USP_G_RX/;
-    defined($number) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::Group::read_string, parameter 'LINE' does not match the regular expression for this token's line string.");
-    my @member = $self->_split_tail($tail);
-
-    # Set attributes
-    $self->set_number($number);
-    $self->set_member_device_name();
-    ($member[0]) && $self->add_member_device_name($member[0]);
-    ($member[1]) && $self->add_member_device_name($member[1]);
-    ($member[2]) && $self->add_member_device_name($member[2]);
-    ($member[3]) && $self->add_member_device_name($member[3]);
-}
-
-sub write_string {
-    my $self = shift;
-
-    # Make string and return it
-    my @member = sort( $self->values_member_device_name() );
-    return(
-        sprintf(
-            $USP_G_FRM,
-            $self->get_number() || 0,
-            $member[0] || '',
-            $member[1] || '',
-            $member[2] || '',
-            $member[3] || '',
-        )
-    );
-}
-
-sub set_member_device_name {
-    my $self = shift;
-
-    # Check if isas/refs/rxs/values are allowed
-    &_value_is_allowed( 'member_device_name', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::Group::set_member_device_name, one or more specified value(s) '@_' is/are not allowed.");
-
-    # Empty list
-    $self->{HH_Unispool_Config_File_Token_Numbered_Device_Group}{member_device_name} = {};
-
-    # Add values
-    foreach my $val (@_) {
-        $self->{HH_Unispool_Config_File_Token_Numbered_Device_Group}{member_device_name}{$val} = $val;
-    }
-}
-
-sub add_member_device_name {
-    my $self = shift;
-
-    # Check if isas/refs/rxs/values are allowed
-    &_value_is_allowed( 'member_device_name', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::Group::add_member_device_name, one or more specified value(s) '@_' is/are not allowed.");
-
-    # Add values
-    foreach my $val (@_) {
-        $self->{HH_Unispool_Config_File_Token_Numbered_Device_Group}{member_device_name}{$val} = $val;
-    }
-}
-
-sub delete_member_device_name {
-    my $self = shift;
-
-    # Delete values
-    my $del = 0;
-    foreach my $val (@_) {
-        exists( $self->{HH_Unispool_Config_File_Token_Numbered_Device_Group}{member_device_name}{$val} ) || next;
-        delete( $self->{HH_Unispool_Config_File_Token_Numbered_Device_Group}{member_device_name}{$val} );
-        $del ++;
-    }
-    return($del);
-}
-
-sub exists_member_device_name {
-    my $self = shift;
-
-    # Count occurences
-    my $count = 0;
-    foreach my $val (@_) {
-        $count += exists( $self->{HH_Unispool_Config_File_Token_Numbered_Device_Group}{member_device_name}{$val} );
-    }
-    return($count);
-}
-
-sub values_member_device_name {
-    my $self = shift;
-
-    # Return all values
-    return( values( %{ $self->{HH_Unispool_Config_File_Token_Numbered_Device_Group}{member_device_name} } ) );
-}
-
 sub _value_is_allowed {
     my $name = shift;
 
@@ -439,5 +363,98 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub add_member_device_name {
+    my $self = shift;
+
+    # Check if isas/refs/rxs/values are allowed
+    &_value_is_allowed( 'member_device_name', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::Group::add_member_device_name, one or more specified value(s) '@_' is/are not allowed.");
+
+    # Add values
+    foreach my $val (@_) {
+        $self->{HH_Unispool_Config_File_Token_Numbered_Device_Group}{member_device_name}{$val} = $val;
+    }
+}
+
+sub delete_member_device_name {
+    my $self = shift;
+
+    # Delete values
+    my $del = 0;
+    foreach my $val (@_) {
+        exists( $self->{HH_Unispool_Config_File_Token_Numbered_Device_Group}{member_device_name}{$val} ) || next;
+        delete( $self->{HH_Unispool_Config_File_Token_Numbered_Device_Group}{member_device_name}{$val} );
+        $del ++;
+    }
+    return($del);
+}
+
+sub exists_member_device_name {
+    my $self = shift;
+
+    # Count occurrences
+    my $count = 0;
+    foreach my $val (@_) {
+        $count += exists( $self->{HH_Unispool_Config_File_Token_Numbered_Device_Group}{member_device_name}{$val} );
+    }
+    return($count);
+}
+
+sub read_string {
+    my $self = shift;
+    my $line = shift;
+
+    # Parse line for name
+    my ($number, $tail) = $line =~ /$USP_G_RX/;
+    defined($number) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::Group::read_string, parameter 'LINE' does not match the regular expression for this token's line string.");
+    my @member = $self->_split_tail($tail);
+
+    # Set attributes
+    $self->set_number($number);
+    $self->set_member_device_name();
+    ($member[0]) && $self->add_member_device_name($member[0]);
+    ($member[1]) && $self->add_member_device_name($member[1]);
+    ($member[2]) && $self->add_member_device_name($member[2]);
+    ($member[3]) && $self->add_member_device_name($member[3]);
+}
+
+sub set_member_device_name {
+    my $self = shift;
+
+    # Check if isas/refs/rxs/values are allowed
+    &_value_is_allowed( 'member_device_name', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::Group::set_member_device_name, one or more specified value(s) '@_' is/are not allowed.");
+
+    # Empty list
+    $self->{HH_Unispool_Config_File_Token_Numbered_Device_Group}{member_device_name} = {};
+
+    # Add values
+    foreach my $val (@_) {
+        $self->{HH_Unispool_Config_File_Token_Numbered_Device_Group}{member_device_name}{$val} = $val;
+    }
+}
+
+sub values_member_device_name {
+    my $self = shift;
+
+    # Return all values
+    return( values( %{ $self->{HH_Unispool_Config_File_Token_Numbered_Device_Group}{member_device_name} } ) );
+}
+
+sub write_string {
+    my $self = shift;
+
+    # Make string and return it
+    my @member = sort( $self->values_member_device_name() );
+    return(
+        sprintf(
+            $USP_G_FRM,
+            $self->get_number() || 0,
+            $member[0] || '',
+            $member[1] || '',
+            $member[2] || '',
+            $member[3] || '',
+        )
+    );
 }
 

@@ -15,12 +15,12 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'description',
+             method_factory_name => 'description',
              allow_rx => [ qw(^.*$) ],
              short_description => 'the description for the remote system',
         },
         {
-             attribute_name => 'execution_priority',
+             method_factory_name => 'execution_priority',
              allow_isa => [ qw(HH::Unispool::Config::ExecPri) ],
              default_value => 'HH::Unispool::Config::ExecPri->new( { execution_priority => \'\' } )',
              short_description => 'the execution priority of the driver process on MPE hosts',

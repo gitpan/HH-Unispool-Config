@@ -26,7 +26,7 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
+# Used by _initialize
 our %DEFAULT_VALUE = (
     # See _initialize for 'time' default value
 );
@@ -51,7 +51,7 @@ our %USP2UNIX_MONTH = (
 );
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 # Unispool <=> unix conversion
 our @UNIX2USP_WDAY = qw( SUN MON TUE WED THU FRI SAT );
@@ -111,7 +111,7 @@ Passed to L<set_input_line_number()>.
 
 =item new_from_string(LINE)
 
-This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Creates a new object from the specified Unispool config file line string.
+Creates a new object from the specified Unispool config file line string.
 
 =back
 
@@ -119,13 +119,33 @@ This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Cr
 
 =over
 
+=item get_input_line_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Returns the line number from from which the token is read.
+
+=item get_time()
+
+Returns the date in the comment in Unix time.
+
 =item read_string(LINE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Comment'>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Comment>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
 
-=item write_string()
+=item set_input_line_number(VALUE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Comment'>. Returns a Unispool config file token line string.
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Set the line number from from which the token is read. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
 
 =item set_time(VALUE)
 
@@ -143,19 +163,9 @@ Set the date in the comment in Unix time. C<VALUE> is the value. Default value a
 
 =back
 
-=item get_time()
+=item write_string()
 
-Returns the date in the comment in Unix time.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token
-
-=over
-
-=item To access attribute named B<C<input_line_number>>:
-
-set_input_line_number(), get_input_line_number()
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Comment>. Returns a Unispool config file token line string.
 
 =back
 
@@ -236,6 +246,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: January 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -284,75 +295,6 @@ sub _initialize {
     return($self);
 }
 
-sub read_string {
-    my $self = shift;
-    my $line = shift;
-
-    # Parse line
-    my ($mon, $mday, $year, $hour, $min, $am_pm) = $line =~ /$USP_DATE_RX/;
-    defined($mon) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Comment::Date::read_string, parameter 'LINE' does not match the regular expression for this token's line string.");
-
-    # Make Unix time out of obtained values
-    if ( $am_pm =~ /am/i && $hour == 12 ) {
-        $hour = 0;
-    }
-    elsif ( $am_pm =~ /pm/i && $hour < 12 ) {
-        $hour += 12;
-    }
-    $mon = $USP2UNIX_MONTH{ lc($mon) };
-    my $time = timelocal ( 0, $min, $hour, $mday, $mon, $year - 1900 );
-
-    # Set attributes
-    $self->set_time($time);
-}
-
-sub write_string {
-    my $self = shift;
-
-    # Make string and return it
-    my @time = localtime( $self->get_time() );
-    my $am_pm = ($time[2] < 12) ? 'AM' : 'PM';
-    my $hour12 = $time[2];
-    if ( $time[2] == 0 ) {
-        $hour12 = 12;
-    }
-    elsif ( $time[2] > 12 ) {
-        $hour12 = $time[2] - 12;
-    }
-    return(
-        sprintf(
-            $USP_DATE_FRM,
-            $UNIX2USP_WDAY[ $time[6] ] || '',
-            $UNIX2USP_MONTH{ $time[4] } || '',
-            $time[3] || 0,
-            $time[5] + 1900 || 0,
-            $hour12 || 0,
-            $time[1] || 0,
-            $am_pm || 0,
-        )
-    );
-}
-
-sub set_time {
-    my $self = shift;
-    my $val = shift;
-
-    # Value for 'time' is not allowed to be empty
-    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Comment::Date::set_time, value may not be empty.");
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'time', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Comment::Date::set_time, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Comment_Date}{time} = $val;
-}
-
-sub get_time {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Comment_Date}{time} );
-}
-
 sub _value_is_allowed {
     my $name = shift;
 
@@ -394,5 +336,74 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub get_time {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Comment_Date}{time} );
+}
+
+sub read_string {
+    my $self = shift;
+    my $line = shift;
+
+    # Parse line
+    my ($mon, $mday, $year, $hour, $min, $am_pm) = $line =~ /$USP_DATE_RX/;
+    defined($mon) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Comment::Date::read_string, parameter 'LINE' does not match the regular expression for this token's line string.");
+
+    # Make Unix time out of obtained values
+    if ( $am_pm =~ /am/i && $hour == 12 ) {
+        $hour = 0;
+    }
+    elsif ( $am_pm =~ /pm/i && $hour < 12 ) {
+        $hour += 12;
+    }
+    $mon = $USP2UNIX_MONTH{ lc($mon) };
+    my $time = timelocal ( 0, $min, $hour, $mday, $mon, $year - 1900 );
+
+    # Set attributes
+    $self->set_time($time);
+}
+
+sub set_time {
+    my $self = shift;
+    my $val = shift;
+
+    # Value for 'time' is not allowed to be empty
+    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Comment::Date::set_time, value may not be empty.");
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'time', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Comment::Date::set_time, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Comment_Date}{time} = $val;
+}
+
+sub write_string {
+    my $self = shift;
+
+    # Make string and return it
+    my @time = localtime( $self->get_time() );
+    my $am_pm = ($time[2] < 12) ? 'AM' : 'PM';
+    my $hour12 = $time[2];
+    if ( $time[2] == 0 ) {
+        $hour12 = 12;
+    }
+    elsif ( $time[2] > 12 ) {
+        $hour12 = $time[2] - 12;
+    }
+    return(
+        sprintf(
+            $USP_DATE_FRM,
+            $UNIX2USP_WDAY[ $time[6] ] || '',
+            $UNIX2USP_MONTH{ $time[4] } || '',
+            $time[3] || 0,
+            $time[5] + 1900 || 0,
+            $hour12 || 0,
+            $time[1] || 0,
+            $am_pm || 0,
+        )
+    );
 }
 

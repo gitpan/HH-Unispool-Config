@@ -14,7 +14,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'execution_priority',
+             method_factory_name => 'execution_priority',
              mandatory => 1,
              allow_value => [ '', qw( BS CS DS ES ) ],
              short_description => 'the UNISPOOL execution priority',

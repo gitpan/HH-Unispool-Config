@@ -17,7 +17,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'name',
+             method_factory_name => 'name',
              allow_rx => [ qw(^.+$) ],
              mandatory => 1,
              allow_empty => 0,

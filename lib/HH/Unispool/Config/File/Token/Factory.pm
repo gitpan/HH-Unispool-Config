@@ -11,7 +11,7 @@ use HH::Unispool::Config::File::Token qw( :rx );
 our $SINGLETON = undef;
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -37,9 +37,9 @@ C<HH::Unispool::Config::File::Token::Factory> contains factory method to make to
 
 =over
 
-=item new( [ OPT_HASH_REF ] )
+=item new()
 
-Creates a new C<HH::Unispool::Config::File::Token::Factory> object. C<OPT_HASH_REF> is a hash reference used to pass initialization options. On error an exception C<Error::Simple> is thrown.
+Creates a new C<HH::Unispool::Config::File::Token::Factory> object.
 
 =back
 
@@ -51,9 +51,9 @@ Creates a new C<HH::Unispool::Config::File::Token::Factory> object. C<OPT_HASH_R
 
 Creates a C<HH::Unispool::Config::File::Token> object out of the specified line. C<LINE> is a plain line string. C<NR> is an optional parameter containing the line number from where the line is read. On error an exception C<Error::Simple> is thrown.
 
-=item instance( [ CONTR_OPT ] )
+=item instance( [ CONSTR_OPT ] )
 
-Always returns the same C<HH::Unispool::Config::File::Token::Factory> -singleton- object instance. The first time it is called, parameters C<CONTR_OPT> -if specified- are passed to the constructor.
+Always returns the same C<HH::Unispool::Config::File::Token::Factory> -singleton- object instance. The first time it is called, parameters C<CONSTR_OPT> -if specified- are passed to the constructor.
 
 =back
 
@@ -134,6 +134,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -175,6 +176,10 @@ sub new {
 
 sub _initialize {
     my $self = shift;
+    my $opt = defined($_[0]) ? shift : {};
+
+    # Check $opt
+    ref($opt) eq 'HASH' || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Factory::_initialize, first argument must be 'HASH' reference.");
 
     # Return $self
     return($self);
@@ -398,6 +403,17 @@ sub create_token {
 }
 
 sub instance {
+    # Allow calls like:
+    # - HH::Unispool::Config::File::Token::Factory::instance()
+    # - HH::Unispool::Config::File::Token::Factory->instance()
+    # - $variable->instance()
+    if ( ref($_[0]) && &UNIVERSAL::isa( $_[0], 'HH::Unispool::Config::File::Token::Factory' ) ) {
+        shift;
+    }
+    elsif ( ! ref($_[0]) && $_[0] eq 'HH::Unispool::Config::File::Token::Factory' ) {
+        shift;
+    }
+
     # If $SINGLETON is defined return it
     defined($SINGLETON) && return($SINGLETON);
 

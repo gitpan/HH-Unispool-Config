@@ -169,10 +169,6 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
-our %DEFAULT_VALUE = (
-);
-
 # Exporter variable
 our %EXPORT_TAGS = (
     'frm' => [ qw(
@@ -254,7 +250,7 @@ our %EXPORT_TAGS = (
 );
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 # Exporter variable
 our @EXPORT = qw(
@@ -428,6 +424,7 @@ Format for type C<6> C<D> lines.
 =item $USP_D7_FRM
 
 Format for type C<7> C<D> lines.
+
 =item $USP_DATE_FRM
 
 Format for C<* Dump date> lines.
@@ -495,6 +492,7 @@ Format for device C<P> lines.
 =item $USP_S3_FRM
 
 Format for type C<3> C<S> lines.
+
 =item $USP_S6_FRM
 
 Format for type C<6> C<S> lines.
@@ -693,13 +691,13 @@ Creates a new object from the specified Unispool config file line string.
 
 =over
 
+=item get_input_line_number()
+
+Returns the line number from from which the token is read.
+
 =item read_string(LINE)
 
 This is an interface method. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
-
-=item write_string()
-
-This is an interface method. Returns a Unispool config file token line string.
 
 =item set_input_line_number(VALUE)
 
@@ -717,9 +715,9 @@ Set the line number from from which the token is read. C<VALUE> is the value. On
 
 =back
 
-=item get_input_line_number()
+=item write_string()
 
-Returns the line number from from which the token is read.
+This is an interface method. Returns a Unispool config file token line string.
 
 =back
 
@@ -800,6 +798,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: January 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -829,7 +828,6 @@ along with the HH::Unispool::Config module hierarchy; if not, write to
 the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA 02111-1307 USA
 
-
 =cut
 
 sub new {
@@ -838,6 +836,15 @@ sub new {
     my $self = {};
     bless( $self, ( ref($class) || $class ) );
     return( $self->_initialize(@_) );
+}
+
+sub new_from_string {
+    my $class = shift;
+
+    my $self = {};
+    bless( $self, ( ref($class) || $class ) );
+    $self->read_string(@_);
+    return($self);
 }
 
 sub _initialize {
@@ -854,38 +861,13 @@ sub _initialize {
     return($self);
 }
 
-sub new_from_string {
-    my $class = shift;
+sub _split_tail {
+    my $name = shift;
+    my $tail = shift;
 
-    my $self = {};
-    bless( $self, ( ref($class) || $class ) );
-    $self->read_string(@_);
-    return($self);
-}
-
-sub read_string {
-    throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::read_string, call this method in a subclass that has implemented it.");
-}
-
-sub write_string {
-    throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::write_string, call this method in a subclass that has implemented it.");
-}
-
-sub set_input_line_number {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'input_line_number', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::set_input_line_number, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token}{input_line_number} = $val;
-}
-
-sub get_input_line_number {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token}{input_line_number} );
+    $tail =~ s/^\s*;\s*//;
+    $tail =~ s/\s*$//;
+    return( split(/\s*;\s*/, $tail) );
 }
 
 sub _value_is_allowed {
@@ -931,11 +913,28 @@ sub _value_is_allowed {
     return(1);
 }
 
-sub _split_tail {
-    my $name = shift;
-    my $tail = shift;
+sub get_input_line_number {
+    my $self = shift;
 
-    $tail =~ s/^\s*;\s*//;
-    $tail =~ s/\s*$//;
-    return( split(/\s*;\s*/, $tail) );
+    return( $self->{HH_Unispool_Config_File_Token}{input_line_number} );
 }
+
+sub read_string {
+    throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::read_string, call this method in a subclass that has implemented it.");
+}
+
+sub set_input_line_number {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'input_line_number', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::set_input_line_number, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token}{input_line_number} = $val;
+}
+
+sub write_string {
+    throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::write_string, call this method in a subclass that has implemented it.");
+}
+

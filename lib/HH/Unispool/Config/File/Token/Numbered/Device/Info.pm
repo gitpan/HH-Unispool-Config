@@ -8,28 +8,8 @@ use AutoLoader qw(AUTOLOAD);
 use Error qw(:try);
 use HH::Unispool::Config::File::Token qw( :rx :frm );
 
-# Used by _value_is_allowed
-our %ALLOW_ISA = (
-);
-
-# Used by _value_is_allowed
-our %ALLOW_REF = (
-);
-
-# Used by _value_is_allowed
-our %ALLOW_RX = (
-);
-
-# Used by _value_is_allowed
-our %ALLOW_VALUE = (
-);
-
-# Used by _value_is_allowed
-our %DEFAULT_VALUE = (
-);
-
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -91,7 +71,7 @@ Passed to L<set_number()>.
 
 =item new_from_string(LINE)
 
-This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Creates a new object from the specified Unispool config file line string.
+Creates a new object from the specified Unispool config file line string.
 
 =back
 
@@ -99,41 +79,61 @@ This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Cr
 
 =over
 
+=item get_description()
+
+Returns the description for the device.
+
+=item get_input_line_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Returns the line number from from which the token is read.
+
+=item get_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Returns the number of the entry.
+
 =item read_string(LINE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered'>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
-
-=item write_string()
-
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered'>. Returns a Unispool config file token line string.
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
 
 =item set_description(VALUE)
 
 Set the description for the device. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
 
-=item get_description()
+=item set_input_line_number(VALUE)
 
-Returns the description for the device.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Set the line number from from which the token is read. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
 
 =over
 
-=item To access attribute named B<C<input_line_number>>:
-
-set_input_line_number(), get_input_line_number()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token::Numbered
+=item VALUE must match regular expression:
 
 =over
 
-=item To access attribute named B<C<number>>:
+=item ^\d*$
 
-set_number(), get_number()
+=back
+
+=back
+
+=item set_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Set the number of the entry. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item write_string()
+
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered>. Returns a Unispool config file token line string.
 
 =back
 
@@ -214,6 +214,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -262,6 +263,16 @@ sub _initialize {
     return($self);
 }
 
+sub _value_is_allowed {
+    return(1);
+}
+
+sub get_description {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device_Info}{description} );
+}
+
 sub read_string {
     my $self = shift;
     my $line = shift;
@@ -277,19 +288,6 @@ sub read_string {
     ($description) && $self->set_description($description);
 }
 
-sub write_string {
-    my $self = shift;
-
-    # Make string and return it
-    return(
-        sprintf(
-            $USP_ID_FRM,
-            $self->get_number() || 0,
-            $self->get_description() || '',
-        )
-    );
-}
-
 sub set_description {
     my $self = shift;
     my $val = shift;
@@ -301,52 +299,16 @@ sub set_description {
     $self->{HH_Unispool_Config_File_Token_Numbered_Device_Info}{description} = $val;
 }
 
-sub get_description {
+sub write_string {
     my $self = shift;
 
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device_Info}{description} );
-}
-
-sub _value_is_allowed {
-    my $name = shift;
-
-    # Value is allowed if no ALLOW clauses exist for the named attribute
-    if ( ! exists( $ALLOW_ISA{$name} ) && ! exists( $ALLOW_REF{$name} ) && ! exists( $ALLOW_RX{$name} ) && ! exists( $ALLOW_VALUE{$name} ) ) {
-        return(1);
-    }
-
-    # At this point, all values in @_ must to be allowed
-    CHECK_VALUES:
-    foreach my $val (@_) {
-        # Check ALLOW_ISA
-        if ( ref($val) && exists( $ALLOW_ISA{$name} ) ) {
-            foreach my $class ( @{ $ALLOW_ISA{$name} } ) {
-                &UNIVERSAL::isa( $val, $class ) && next CHECK_VALUES;
-            }
-        }
-
-        # Check ALLOW_REF
-        if ( ref($val) && exists( $ALLOW_REF{$name} ) ) {
-            exists( $ALLOW_REF{$name}{ ref($val) } ) && next CHECK_VALUES;
-        }
-
-        # Check ALLOW_RX
-        if ( defined($val) && ! ref($val) && exists( $ALLOW_RX{$name} ) ) {
-            foreach my $rx ( @{ $ALLOW_RX{$name} } ) {
-                $val =~ /$rx/ && next CHECK_VALUES;
-            }
-        }
-
-        # Check ALLOW_VALUE
-        if ( ! ref($val) && exists( $ALLOW_VALUE{$name} ) ) {
-            exists( $ALLOW_VALUE{$name}{$val} ) && next CHECK_VALUES;
-        }
-
-        # We caught a not allowed value
-        return(0);
-    }
-
-    # OK, all values are allowed
-    return(1);
+    # Make string and return it
+    return(
+        sprintf(
+            $USP_ID_FRM,
+            $self->get_number() || 0,
+            $self->get_description() || '',
+        )
+    );
 }
 

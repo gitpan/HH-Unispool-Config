@@ -39,7 +39,7 @@ EOF
     return(
         sprintf(
             \$USP_CS_INFO_FRM,
-            \$self->get_net_desc(),
+            \$self->get_net_desc() || '',
         )
     );
 EOF

@@ -28,7 +28,7 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
+# Used by _initialize
 our %DEFAULT_VALUE = (
     'block_delay' => 0,
     'initially_open' => 1,
@@ -37,7 +37,7 @@ our %DEFAULT_VALUE = (
 );
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -174,7 +174,7 @@ Passed to L<set_execution_priority()>. Defaults to B<HH::Unispool::Config::ExecP
 
 =item new_from_tokenizer(TOKENIZER)
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::RemoteSystem'>. Constructs a new C<HH::Unispool::Config::Entry> object using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
+This method is an implementation from package C<HH::Unispool::Config::Entry::RemoteSystem>. Constructs a new C<HH::Unispool::Config::Entry> object using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -184,11 +184,51 @@ This method is an implementation from package C<'HH::Unispool::Config::Entry::Re
 
 =item diff(TO [, DIFF_NUMBER])
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::RemoteSystem'>. Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown. Paremeter C<DIFF_NUMBER> if specified, overrules the value of C<get_diff_number>.
+This method is an implementation from package C<HH::Unispool::Config::Entry::RemoteSystem>. Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown. Paremeter C<DIFF_NUMBER> if specified, overrules the value of C<get_diff_number>.
 
-=item write(FILE_HANDLE)
+=item get_block_delay()
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::RemoteSystem'>. Writes the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
+Returns the time in seconds UNISPOOL should pause between sending two blocks.
+
+=item get_description()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::RemoteSystem>. Returns the description for the remote system.
+
+=item get_execution_priority()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::RemoteSystem>. Returns the execution priority of the driver process on MPE hosts.
+
+=item get_name()
+
+This method is inherited from package C<HH::Unispool::Config::Entry>. Returns the entry name.
+
+=item get_number()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Returns the entry number.
+
+=item get_os()
+
+Returns the operating system running on the remote node.
+
+=item get_remote_node_name()
+
+Returns the name of the system as it can be resolved by the network software.
+
+=item get_transfer_size()
+
+Returns the size of the data blocks to be transfered.
+
+=item get_transfer_time_out()
+
+Returns the time in which a transfer must be completed to be considered successful.
+
+=item is_diff_number()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Returns whether L<diff()> should consider the C<number> attribtutes or not.
+
+=item is_initially_open()
+
+Returns whether the communication link should be opened at the moment UNISPOOL is started or not.
 
 =item set_block_delay(VALUE)
 
@@ -206,17 +246,77 @@ Set the time in seconds UNISPOOL should pause between sending two blocks. C<VALU
 
 =back
 
-=item get_block_delay()
+=item set_description(VALUE)
 
-Returns the time in seconds UNISPOOL should pause between sending two blocks.
+This method is inherited from package C<HH::Unispool::Config::Entry::RemoteSystem>. Set the description for the remote system. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.*$
+
+=back
+
+=back
+
+=item set_diff_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. State that L<diff()> should consider the C<number> attribtutes. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
+
+=item set_execution_priority(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::Entry::RemoteSystem>. Set the execution priority of the driver process on MPE hosts. C<VALUE> is the value. Default value at initialization is C<HH::Unispool::Config::ExecPri->new( { execution_priority => '' } )>. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must be a (sub)class of:
+
+=over
+
+=item HH::Unispool::Config::ExecPri
+
+=back
+
+=back
 
 =item set_initially_open(VALUE)
 
 State that the communication link should be opened at the moment UNISPOOL is started. C<VALUE> is the value. Default value at initialization is C<1>. On error an exception C<Error::Simple> is thrown.
 
-=item is_initially_open()
+=item set_name(VALUE)
 
-Returns whether the communication link should be opened at the moment UNISPOOL is started or not.
+This method is inherited from package C<HH::Unispool::Config::Entry>. Set the entry name. C<VALUE> is the value. C<VALUE> may not be C<undef>. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.+$
+
+=back
+
+=back
+
+=item set_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Set the entry number. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
 
 =item set_os(VALUE)
 
@@ -234,10 +334,6 @@ Set the operating system running on the remote node. C<VALUE> is the value. On e
 
 =back
 
-=item get_os()
-
-Returns the operating system running on the remote node.
-
 =item set_remote_node_name(VALUE)
 
 Set the name of the system as it can be resolved by the network software. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -253,10 +349,6 @@ Set the name of the system as it can be resolved by the network software. C<VALU
 =back
 
 =back
-
-=item get_remote_node_name()
-
-Returns the name of the system as it can be resolved by the network software.
 
 =item set_transfer_size(VALUE)
 
@@ -274,10 +366,6 @@ Set the size of the data blocks to be transfered. C<VALUE> is the value. Default
 
 =back
 
-=item get_transfer_size()
-
-Returns the size of the data blocks to be transfered.
-
 =item set_transfer_time_out(VALUE)
 
 Set the time in which a transfer must be completed to be considered successful. C<VALUE> is the value. Default value at initialization is C<180>. On error an exception C<Error::Simple> is thrown.
@@ -294,47 +382,9 @@ Set the time in which a transfer must be completed to be considered successful. 
 
 =back
 
-=item get_transfer_time_out()
+=item write(FILE_HANDLE)
 
-Returns the time in which a transfer must be completed to be considered successful.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry
-
-=over
-
-=item To access attribute named B<C<name>>:
-
-set_name(), get_name()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry::Numbered
-
-=over
-
-=item To access attribute named B<C<diff_number>>:
-
-set_diff_number(), is_diff_number()
-
-=item To access attribute named B<C<number>>:
-
-set_number(), get_number()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry::RemoteSystem
-
-=over
-
-=item To access attribute named B<C<description>>:
-
-set_description(), get_description()
-
-=item To access attribute named B<C<execution_priority>>:
-
-set_execution_priority(), get_execution_priority()
+This method is an implementation from package C<HH::Unispool::Config::Entry::RemoteSystem>. Writes the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -415,6 +465,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -445,6 +496,75 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA 02111-1307 USA
 
 =cut
+
+sub new_from_tokenizer {
+    my $class = shift;
+    my $tokenizer = shift;
+
+    # First token must be a HH::Unispool::Config::File::Token::Numbered::System::8
+    my $s = $tokenizer->get();
+    my $line = $tokenizer->input_line_number();
+    &UNIVERSAL::isa($s, 'HH::Unispool::Config::File::Token::Numbered::System::8') ||
+        throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::new_from_tokenizer, expected a first token from 'TOKENIZER' of class 'HH::Unispool::Config::File::Token::Numbered::System::8' on or directly after line '$line.");
+
+    # Fill the initialization option hash
+    my %opt = ();
+    $opt{number} = $s->get_number() if ( $s->get_number() );
+    $opt{name} = $s->get_remote_system_name() if ( $s->get_remote_system_name() );
+    $opt{block_delay} = $s->get_block_delay() if ( $s->get_block_delay() );
+    $opt{initially_open} = $s->is_initially_open() if ( $s->is_initially_open() );
+    $opt{execution_priority} = $s->get_execution_priority() if ( $s->get_execution_priority() );
+
+    # Allow an I and N token
+    my $i = undef;
+    my $n = undef;
+    while ( my $tok = $tokenizer->get() ) {
+        # Get the last read line number
+        $line = $tokenizer->input_line_number();
+
+        # Only allow HH::Unispool::Config::File::Token::Numbered tokens
+        # with the same number as the 'S' line
+        if ( ! $tok->isa( 'HH::Unispool::Config::File::Token::Numbered' ) ||
+                    $tok->get_number() != $s->get_number() ) {
+            $tokenizer->unget();
+            last;
+        }
+
+        # Handle HH::Unispool::Config::File::Token::Numbered::System::Info
+        elsif ( $tok->isa(
+                'HH::Unispool::Config::File::Token::Numbered::System::Info') ) {
+
+            # Do not allow double tokens
+            defined ($i) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::System::Info' on or directly after line '$line.");
+            $i = $tok;
+
+            # Fill out %opt
+            $opt{description} = $i->get_description() if ( $i->get_description() );
+        }
+
+        # Handle HH::Unispool::Config::File::Token::Numbered::Network
+        elsif ( $tok->isa(
+                'HH::Unispool::Config::File::Token::Numbered::Network') ) {
+
+            # Do not allow double tokens
+            defined ($n) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::Network' on or directly after line '$line.");
+            $n = $tok;
+
+            # Fill out %opt
+            $opt{remote_node_name} = $n->get_remote_node_name();
+            $opt{os} = $n->get_os();
+            $opt{transfer_size} = $n->get_transfer_size();
+            $opt{transfer_time_out} = $n->get_transfer_time_out();
+        }
+        else {
+            $tokenizer->unget();
+            last;
+        }
+    }
+
+    # Construct a new object and return it
+    return( HH::Unispool::Config::Entry::RemoteSystem::8->new(\%opt) );
+}
 
 sub _initialize {
     my $self = shift;
@@ -478,6 +598,49 @@ sub _initialize {
 
     # Return $self
     return($self);
+}
+
+sub _value_is_allowed {
+    my $name = shift;
+
+    # Value is allowed if no ALLOW clauses exist for the named attribute
+    if ( ! exists( $ALLOW_ISA{$name} ) && ! exists( $ALLOW_REF{$name} ) && ! exists( $ALLOW_RX{$name} ) && ! exists( $ALLOW_VALUE{$name} ) ) {
+        return(1);
+    }
+
+    # At this point, all values in @_ must to be allowed
+    CHECK_VALUES:
+    foreach my $val (@_) {
+        # Check ALLOW_ISA
+        if ( ref($val) && exists( $ALLOW_ISA{$name} ) ) {
+            foreach my $class ( @{ $ALLOW_ISA{$name} } ) {
+                &UNIVERSAL::isa( $val, $class ) && next CHECK_VALUES;
+            }
+        }
+
+        # Check ALLOW_REF
+        if ( ref($val) && exists( $ALLOW_REF{$name} ) ) {
+            exists( $ALLOW_REF{$name}{ ref($val) } ) && next CHECK_VALUES;
+        }
+
+        # Check ALLOW_RX
+        if ( defined($val) && ! ref($val) && exists( $ALLOW_RX{$name} ) ) {
+            foreach my $rx ( @{ $ALLOW_RX{$name} } ) {
+                $val =~ /$rx/ && next CHECK_VALUES;
+            }
+        }
+
+        # Check ALLOW_VALUE
+        if ( ! ref($val) && exists( $ALLOW_VALUE{$name} ) ) {
+            exists( $ALLOW_VALUE{$name}{$val} ) && next CHECK_VALUES;
+        }
+
+        # We caught a not allowed value
+        return(0);
+    }
+
+    # OK, all values are allowed
+    return(1);
 }
 
 sub diff {
@@ -554,73 +717,111 @@ sub diff {
     return($diff);
 }
 
-sub new_from_tokenizer {
-    my $class = shift;
-    my $tokenizer = shift;
+sub get_block_delay {
+    my $self = shift;
 
-    # First token must be a HH::Unispool::Config::File::Token::Numbered::System::8
-    my $s = $tokenizer->get();
-    my $line = $tokenizer->input_line_number();
-    &UNIVERSAL::isa($s, 'HH::Unispool::Config::File::Token::Numbered::System::8') ||
-        throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::new_from_tokenizer, expected a first token from 'TOKENIZER' of class 'HH::Unispool::Config::File::Token::Numbered::System::8' on or directly after line '$line.");
+    return( $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{block_delay} );
+}
 
-    # Fill the initialization option hash
-    my %opt = ();
-    $opt{number} = $s->get_number() if ( $s->get_number() );
-    $opt{name} = $s->get_remote_system_name() if ( $s->get_remote_system_name() );
-    $opt{block_delay} = $s->get_block_delay() if ( $s->get_block_delay() );
-    $opt{initially_open} = $s->is_initially_open() if ( $s->is_initially_open() );
-    $opt{execution_priority} = $s->get_execution_priority() if ( $s->get_execution_priority() );
+sub get_os {
+    my $self = shift;
 
-    # Allow an I and N token
-    my $i = undef;
-    my $n = undef;
-    while ( my $tok = $tokenizer->get() ) {
-        # Get the last read line number
-        $line = $tokenizer->input_line_number();
+    return( $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{os} );
+}
 
-        # Only allow HH::Unispool::Config::File::Token::Numbered tokens
-        # with the same number as the 'S' line
-        if ( ! $tok->isa( 'HH::Unispool::Config::File::Token::Numbered' ) ||
-                    $tok->get_number() != $s->get_number() ) {
-            $tokenizer->unget();
-            last;
-        }
+sub get_remote_node_name {
+    my $self = shift;
 
-        # Handle HH::Unispool::Config::File::Token::Numbered::System::Info
-        elsif ( $tok->isa(
-                'HH::Unispool::Config::File::Token::Numbered::System::Info') ) {
+    return( $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{remote_node_name} );
+}
 
-            # Do not allow double tokens
-            defined ($i) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::System::Info' on or directly after line '$line.");
-            $i = $tok;
+sub get_transfer_size {
+    my $self = shift;
 
-            # Fill out %opt
-            $opt{description} = $i->get_description() if ( $i->get_description() );
-        }
+    return( $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{transfer_size} );
+}
 
-        # Handle HH::Unispool::Config::File::Token::Numbered::Network
-        elsif ( $tok->isa(
-                'HH::Unispool::Config::File::Token::Numbered::Network') ) {
+sub get_transfer_time_out {
+    my $self = shift;
 
-            # Do not allow double tokens
-            defined ($n) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::Network' on or directly after line '$line.");
-            $n = $tok;
+    return( $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{transfer_time_out} );
+}
 
-            # Fill out %opt
-            $opt{remote_node_name} = $n->get_remote_node_name();
-            $opt{os} = $n->get_os();
-            $opt{transfer_size} = $n->get_transfer_size();
-            $opt{transfer_time_out} = $n->get_transfer_time_out();
-        }
-        else {
-            $tokenizer->unget();
-            last;
-        }
+sub is_initially_open {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{initially_open} ) {
+        return(1);
     }
+    else {
+        return(0);
+    }
+}
 
-    # Construct a new object and return it
-    return( HH::Unispool::Config::Entry::RemoteSystem::8->new(\%opt) );
+sub set_block_delay {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'block_delay', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::set_block_delay, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{block_delay} = $val;
+}
+
+sub set_initially_open {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{initially_open} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{initially_open} = 0;
+    }
+}
+
+sub set_os {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'os', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::set_os, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{os} = $val;
+}
+
+sub set_remote_node_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'remote_node_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::set_remote_node_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{remote_node_name} = $val;
+}
+
+sub set_transfer_size {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'transfer_size', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::set_transfer_size, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{transfer_size} = $val;
+}
+
+sub set_transfer_time_out {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'transfer_time_out', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::set_transfer_time_out, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{transfer_time_out} = $val;
 }
 
 sub write {
@@ -657,155 +858,5 @@ sub write {
     $fh->print( $s->write_string() );
     $fh->print( $i->write_string() );
     $fh->print( $n->write_string() );
-}
-
-sub set_block_delay {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'block_delay', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::set_block_delay, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{block_delay} = $val;
-}
-
-sub get_block_delay {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{block_delay} );
-}
-
-sub set_initially_open {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{initially_open} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{initially_open} = 0;
-    }
-}
-
-sub is_initially_open {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{initially_open} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_os {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'os', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::set_os, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{os} = $val;
-}
-
-sub get_os {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{os} );
-}
-
-sub set_remote_node_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'remote_node_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::set_remote_node_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{remote_node_name} = $val;
-}
-
-sub get_remote_node_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{remote_node_name} );
-}
-
-sub set_transfer_size {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'transfer_size', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::set_transfer_size, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{transfer_size} = $val;
-}
-
-sub get_transfer_size {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{transfer_size} );
-}
-
-sub set_transfer_time_out {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'transfer_time_out', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::8::set_transfer_time_out, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{transfer_time_out} = $val;
-}
-
-sub get_transfer_time_out {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_RemoteSystem_8}{transfer_time_out} );
-}
-
-sub _value_is_allowed {
-    my $name = shift;
-
-    # Value is allowed if no ALLOW clauses exist for the named attribute
-    if ( ! exists( $ALLOW_ISA{$name} ) && ! exists( $ALLOW_REF{$name} ) && ! exists( $ALLOW_RX{$name} ) && ! exists( $ALLOW_VALUE{$name} ) ) {
-        return(1);
-    }
-
-    # At this point, all values in @_ must to be allowed
-    CHECK_VALUES:
-    foreach my $val (@_) {
-        # Check ALLOW_ISA
-        if ( ref($val) && exists( $ALLOW_ISA{$name} ) ) {
-            foreach my $class ( @{ $ALLOW_ISA{$name} } ) {
-                &UNIVERSAL::isa( $val, $class ) && next CHECK_VALUES;
-            }
-        }
-
-        # Check ALLOW_REF
-        if ( ref($val) && exists( $ALLOW_REF{$name} ) ) {
-            exists( $ALLOW_REF{$name}{ ref($val) } ) && next CHECK_VALUES;
-        }
-
-        # Check ALLOW_RX
-        if ( defined($val) && ! ref($val) && exists( $ALLOW_RX{$name} ) ) {
-            foreach my $rx ( @{ $ALLOW_RX{$name} } ) {
-                $val =~ /$rx/ && next CHECK_VALUES;
-            }
-        }
-
-        # Check ALLOW_VALUE
-        if ( ! ref($val) && exists( $ALLOW_VALUE{$name} ) ) {
-            exists( $ALLOW_VALUE{$name}{$val} ) && next CHECK_VALUES;
-        }
-
-        # We caught a not allowed value
-        return(0);
-    }
-
-    # OK, all values are allowed
-    return(1);
 }
 

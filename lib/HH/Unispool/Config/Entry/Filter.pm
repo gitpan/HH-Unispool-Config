@@ -26,13 +26,13 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
+# Used by _initialize
 our %DEFAULT_VALUE = (
     'type' => HH::Unispool::Config::FilterType->new( { type => 'default'} ),
 );
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -142,7 +142,7 @@ Passed to L<set_name()>. Mandatory option.
 
 =item new_from_tokenizer(TOKENIZER)
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry'>. Constructs a new C<HH::Unispool::Config::Entry> object using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
+This method is an implementation from package C<HH::Unispool::Config::Entry>. Constructs a new C<HH::Unispool::Config::Entry> object using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -152,11 +152,19 @@ This method is an implementation from package C<'HH::Unispool::Config::Entry'>. 
 
 =item diff(TO)
 
-This method is overloaded from package C<'HH::Unispool::Config::Entry'>. Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown.
+This method is overloaded from package C<HH::Unispool::Config::Entry>. Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown.
 
-=item write(FILE_HANDLE)
+=item get_file()
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry'>. Writes the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
+Returns the file name for the filter.
+
+=item get_name()
+
+This method is inherited from package C<HH::Unispool::Config::Entry>. Returns the entry name.
+
+=item get_type()
+
+Returns the type of the filter.
 
 =item set_file(VALUE)
 
@@ -174,9 +182,21 @@ Set the file name for the filter. C<VALUE> is the value. C<VALUE> may not be C<u
 
 =back
 
-=item get_file()
+=item set_name(VALUE)
 
-Returns the file name for the filter.
+This method is inherited from package C<HH::Unispool::Config::Entry>. Set the entry name. C<VALUE> is the value. C<VALUE> may not be C<undef>. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.+$
+
+=back
+
+=back
 
 =item set_type(VALUE)
 
@@ -194,19 +214,9 @@ Set the type of the filter. C<VALUE> is the value. Default value at initializati
 
 =back
 
-=item get_type()
+=item write(FILE_HANDLE)
 
-Returns the type of the filter.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry
-
-=over
-
-=item To access attribute named B<C<name>>:
-
-set_name(), get_name()
+This method is an implementation from package C<HH::Unispool::Config::Entry>. Writes the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -287,6 +297,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -318,58 +329,6 @@ Boston, MA 02111-1307 USA
 
 =cut
 
-sub _initialize {
-    my $self = shift;
-    my $opt = defined($_[0]) ? shift : {};
-
-    # Check $opt
-    ref($opt) eq 'HASH' || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Filter::_initialize, first argument must be 'HASH' reference.");
-
-    # file, SINGLE, mandatory
-    exists( $opt->{file} ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Filter::_initialize, option 'file' is mandatory.");
-    $self->set_file( $opt->{file} );
-
-    # type, SINGLE, with default value
-    $self->set_type( exists( $opt->{type} ) ? $opt->{type} : $DEFAULT_VALUE{type} );
-
-    # Call the superclass' _initialize
-    $self->SUPER::_initialize($opt);
-
-    # Return $self
-    return($self);
-}
-
-sub diff {
-    my $from = shift;
-    my $to = shift;
-
-    # Reference types must be identical
-    if ( ref($from) ne ref($to) ) {
-        my $rf = ref($from);
-        my $rt = ref($to);
-
-        throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Filter::diff, FROM ($rf) and TO ($rt) reference types differ.");
-    }
-
-    # Diff message
-    my $diff = $from->SUPER::diff($to);
-
-    # Diff the file
-    if ( $from->get_file() ne $to->get_file() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_file();
-        my $vt = $to->get_file();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: file difference: $vf <-> $vt\n";
-    }
-
-    # Diff the type
-    $diff .= $from->get_type()->diff( $to->get_type() );
-
-    # Return diff
-    return($diff);
-}
-
 sub new_from_tokenizer {
     my $class = shift;
     my $tokenizer = shift;
@@ -391,60 +350,25 @@ sub new_from_tokenizer {
     return( HH::Unispool::Config::Entry::Filter->new(\%opt) );
 }
 
-sub write {
+sub _initialize {
     my $self = shift;
-    my $fh = shift;
+    my $opt = defined($_[0]) ? shift : {};
 
-    # Make the four token
-    require HH::Unispool::Config::File::Token::Unnumbered::Filter;
-    my $f = HH::Unispool::Config::File::Token::Unnumbered::Filter->new( {
-        file => $self->get_file(),
-        name => $self->get_name(),
-        type => $self->get_type(),
-    } );
+    # Check $opt
+    ref($opt) eq 'HASH' || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Filter::_initialize, first argument must be 'HASH' reference.");
 
-    # Print the tokens
-    $fh->print( $f->write_string() );
-}
+    # file, SINGLE, mandatory
+    exists( $opt->{file} ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Filter::_initialize, option 'file' is mandatory.");
+    $self->set_file( $opt->{file} );
 
-sub set_file {
-    my $self = shift;
-    my $val = shift;
+    # type, SINGLE, with default value
+    $self->set_type( exists( $opt->{type} ) ? $opt->{type} : $DEFAULT_VALUE{type} );
 
-    # Value for 'file' is not allowed to be empty
-    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Filter::set_file, value may not be empty.");
+    # Call the superclass' _initialize
+    $self->SUPER::_initialize($opt);
 
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'file', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Filter::set_file, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Filter}{file} = $val;
-}
-
-sub get_file {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Filter}{file} );
-}
-
-sub set_type {
-    my $self = shift;
-    my $val = shift;
-
-    # Value for 'type' is not allowed to be empty
-    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Filter::set_type, value may not be empty.");
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'type', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Filter::set_type, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Filter}{type} = $val;
-}
-
-sub get_type {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Filter}{type} );
+    # Return $self
+    return($self);
 }
 
 sub _value_is_allowed {
@@ -488,5 +412,92 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub diff {
+    my $from = shift;
+    my $to = shift;
+
+    # Reference types must be identical
+    if ( ref($from) ne ref($to) ) {
+        my $rf = ref($from);
+        my $rt = ref($to);
+
+        throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Filter::diff, FROM ($rf) and TO ($rt) reference types differ.");
+    }
+
+    # Diff message
+    my $diff = $from->SUPER::diff($to);
+
+    # Diff the file
+    if ( $from->get_file() ne $to->get_file() ) {
+        my $ref = ref($from);
+        my $vf = $from->get_file();
+        my $vt = $to->get_file();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: file difference: $vf <-> $vt\n";
+    }
+
+    # Diff the type
+    $diff .= $from->get_type()->diff( $to->get_type() );
+
+    # Return diff
+    return($diff);
+}
+
+sub get_file {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_Filter}{file} );
+}
+
+sub get_type {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_Filter}{type} );
+}
+
+sub set_file {
+    my $self = shift;
+    my $val = shift;
+
+    # Value for 'file' is not allowed to be empty
+    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Filter::set_file, value may not be empty.");
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'file', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Filter::set_file, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Filter}{file} = $val;
+}
+
+sub set_type {
+    my $self = shift;
+    my $val = shift;
+
+    # Value for 'type' is not allowed to be empty
+    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Filter::set_type, value may not be empty.");
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'type', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Filter::set_type, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Filter}{type} = $val;
+}
+
+sub write {
+    my $self = shift;
+    my $fh = shift;
+
+    # Make the four token
+    require HH::Unispool::Config::File::Token::Unnumbered::Filter;
+    my $f = HH::Unispool::Config::File::Token::Unnumbered::Filter->new( {
+        file => $self->get_file(),
+        name => $self->get_name(),
+        type => $self->get_type(),
+    } );
+
+    # Print the tokens
+    $fh->print( $f->write_string() );
 }
 

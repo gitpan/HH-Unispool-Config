@@ -28,13 +28,13 @@ our %ALLOW_VALUE = (
     },
 );
 
-# Used by _value_is_allowed
+# Used by _initialize
 our %DEFAULT_VALUE = (
     'date_format' => 'DD/MM/YY',
 );
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -114,9 +114,13 @@ Passed to L<set_date_format()>. Mandatory option. Defaults to B<'DD/MM/YY'>.
 
 Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown.
 
+=item get_date_format()
+
+Returns the format in which UNISPOOL will show and accept date information.
+
 =item set_date_format(VALUE)
 
-Set the format in which UNISPOOL will show and accept date information. C<VALUE> is the value. Default value at initialization is C<'DD/MM/YY'>. On error an exception C<Error::Simple> is thrown.
+Set the format in which UNISPOOL will show and accept date information. C<VALUE> is the value. Default value at initialization is C<DD/MM/YY>. On error an exception C<Error::Simple> is thrown.
 
 =over
 
@@ -135,10 +139,6 @@ Set the format in which UNISPOOL will show and accept date information. C<VALUE>
 =back
 
 =back
-
-=item get_date_format()
-
-Returns the format in which UNISPOOL will show and accept date information.
 
 =back
 
@@ -219,6 +219,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -273,49 +274,6 @@ sub _initialize {
     return($self);
 }
 
-sub diff {
-    my $from = shift;
-    my $to = shift;
-
-    # Reference types must be identical
-    if ( ref($from) ne ref($to) ) {
-        my $rf = ref($from);
-        my $rt = ref($to);
-
-        throw Error::Simple("ERROR: HH::Unispool::Config::DateFormat::diff, FROM ($rf) and TO ($rt) reference types differ.");
-    }
-
-    # Diff message
-    my $diff = '';
-
-    # Diff the date formats
-    if ( $from->get_date_format() ne $to->get_date_format() ) {
-        my $vf = $from->get_date_format();
-        my $vt = $to->get_date_format();
-        $diff .= "Date formats differ: $vf <-> $vt\n";
-    }
-
-    # Return diff
-    return($diff);
-}
-
-sub set_date_format {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'date_format', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::DateFormat::set_date_format, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_DateFormat}{date_format} = $val;
-}
-
-sub get_date_format {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_DateFormat}{date_format} );
-}
-
 sub _value_is_allowed {
     my $name = shift;
 
@@ -357,5 +315,48 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub diff {
+    my $from = shift;
+    my $to = shift;
+
+    # Reference types must be identical
+    if ( ref($from) ne ref($to) ) {
+        my $rf = ref($from);
+        my $rt = ref($to);
+
+        throw Error::Simple("ERROR: HH::Unispool::Config::DateFormat::diff, FROM ($rf) and TO ($rt) reference types differ.");
+    }
+
+    # Diff message
+    my $diff = '';
+
+    # Diff the date formats
+    if ( $from->get_date_format() ne $to->get_date_format() ) {
+        my $vf = $from->get_date_format();
+        my $vt = $to->get_date_format();
+        $diff .= "Date formats differ: $vf <-> $vt\n";
+    }
+
+    # Return diff
+    return($diff);
+}
+
+sub get_date_format {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_DateFormat}{date_format} );
+}
+
+sub set_date_format {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'date_format', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::DateFormat::set_date_format, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_DateFormat}{date_format} = $val;
 }
 

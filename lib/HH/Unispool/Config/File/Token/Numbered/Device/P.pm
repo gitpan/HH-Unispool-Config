@@ -25,12 +25,8 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
-our %DEFAULT_VALUE = (
-);
-
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -92,7 +88,7 @@ Passed to L<set_number()>.
 
 =item new_from_string(LINE)
 
-This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Creates a new object from the specified Unispool config file line string.
+Creates a new object from the specified Unispool config file line string.
 
 =back
 
@@ -100,13 +96,21 @@ This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Cr
 
 =over
 
+=item get_device_file()
+
+Returns the device file to which the device is connected.
+
+=item get_input_line_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Returns the line number from from which the token is read.
+
+=item get_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Returns the number of the entry.
+
 =item read_string(LINE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered'>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
-
-=item write_string()
-
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered'>. Returns a Unispool config file token line string.
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
 
 =item set_device_file(VALUE)
 
@@ -124,29 +128,41 @@ Set the device file to which the device is connected. C<VALUE> is the value. On 
 
 =back
 
-=item get_device_file()
+=item set_input_line_number(VALUE)
 
-Returns the device file to which the device is connected.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Set the line number from from which the token is read. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
 
 =over
 
-=item To access attribute named B<C<input_line_number>>:
-
-set_input_line_number(), get_input_line_number()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token::Numbered
+=item VALUE must match regular expression:
 
 =over
 
-=item To access attribute named B<C<number>>:
+=item ^\d*$
 
-set_number(), get_number()
+=back
+
+=back
+
+=item set_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Set the number of the entry. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item write_string()
+
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered>. Returns a Unispool config file token line string.
 
 =back
 
@@ -227,6 +243,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -275,51 +292,6 @@ sub _initialize {
     return($self);
 }
 
-sub read_string {
-    my $self = shift;
-    my $line = shift;
-
-    # Parse line for name
-    my ($number, $tail) = $line =~ /$USP_PD_RX/;
-    defined($number) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::P::read_string, parameter 'LINE' does not match the regular expression for this token's line string.");
-    my @tail = $self->_split_tail($tail);
-    my $device_file = $tail[0];
-
-    # Set attributes
-    $self->set_number($number);
-    defined($device_file) && $self->set_device_file($device_file);
-}
-
-sub write_string {
-    my $self = shift;
-
-    # Make string and return it
-    return(
-        sprintf(
-            $USP_PD_FRM,
-            $self->get_number() || 0,
-            $self->get_device_file() || '',
-        )
-    );
-}
-
-sub set_device_file {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'device_file', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::P::set_device_file, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Device_P}{device_file} = $val;
-}
-
-sub get_device_file {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device_P}{device_file} );
-}
-
 sub _value_is_allowed {
     my $name = shift;
 
@@ -361,5 +333,50 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub get_device_file {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device_P}{device_file} );
+}
+
+sub read_string {
+    my $self = shift;
+    my $line = shift;
+
+    # Parse line for name
+    my ($number, $tail) = $line =~ /$USP_PD_RX/;
+    defined($number) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::P::read_string, parameter 'LINE' does not match the regular expression for this token's line string.");
+    my @tail = $self->_split_tail($tail);
+    my $device_file = $tail[0];
+
+    # Set attributes
+    $self->set_number($number);
+    defined($device_file) && $self->set_device_file($device_file);
+}
+
+sub set_device_file {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'device_file', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::P::set_device_file, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Device_P}{device_file} = $val;
+}
+
+sub write_string {
+    my $self = shift;
+
+    # Make string and return it
+    return(
+        sprintf(
+            $USP_PD_FRM,
+            $self->get_number() || 0,
+            $self->get_device_file() || '',
+        )
+    );
 }
 

@@ -14,7 +14,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'date_format',
+             method_factory_name => 'date_format',
              mandatory => 1,
              allow_value => [ qw( DD/MM/YY MM/DD/YY YY/MM/DD DD/MMM/YY ) ],
              default_value => 'DD/MM/YY',

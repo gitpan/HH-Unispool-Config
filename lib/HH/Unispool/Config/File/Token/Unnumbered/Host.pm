@@ -26,12 +26,8 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
-our %DEFAULT_VALUE = (
-);
-
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -87,7 +83,7 @@ Passed to L<set_input_line_number()>.
 
 =item new_from_string(LINE)
 
-This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Creates a new object from the specified Unispool config file line string.
+Creates a new object from the specified Unispool config file line string.
 
 =back
 
@@ -95,13 +91,37 @@ This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Cr
 
 =over
 
+=item get_input_line_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Returns the line number from from which the token is read.
+
+=item get_name()
+
+Returns the network name of the system.
+
+=item get_os()
+
+Returns the operating system running on this system.
+
 =item read_string(LINE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Unnumbered'>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Unnumbered>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
 
-=item write_string()
+=item set_input_line_number(VALUE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Unnumbered'>. Returns a Unispool config file token line string.
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Set the line number from from which the token is read. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
 
 =item set_name(VALUE)
 
@@ -119,10 +139,6 @@ Set the network name of the system. C<VALUE> is the value. C<VALUE> may not be C
 
 =back
 
-=item get_name()
-
-Returns the network name of the system.
-
 =item set_os(VALUE)
 
 Set the operating system running on this system. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -139,19 +155,9 @@ Set the operating system running on this system. C<VALUE> is the value. On error
 
 =back
 
-=item get_os()
+=item write_string()
 
-Returns the operating system running on this system.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token
-
-=over
-
-=item To access attribute named B<C<input_line_number>>:
-
-set_input_line_number(), get_input_line_number()
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Unnumbered>. Returns a Unispool config file token line string.
 
 =back
 
@@ -232,6 +238,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -284,82 +291,6 @@ sub _initialize {
     return($self);
 }
 
-sub read_string {
-    my $self = shift;
-    my $line = shift;
-
-    # Parse line for name
-    my ($name, $tail) = $line =~ /$USP_H_RX/;
-    defined($name) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Host::read_string, parameter 'LINE' does not match the regular expression for this token's line string.");
-    my @tail = $self->_split_tail($tail);
-
-    # Parse line for optional os
-    my $os = $tail[0];
-
-    # Set attributes
-    $self->set_name($name);
-    if ( defined($os) ) {
-        require HH::Unispool::Config::OS;
-        $self->set_os( HH::Unispool::Config::OS->new( { os => $os } ) );
-    }
-}
-
-sub write_string {
-    my $self = shift;
-
-    # Make string and return it
-    $self->get_os() || return(
-        sprintf(
-            $USP_H1_FRM,
-            $self->get_name() || '',
-        )
-    );
-    return(
-        sprintf(
-            $USP_H2_FRM,
-            $self->get_name() || '',
-            $self->get_os()->get_os() || '',
-        )
-    );
-}
-
-sub set_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Value for 'name' is not allowed to be empty
-    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Host::set_name, value may not be empty.");
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Host::set_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Unnumbered_Host}{name} = $val;
-}
-
-sub get_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Host}{name} );
-}
-
-sub set_os {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'os', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Host::set_os, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Unnumbered_Host}{os} = $val;
-}
-
-sub get_os {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Host}{os} );
-}
-
 sub _value_is_allowed {
     my $name = shift;
 
@@ -401,5 +332,81 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub get_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Host}{name} );
+}
+
+sub get_os {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Host}{os} );
+}
+
+sub read_string {
+    my $self = shift;
+    my $line = shift;
+
+    # Parse line for name
+    my ($name, $tail) = $line =~ /$USP_H_RX/;
+    defined($name) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Host::read_string, parameter 'LINE' does not match the regular expression for this token's line string.");
+    my @tail = $self->_split_tail($tail);
+
+    # Parse line for optional os
+    my $os = $tail[0];
+
+    # Set attributes
+    $self->set_name($name);
+    if ( defined($os) ) {
+        require HH::Unispool::Config::OS;
+        $self->set_os( HH::Unispool::Config::OS->new( { os => $os } ) );
+    }
+}
+
+sub set_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Value for 'name' is not allowed to be empty
+    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Host::set_name, value may not be empty.");
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Host::set_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Unnumbered_Host}{name} = $val;
+}
+
+sub set_os {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'os', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Host::set_os, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Unnumbered_Host}{os} = $val;
+}
+
+sub write_string {
+    my $self = shift;
+
+    # Make string and return it
+    $self->get_os() || return(
+        sprintf(
+            $USP_H1_FRM,
+            $self->get_name() || '',
+        )
+    );
+    return(
+        sprintf(
+            $USP_H2_FRM,
+            $self->get_name() || '',
+            $self->get_os()->get_os() || '',
+        )
+    );
 }
 

@@ -17,12 +17,12 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'number',
+             method_factory_name => 'number',
              allow_rx => [ qw(^\d*$) ],
              short_description => 'the entry number',
         },
         {
-             attribute_name => 'diff_number',
+             method_factory_name => 'diff_number',
              type => 'BOOLEAN',
              default_value => 0,
              short_description => 'L<diff()> should consider the C<number> attribtutes',

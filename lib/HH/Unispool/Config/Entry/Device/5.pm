@@ -27,12 +27,8 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
-our %DEFAULT_VALUE = (
-);
-
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -206,7 +202,7 @@ Passed to L<set_number()>.
 
 =item new_from_tokenizer(TOKENIZER)
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::Device'>. Constructs a new C<HH::Unispool::Config::Entry> object using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
+This method is an implementation from package C<HH::Unispool::Config::Entry::Device>. Constructs a new C<HH::Unispool::Config::Entry> object using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -216,11 +212,79 @@ This method is an implementation from package C<'HH::Unispool::Config::Entry::De
 
 =item diff(TO [, DIFF_NUMBER])
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::Device'>. Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown. Paremeter C<DIFF_NUMBER> if specified, overrules the value of C<get_diff_number>.
+This method is an implementation from package C<HH::Unispool::Config::Entry::Device>. Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown. Paremeter C<DIFF_NUMBER> if specified, overrules the value of C<get_diff_number>.
 
-=item write(FILE_HANDLE)
+=item get_description()
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::Device'>. Writes the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
+This method is inherited from package C<HH::Unispool::Config::Entry::Device>. Returns the description for the device.
+
+=item get_filter_name()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Device>. Returns the name of the filter file to be used when printfiles for this device are generated.
+
+=item get_header_name()
+
+Returns the control procedure to be executed before printing the printfile.
+
+=item get_name()
+
+This method is inherited from package C<HH::Unispool::Config::Entry>. Returns the entry name.
+
+=item get_number()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Returns the entry number.
+
+=item get_remote_device_name()
+
+Returns the device on the remote system that will receive the output.
+
+=item get_remote_system_name()
+
+Returns the name of the system to which the output for this device must be routed.
+
+=item get_trailer_name()
+
+Returns the control procedure to be executed after printing the printfile.
+
+=item is_diff_number()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Returns whether L<diff()> should consider the C<number> attribtutes or not.
+
+=item set_description(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Device>. Set the description for the device. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.*$
+
+=back
+
+=back
+
+=item set_diff_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. State that L<diff()> should consider the C<number> attribtutes. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
+
+=item set_filter_name(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Device>. Set the name of the filter file to be used when printfiles for this device are generated. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.*$
+
+=back
+
+=back
 
 =item set_header_name(VALUE)
 
@@ -238,9 +302,37 @@ Set the control procedure to be executed before printing the printfile. C<VALUE>
 
 =back
 
-=item get_header_name()
+=item set_name(VALUE)
 
-Returns the control procedure to be executed before printing the printfile.
+This method is inherited from package C<HH::Unispool::Config::Entry>. Set the entry name. C<VALUE> is the value. C<VALUE> may not be C<undef>. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.+$
+
+=back
+
+=back
+
+=item set_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Set the entry number. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
 
 =item set_remote_device_name(VALUE)
 
@@ -258,10 +350,6 @@ Set the device on the remote system that will receive the output. C<VALUE> is th
 
 =back
 
-=item get_remote_device_name()
-
-Returns the device on the remote system that will receive the output.
-
 =item set_remote_system_name(VALUE)
 
 Set the name of the system to which the output for this device must be routed. C<VALUE> is the value. C<VALUE> may not be C<undef>. On error an exception C<Error::Simple> is thrown.
@@ -277,10 +365,6 @@ Set the name of the system to which the output for this device must be routed. C
 =back
 
 =back
-
-=item get_remote_system_name()
-
-Returns the name of the system to which the output for this device must be routed.
 
 =item set_trailer_name(VALUE)
 
@@ -298,47 +382,9 @@ Set the control procedure to be executed after printing the printfile. C<VALUE> 
 
 =back
 
-=item get_trailer_name()
+=item write(FILE_HANDLE)
 
-Returns the control procedure to be executed after printing the printfile.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry
-
-=over
-
-=item To access attribute named B<C<name>>:
-
-set_name(), get_name()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry::Device
-
-=over
-
-=item To access attribute named B<C<description>>:
-
-set_description(), get_description()
-
-=item To access attribute named B<C<filter_name>>:
-
-set_filter_name(), get_filter_name()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry::Numbered
-
-=over
-
-=item To access attribute named B<C<diff_number>>:
-
-set_diff_number(), is_diff_number()
-
-=item To access attribute named B<C<number>>:
-
-set_number(), get_number()
+This method is an implementation from package C<HH::Unispool::Config::Entry::Device>. Writes the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -419,6 +465,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -450,6 +497,50 @@ Boston, MA 02111-1307 USA
 
 =cut
 
+sub new_from_tokenizer {
+    my $class = shift;
+    my $tokenizer = shift;
+
+    # First token must be a HH::Unispool::Config::File::Token::Numbered::Device::5
+    my $s = $tokenizer->get();
+    $s->isa('HH::Unispool::Config::File::Token::Numbered::Device::5') || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::new_from_tokenizer, expected a first token from 'TOKENIZER' of class 'HH::Unispool::Config::File::Token::Numbered::Device::5'.");
+
+    # Fill the initialization option hash
+    my %opt = ();
+    $opt{number} = $s->get_number();
+    $opt{name} = $s->get_device_name();
+    $opt{remote_device_name} = $s->get_remote_device_name();
+    $opt{remote_system_name} = $s->get_remote_system_name();
+
+    # Allow X and I tokens
+    my $x = undef;
+    my $i = undef;
+    while ( my $tok = $tokenizer->get() ) {
+        if ( ! $tok->isa('HH::Unispool::Config::File::Token::Numbered') || $tok->get_number() != $s->get_number() ) {
+            $tokenizer->unget();
+            last;
+        }
+        elsif ( $tok->isa('HH::Unispool::Config::File::Token::Numbered::X') ) {
+            defined ($x) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::X'.");
+            $x = $tok;
+            $opt{header_name} = $x->get_header_name();
+            $opt{trailer_name} = $x->get_trailer_name();
+            $opt{filter_name} = $x->get_filter_name();
+        }
+        elsif ( $tok->isa('HH::Unispool::Config::File::Token::Numbered::Device::Info') ) {
+            defined ($i) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::Device::Info'.");
+            $i = $tok;
+            $opt{description} = $i->get_description();
+        }
+        else {
+            throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::new_from_tokenizer, expected tokens from 'TOKENIZER' for entry $opt{name}/$opt{number} from either class 'HH::Unispool::Config::File::Token::Numbered::Device::Info' or 'HH::Unispool::Config::File::Token::Numbered::Network'.");
+        }
+    }
+
+    # Construct a new object and return it
+    return( HH::Unispool::Config::Entry::Device::5->new(\%opt) );
+}
+
 sub _initialize {
     my $self = shift;
     my $opt = defined($_[0]) ? shift : {};
@@ -476,6 +567,49 @@ sub _initialize {
 
     # Return $self
     return($self);
+}
+
+sub _value_is_allowed {
+    my $name = shift;
+
+    # Value is allowed if no ALLOW clauses exist for the named attribute
+    if ( ! exists( $ALLOW_ISA{$name} ) && ! exists( $ALLOW_REF{$name} ) && ! exists( $ALLOW_RX{$name} ) && ! exists( $ALLOW_VALUE{$name} ) ) {
+        return(1);
+    }
+
+    # At this point, all values in @_ must to be allowed
+    CHECK_VALUES:
+    foreach my $val (@_) {
+        # Check ALLOW_ISA
+        if ( ref($val) && exists( $ALLOW_ISA{$name} ) ) {
+            foreach my $class ( @{ $ALLOW_ISA{$name} } ) {
+                &UNIVERSAL::isa( $val, $class ) && next CHECK_VALUES;
+            }
+        }
+
+        # Check ALLOW_REF
+        if ( ref($val) && exists( $ALLOW_REF{$name} ) ) {
+            exists( $ALLOW_REF{$name}{ ref($val) } ) && next CHECK_VALUES;
+        }
+
+        # Check ALLOW_RX
+        if ( defined($val) && ! ref($val) && exists( $ALLOW_RX{$name} ) ) {
+            foreach my $rx ( @{ $ALLOW_RX{$name} } ) {
+                $val =~ /$rx/ && next CHECK_VALUES;
+            }
+        }
+
+        # Check ALLOW_VALUE
+        if ( ! ref($val) && exists( $ALLOW_VALUE{$name} ) ) {
+            exists( $ALLOW_VALUE{$name}{$val} ) && next CHECK_VALUES;
+        }
+
+        # We caught a not allowed value
+        return(0);
+    }
+
+    # OK, all values are allowed
+    return(1);
 }
 
 sub diff {
@@ -539,48 +673,78 @@ sub diff {
     return($diff);
 }
 
-sub new_from_tokenizer {
-    my $class = shift;
-    my $tokenizer = shift;
+sub get_header_name {
+    my $self = shift;
 
-    # First token must be a HH::Unispool::Config::File::Token::Numbered::Device::5
-    my $s = $tokenizer->get();
-    $s->isa('HH::Unispool::Config::File::Token::Numbered::Device::5') || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::new_from_tokenizer, expected a first token from 'TOKENIZER' of class 'HH::Unispool::Config::File::Token::Numbered::Device::5'.");
+    return( $self->{HH_Unispool_Config_Entry_Device_5}{header_name} );
+}
 
-    # Fill the initialization option hash
-    my %opt = ();
-    $opt{number} = $s->get_number();
-    $opt{name} = $s->get_device_name();
-    $opt{remote_device_name} = $s->get_remote_device_name();
-    $opt{remote_system_name} = $s->get_remote_system_name();
+sub get_remote_device_name {
+    my $self = shift;
 
-    # Allow X and I tokens
-    my $x = undef;
-    my $i = undef;
-    while ( my $tok = $tokenizer->get() ) {
-        if ( ! $tok->isa('HH::Unispool::Config::File::Token::Numbered') || $tok->get_number() != $s->get_number() ) {
-            $tokenizer->unget();
-            last;
-        }
-        elsif ( $tok->isa('HH::Unispool::Config::File::Token::Numbered::X') ) {
-            defined ($x) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::X'.");
-            $x = $tok;
-            $opt{header_name} = $x->get_header_name();
-            $opt{trailer_name} = $x->get_trailer_name();
-            $opt{filter_name} = $x->get_filter_name();
-        }
-        elsif ( $tok->isa('HH::Unispool::Config::File::Token::Numbered::Device::Info') ) {
-            defined ($i) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::Device::Info'.");
-            $i = $tok;
-            $opt{description} = $i->get_description();
-        }
-        else {
-            throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::new_from_tokenizer, expected tokens from 'TOKENIZER' for entry $opt{name}/$opt{number} from either class 'HH::Unispool::Config::File::Token::Numbered::Device::Info' or 'HH::Unispool::Config::File::Token::Numbered::Network'.");
-        }
-    }
+    return( $self->{HH_Unispool_Config_Entry_Device_5}{remote_device_name} );
+}
 
-    # Construct a new object and return it
-    return( HH::Unispool::Config::Entry::Device::5->new(\%opt) );
+sub get_remote_system_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_Device_5}{remote_system_name} );
+}
+
+sub get_trailer_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_Device_5}{trailer_name} );
+}
+
+sub set_header_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'header_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::set_header_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_5}{header_name} = $val;
+}
+
+sub set_remote_device_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Value for 'remote_device_name' is not allowed to be empty
+    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::set_remote_device_name, value may not be empty.");
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'remote_device_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::set_remote_device_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_5}{remote_device_name} = $val;
+}
+
+sub set_remote_system_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Value for 'remote_system_name' is not allowed to be empty
+    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::set_remote_system_name, value may not be empty.");
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'remote_system_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::set_remote_system_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_5}{remote_system_name} = $val;
+}
+
+sub set_trailer_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'trailer_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::set_trailer_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_5}{trailer_name} = $val;
 }
 
 sub write {
@@ -614,122 +778,5 @@ sub write {
     $fh->print( $d->write_string() );
     $fh->print( $i->write_string() );
     $fh->print( $x->write_string() );
-}
-
-sub set_header_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'header_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::set_header_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_5}{header_name} = $val;
-}
-
-sub get_header_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_5}{header_name} );
-}
-
-sub set_remote_device_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Value for 'remote_device_name' is not allowed to be empty
-    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::set_remote_device_name, value may not be empty.");
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'remote_device_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::set_remote_device_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_5}{remote_device_name} = $val;
-}
-
-sub get_remote_device_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_5}{remote_device_name} );
-}
-
-sub set_remote_system_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Value for 'remote_system_name' is not allowed to be empty
-    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::set_remote_system_name, value may not be empty.");
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'remote_system_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::set_remote_system_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_5}{remote_system_name} = $val;
-}
-
-sub get_remote_system_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_5}{remote_system_name} );
-}
-
-sub set_trailer_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'trailer_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::5::set_trailer_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_5}{trailer_name} = $val;
-}
-
-sub get_trailer_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_5}{trailer_name} );
-}
-
-sub _value_is_allowed {
-    my $name = shift;
-
-    # Value is allowed if no ALLOW clauses exist for the named attribute
-    if ( ! exists( $ALLOW_ISA{$name} ) && ! exists( $ALLOW_REF{$name} ) && ! exists( $ALLOW_RX{$name} ) && ! exists( $ALLOW_VALUE{$name} ) ) {
-        return(1);
-    }
-
-    # At this point, all values in @_ must to be allowed
-    CHECK_VALUES:
-    foreach my $val (@_) {
-        # Check ALLOW_ISA
-        if ( ref($val) && exists( $ALLOW_ISA{$name} ) ) {
-            foreach my $class ( @{ $ALLOW_ISA{$name} } ) {
-                &UNIVERSAL::isa( $val, $class ) && next CHECK_VALUES;
-            }
-        }
-
-        # Check ALLOW_REF
-        if ( ref($val) && exists( $ALLOW_REF{$name} ) ) {
-            exists( $ALLOW_REF{$name}{ ref($val) } ) && next CHECK_VALUES;
-        }
-
-        # Check ALLOW_RX
-        if ( defined($val) && ! ref($val) && exists( $ALLOW_RX{$name} ) ) {
-            foreach my $rx ( @{ $ALLOW_RX{$name} } ) {
-                $val =~ /$rx/ && next CHECK_VALUES;
-            }
-        }
-
-        # Check ALLOW_VALUE
-        if ( ! ref($val) && exists( $ALLOW_VALUE{$name} ) ) {
-            exists( $ALLOW_VALUE{$name}{$val} ) && next CHECK_VALUES;
-        }
-
-        # We caught a not allowed value
-        return(0);
-    }
-
-    # OK, all values are allowed
-    return(1);
 }
 

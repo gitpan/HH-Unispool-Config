@@ -33,12 +33,8 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
-our %DEFAULT_VALUE = (
-);
-
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -156,7 +152,7 @@ Passed to L<set_number()>.
 
 =item new_from_string(LINE)
 
-This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Creates a new object from the specified Unispool config file line string.
+Creates a new object from the specified Unispool config file line string.
 
 =back
 
@@ -164,13 +160,77 @@ This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Cr
 
 =over
 
+=item get_block_delay()
+
+Returns the time in seconds UNISPOOL should pause between sending two blocks.
+
+=item get_buffer_size()
+
+Returns the number of bytes sent to the printer in one write operation.
+
+=item get_connect_retry()
+
+Returns the number of seconds UNISPOOL should wait if the connection can not be established immediately.
+
+=item get_device_name()
+
+Returns the unique name for the device.
+
+=item get_device_password()
+
+Returns the password required to access the device.
+
+=item get_execution_priority()
+
+Returns the execution priority of the driver process on MPE hosts.
+
+=item get_input_line_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Returns the line number from from which the token is read.
+
+=item get_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Returns the number of the entry.
+
+=item get_page_length()
+
+Returns the page length (lines) for determining the size of UNISPOOL banners.
+
+=item get_page_width()
+
+Returns the page width (bytes) for determining the size of UNISPOOL banners.
+
+=item get_remote_device_name()
+
+Returns the device on the remote system that will receive the output.
+
+=item get_remote_system_name()
+
+Returns the name of the system to which the output for this device must be routed.
+
+=item is_initially_spooled()
+
+Returns whether an automatic STARTSPOOL must be performed when UNISPOOL is started or not.
+
+=item is_networkwide()
+
+Returns whether the device must be made available from each node in the configuration cluster or not.
+
+=item is_save_printfile()
+
+Returns whether printfiles printed on this device should be saved or not.
+
+=item is_unispool_control()
+
+Returns whether the UNISPOOL control is on (is not available on development system used) or not.
+
+=item is_unispool_header()
+
+Returns whether standard UNISPOOL banners pages are printed initially or not.
+
 =item read_string(LINE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered'>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
-
-=item write_string()
-
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered'>. Returns a Unispool config file token line string.
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
 
 =item set_block_delay(VALUE)
 
@@ -188,10 +248,6 @@ Set the time in seconds UNISPOOL should pause between sending two blocks. C<VALU
 
 =back
 
-=item get_block_delay()
-
-Returns the time in seconds UNISPOOL should pause between sending two blocks.
-
 =item set_buffer_size(VALUE)
 
 Set the number of bytes sent to the printer in one write operation. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -207,10 +263,6 @@ Set the number of bytes sent to the printer in one write operation. C<VALUE> is 
 =back
 
 =back
-
-=item get_buffer_size()
-
-Returns the number of bytes sent to the printer in one write operation.
 
 =item set_connect_retry(VALUE)
 
@@ -228,10 +280,6 @@ Set the number of seconds UNISPOOL should wait if the connection can not be esta
 
 =back
 
-=item get_connect_retry()
-
-Returns the number of seconds UNISPOOL should wait if the connection can not be established immediately.
-
 =item set_device_name(VALUE)
 
 Set the unique name for the device. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -247,10 +295,6 @@ Set the unique name for the device. C<VALUE> is the value. On error an exception
 =back
 
 =back
-
-=item get_device_name()
-
-Returns the unique name for the device.
 
 =item set_device_password(VALUE)
 
@@ -268,10 +312,6 @@ Set the password required to access the device. C<VALUE> is the value. On error 
 
 =back
 
-=item get_device_password()
-
-Returns the password required to access the device.
-
 =item set_execution_priority(VALUE)
 
 Set the execution priority of the driver process on MPE hosts. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -288,25 +328,45 @@ Set the execution priority of the driver process on MPE hosts. C<VALUE> is the v
 
 =back
 
-=item get_execution_priority()
-
-Returns the execution priority of the driver process on MPE hosts.
-
 =item set_initially_spooled(VALUE)
 
 State that an automatic STARTSPOOL must be performed when UNISPOOL is started. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
 
-=item is_initially_spooled()
+=item set_input_line_number(VALUE)
 
-Returns whether an automatic STARTSPOOL must be performed when UNISPOOL is started or not.
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Set the line number from from which the token is read. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
 
 =item set_networkwide(VALUE)
 
 State that the device must be made available from each node in the configuration cluster. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
 
-=item is_networkwide()
+=item set_number(VALUE)
 
-Returns whether the device must be made available from each node in the configuration cluster or not.
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Set the number of the entry. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
 
 =item set_page_length(VALUE)
 
@@ -324,10 +384,6 @@ Set the page length (lines) for determining the size of UNISPOOL banners. C<VALU
 
 =back
 
-=item get_page_length()
-
-Returns the page length (lines) for determining the size of UNISPOOL banners.
-
 =item set_page_width(VALUE)
 
 Set the page width (bytes) for determining the size of UNISPOOL banners. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -343,10 +399,6 @@ Set the page width (bytes) for determining the size of UNISPOOL banners. C<VALUE
 =back
 
 =back
-
-=item get_page_width()
-
-Returns the page width (bytes) for determining the size of UNISPOOL banners.
 
 =item set_remote_device_name(VALUE)
 
@@ -364,10 +416,6 @@ Set the device on the remote system that will receive the output. C<VALUE> is th
 
 =back
 
-=item get_remote_device_name()
-
-Returns the device on the remote system that will receive the output.
-
 =item set_remote_system_name(VALUE)
 
 Set the name of the system to which the output for this device must be routed. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -384,53 +432,21 @@ Set the name of the system to which the output for this device must be routed. C
 
 =back
 
-=item get_remote_system_name()
-
-Returns the name of the system to which the output for this device must be routed.
-
 =item set_save_printfile(VALUE)
 
 State that printfiles printed on this device should be saved. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
-
-=item is_save_printfile()
-
-Returns whether printfiles printed on this device should be saved or not.
 
 =item set_unispool_control(VALUE)
 
 State that the UNISPOOL control is on (is not available on development system used). C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
 
-=item is_unispool_control()
-
-Returns whether the UNISPOOL control is on (is not available on development system used) or not.
-
 =item set_unispool_header(VALUE)
 
 State that standard UNISPOOL banners pages are printed initially. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
 
-=item is_unispool_header()
+=item write_string()
 
-Returns whether standard UNISPOOL banners pages are printed initially or not.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token
-
-=over
-
-=item To access attribute named B<C<input_line_number>>:
-
-set_input_line_number(), get_input_line_number()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token::Numbered
-
-=over
-
-=item To access attribute named B<C<number>>:
-
-set_number(), get_number()
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered>. Returns a Unispool config file token line string.
 
 =back
 
@@ -511,6 +527,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -602,298 +619,6 @@ sub _initialize {
     return($self);
 }
 
-sub read_string {
-    my $self = shift;
-
-    $self->SUPER::read_string(@_);
-}
-
-sub write_string {
-    my $self = shift;
-
-    $self->SUPER::read_string(@_);
-}
-
-sub set_block_delay {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'block_delay', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_block_delay, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{block_delay} = $val;
-}
-
-sub get_block_delay {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{block_delay} );
-}
-
-sub set_buffer_size {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'buffer_size', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_buffer_size, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{buffer_size} = $val;
-}
-
-sub get_buffer_size {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{buffer_size} );
-}
-
-sub set_connect_retry {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'connect_retry', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_connect_retry, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{connect_retry} = $val;
-}
-
-sub get_connect_retry {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{connect_retry} );
-}
-
-sub set_device_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'device_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_device_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{device_name} = $val;
-}
-
-sub get_device_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{device_name} );
-}
-
-sub set_device_password {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'device_password', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_device_password, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{device_password} = $val;
-}
-
-sub get_device_password {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{device_password} );
-}
-
-sub set_execution_priority {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'execution_priority', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_execution_priority, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{execution_priority} = $val;
-}
-
-sub get_execution_priority {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{execution_priority} );
-}
-
-sub set_initially_spooled {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{initially_spooled} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{initially_spooled} = 0;
-    }
-}
-
-sub is_initially_spooled {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{initially_spooled} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_networkwide {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{networkwide} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{networkwide} = 0;
-    }
-}
-
-sub is_networkwide {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{networkwide} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_page_length {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'page_length', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_page_length, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{page_length} = $val;
-}
-
-sub get_page_length {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{page_length} );
-}
-
-sub set_page_width {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'page_width', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_page_width, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{page_width} = $val;
-}
-
-sub get_page_width {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{page_width} );
-}
-
-sub set_remote_device_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'remote_device_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_remote_device_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{remote_device_name} = $val;
-}
-
-sub get_remote_device_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{remote_device_name} );
-}
-
-sub set_remote_system_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'remote_system_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_remote_system_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{remote_system_name} = $val;
-}
-
-sub get_remote_system_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{remote_system_name} );
-}
-
-sub set_save_printfile {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{save_printfile} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{save_printfile} = 0;
-    }
-}
-
-sub is_save_printfile {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{save_printfile} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_unispool_control {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{unispool_control} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{unispool_control} = 0;
-    }
-}
-
-sub is_unispool_control {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{unispool_control} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_unispool_header {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{unispool_header} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{unispool_header} = 0;
-    }
-}
-
-sub is_unispool_header {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{unispool_header} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
 sub _value_is_allowed {
     my $name = shift;
 
@@ -935,5 +660,297 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub get_block_delay {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{block_delay} );
+}
+
+sub get_buffer_size {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{buffer_size} );
+}
+
+sub get_connect_retry {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{connect_retry} );
+}
+
+sub get_device_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{device_name} );
+}
+
+sub get_device_password {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{device_password} );
+}
+
+sub get_execution_priority {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{execution_priority} );
+}
+
+sub get_page_length {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{page_length} );
+}
+
+sub get_page_width {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{page_width} );
+}
+
+sub get_remote_device_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{remote_device_name} );
+}
+
+sub get_remote_system_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{remote_system_name} );
+}
+
+sub is_initially_spooled {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{initially_spooled} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub is_networkwide {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{networkwide} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub is_save_printfile {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{save_printfile} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub is_unispool_control {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{unispool_control} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub is_unispool_header {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_File_Token_Numbered_Device}{unispool_header} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub read_string {
+    my $self = shift;
+
+    $self->SUPER::read_string(@_);
+}
+
+sub set_block_delay {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'block_delay', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_block_delay, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{block_delay} = $val;
+}
+
+sub set_buffer_size {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'buffer_size', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_buffer_size, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{buffer_size} = $val;
+}
+
+sub set_connect_retry {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'connect_retry', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_connect_retry, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{connect_retry} = $val;
+}
+
+sub set_device_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'device_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_device_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{device_name} = $val;
+}
+
+sub set_device_password {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'device_password', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_device_password, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{device_password} = $val;
+}
+
+sub set_execution_priority {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'execution_priority', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_execution_priority, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{execution_priority} = $val;
+}
+
+sub set_initially_spooled {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{initially_spooled} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{initially_spooled} = 0;
+    }
+}
+
+sub set_networkwide {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{networkwide} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{networkwide} = 0;
+    }
+}
+
+sub set_page_length {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'page_length', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_page_length, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{page_length} = $val;
+}
+
+sub set_page_width {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'page_width', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_page_width, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{page_width} = $val;
+}
+
+sub set_remote_device_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'remote_device_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_remote_device_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{remote_device_name} = $val;
+}
+
+sub set_remote_system_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'remote_system_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Device::set_remote_system_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Device}{remote_system_name} = $val;
+}
+
+sub set_save_printfile {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{save_printfile} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{save_printfile} = 0;
+    }
+}
+
+sub set_unispool_control {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{unispool_control} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{unispool_control} = 0;
+    }
+}
+
+sub set_unispool_header {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{unispool_header} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_File_Token_Numbered_Device}{unispool_header} = 0;
+    }
+}
+
+sub write_string {
+    my $self = shift;
+
+    $self->SUPER::read_string(@_);
 }
 

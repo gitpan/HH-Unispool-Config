@@ -15,14 +15,14 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'name',
+             method_factory_name => 'name',
              allow_rx => [ qw(^.+$) ],
              mandatory => 1,
              allow_empty => 0,
              short_description => 'the network name of the system',
         },
         {
-             attribute_name => 'os',
+             method_factory_name => 'os',
              allow_isa => [ qw(HH::Unispool::Config::OS) ],
              short_description => 'the operating system running on this system',
         },

@@ -35,12 +35,8 @@ our %ALLOW_VALUE = (
     },
 );
 
-# Used by _value_is_allowed
-our %DEFAULT_VALUE = (
-);
-
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -126,7 +122,7 @@ Passed to L<set_number()>.
 
 =item new_from_string(LINE)
 
-This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Creates a new object from the specified Unispool config file line string.
+Creates a new object from the specified Unispool config file line string.
 
 =back
 
@@ -134,21 +130,81 @@ This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Cr
 
 =over
 
+=item get_input_line_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Returns the line number from from which the token is read.
+
+=item get_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Returns the number of the entry.
+
+=item get_os()
+
+Returns the operating system running on this system.
+
+=item get_protocol()
+
+Returns the protocol to be used for the device.
+
+=item get_remote_node_name()
+
+Returns the name of the system as it can be resolved by the network software.
+
+=item get_server_tcp_port()
+
+Returns the TCP port assigned on the print server.
+
+=item get_transfer_size()
+
+Returns the size of the data blocks to be transfered.
+
+=item get_transfer_time_out()
+
+Returns the time in which a transfer must be completed to be considered successful.
+
+=item is_device_token()
+
+Returns whether this is a device token or not.
+
 =item read_string(LINE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered'>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
-
-=item write_string()
-
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered'>. Returns a Unispool config file token line string.
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
 
 =item set_device_token(VALUE)
 
 State that this is a device token. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
 
-=item is_device_token()
+=item set_input_line_number(VALUE)
 
-Returns whether this is a device token or not.
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Set the line number from from which the token is read. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Set the number of the entry. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
 
 =item set_os(VALUE)
 
@@ -165,10 +221,6 @@ Set the operating system running on this system. C<VALUE> is the value. On error
 =back
 
 =back
-
-=item get_os()
-
-Returns the operating system running on this system.
 
 =item set_protocol(VALUE)
 
@@ -192,10 +244,6 @@ Set the protocol to be used for the device. C<VALUE> is the value. On error an e
 
 =back
 
-=item get_protocol()
-
-Returns the protocol to be used for the device.
-
 =item set_remote_node_name(VALUE)
 
 Set the name of the system as it can be resolved by the network software. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -211,10 +259,6 @@ Set the name of the system as it can be resolved by the network software. C<VALU
 =back
 
 =back
-
-=item get_remote_node_name()
-
-Returns the name of the system as it can be resolved by the network software.
 
 =item set_server_tcp_port(VALUE)
 
@@ -232,10 +276,6 @@ Set the TCP port assigned on the print server. C<VALUE> is the value. On error a
 
 =back
 
-=item get_server_tcp_port()
-
-Returns the TCP port assigned on the print server.
-
 =item set_transfer_size(VALUE)
 
 Set the size of the data blocks to be transfered. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -251,10 +291,6 @@ Set the size of the data blocks to be transfered. C<VALUE> is the value. On erro
 =back
 
 =back
-
-=item get_transfer_size()
-
-Returns the size of the data blocks to be transfered.
 
 =item set_transfer_time_out(VALUE)
 
@@ -272,29 +308,9 @@ Set the time in which a transfer must be completed to be considered successful. 
 
 =back
 
-=item get_transfer_time_out()
+=item write_string()
 
-Returns the time in which a transfer must be completed to be considered successful.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token
-
-=over
-
-=item To access attribute named B<C<input_line_number>>:
-
-set_input_line_number(), get_input_line_number()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token::Numbered
-
-=over
-
-=item To access attribute named B<C<number>>:
-
-set_number(), get_number()
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered>. Returns a Unispool config file token line string.
 
 =back
 
@@ -375,6 +391,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -442,6 +459,96 @@ sub _initialize {
     return($self);
 }
 
+sub _value_is_allowed {
+    my $name = shift;
+
+    # Value is allowed if no ALLOW clauses exist for the named attribute
+    if ( ! exists( $ALLOW_ISA{$name} ) && ! exists( $ALLOW_REF{$name} ) && ! exists( $ALLOW_RX{$name} ) && ! exists( $ALLOW_VALUE{$name} ) ) {
+        return(1);
+    }
+
+    # At this point, all values in @_ must to be allowed
+    CHECK_VALUES:
+    foreach my $val (@_) {
+        # Check ALLOW_ISA
+        if ( ref($val) && exists( $ALLOW_ISA{$name} ) ) {
+            foreach my $class ( @{ $ALLOW_ISA{$name} } ) {
+                &UNIVERSAL::isa( $val, $class ) && next CHECK_VALUES;
+            }
+        }
+
+        # Check ALLOW_REF
+        if ( ref($val) && exists( $ALLOW_REF{$name} ) ) {
+            exists( $ALLOW_REF{$name}{ ref($val) } ) && next CHECK_VALUES;
+        }
+
+        # Check ALLOW_RX
+        if ( defined($val) && ! ref($val) && exists( $ALLOW_RX{$name} ) ) {
+            foreach my $rx ( @{ $ALLOW_RX{$name} } ) {
+                $val =~ /$rx/ && next CHECK_VALUES;
+            }
+        }
+
+        # Check ALLOW_VALUE
+        if ( ! ref($val) && exists( $ALLOW_VALUE{$name} ) ) {
+            exists( $ALLOW_VALUE{$name}{$val} ) && next CHECK_VALUES;
+        }
+
+        # We caught a not allowed value
+        return(0);
+    }
+
+    # OK, all values are allowed
+    return(1);
+}
+
+sub get_os {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Network}{os} );
+}
+
+sub get_protocol {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Network}{protocol} );
+}
+
+sub get_remote_node_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Network}{remote_node_name} );
+}
+
+sub get_server_tcp_port {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Network}{server_tcp_port} );
+}
+
+sub get_transfer_size {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Network}{transfer_size} );
+}
+
+sub get_transfer_time_out {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_Network}{transfer_time_out} );
+}
+
+sub is_device_token {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_File_Token_Numbered_Network}{device_token} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
 sub read_string {
     my $self = shift;
     my $line = shift;
@@ -471,6 +578,83 @@ sub read_string {
         defined( $tail[1] ) && $self->set_transfer_size( $tail[1] );
         defined( $tail[2] ) && $self->set_transfer_time_out( $tail[2] );
     }
+}
+
+sub set_device_token {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_File_Token_Numbered_Network}{device_token} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_File_Token_Numbered_Network}{device_token} = 0;
+    }
+}
+
+sub set_os {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'os', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Network::set_os, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Network}{os} = $val;
+}
+
+sub set_protocol {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'protocol', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Network::set_protocol, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Network}{protocol} = $val;
+}
+
+sub set_remote_node_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'remote_node_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Network::set_remote_node_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Network}{remote_node_name} = $val;
+}
+
+sub set_server_tcp_port {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'server_tcp_port', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Network::set_server_tcp_port, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Network}{server_tcp_port} = $val;
+}
+
+sub set_transfer_size {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'transfer_size', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Network::set_transfer_size, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Network}{transfer_size} = $val;
+}
+
+sub set_transfer_time_out {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'transfer_time_out', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Network::set_transfer_time_out, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_Network}{transfer_time_out} = $val;
 }
 
 sub write_string {
@@ -516,172 +700,5 @@ sub write_string {
             $self->get_remote_node_name() || '',
         )
     );
-}
-
-sub set_device_token {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_File_Token_Numbered_Network}{device_token} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_File_Token_Numbered_Network}{device_token} = 0;
-    }
-}
-
-sub is_device_token {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_File_Token_Numbered_Network}{device_token} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_os {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'os', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Network::set_os, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Network}{os} = $val;
-}
-
-sub get_os {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Network}{os} );
-}
-
-sub set_protocol {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'protocol', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Network::set_protocol, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Network}{protocol} = $val;
-}
-
-sub get_protocol {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Network}{protocol} );
-}
-
-sub set_remote_node_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'remote_node_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Network::set_remote_node_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Network}{remote_node_name} = $val;
-}
-
-sub get_remote_node_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Network}{remote_node_name} );
-}
-
-sub set_server_tcp_port {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'server_tcp_port', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Network::set_server_tcp_port, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Network}{server_tcp_port} = $val;
-}
-
-sub get_server_tcp_port {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Network}{server_tcp_port} );
-}
-
-sub set_transfer_size {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'transfer_size', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Network::set_transfer_size, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Network}{transfer_size} = $val;
-}
-
-sub get_transfer_size {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Network}{transfer_size} );
-}
-
-sub set_transfer_time_out {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'transfer_time_out', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::Network::set_transfer_time_out, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_Network}{transfer_time_out} = $val;
-}
-
-sub get_transfer_time_out {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_Network}{transfer_time_out} );
-}
-
-sub _value_is_allowed {
-    my $name = shift;
-
-    # Value is allowed if no ALLOW clauses exist for the named attribute
-    if ( ! exists( $ALLOW_ISA{$name} ) && ! exists( $ALLOW_REF{$name} ) && ! exists( $ALLOW_RX{$name} ) && ! exists( $ALLOW_VALUE{$name} ) ) {
-        return(1);
-    }
-
-    # At this point, all values in @_ must to be allowed
-    CHECK_VALUES:
-    foreach my $val (@_) {
-        # Check ALLOW_ISA
-        if ( ref($val) && exists( $ALLOW_ISA{$name} ) ) {
-            foreach my $class ( @{ $ALLOW_ISA{$name} } ) {
-                &UNIVERSAL::isa( $val, $class ) && next CHECK_VALUES;
-            }
-        }
-
-        # Check ALLOW_REF
-        if ( ref($val) && exists( $ALLOW_REF{$name} ) ) {
-            exists( $ALLOW_REF{$name}{ ref($val) } ) && next CHECK_VALUES;
-        }
-
-        # Check ALLOW_RX
-        if ( defined($val) && ! ref($val) && exists( $ALLOW_RX{$name} ) ) {
-            foreach my $rx ( @{ $ALLOW_RX{$name} } ) {
-                $val =~ /$rx/ && next CHECK_VALUES;
-            }
-        }
-
-        # Check ALLOW_VALUE
-        if ( ! ref($val) && exists( $ALLOW_VALUE{$name} ) ) {
-            exists( $ALLOW_VALUE{$name}{$val} ) && next CHECK_VALUES;
-        }
-
-        # We caught a not allowed value
-        return(0);
-    }
-
-    # OK, all values are allowed
-    return(1);
 }
 

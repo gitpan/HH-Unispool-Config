@@ -23,7 +23,7 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
+# Used by _initialize
 our %DEFAULT_VALUE = (
     'scope' => ['_Server_', '_Script_', '_Network_', 'System=*'],
 );
@@ -32,7 +32,7 @@ our %DEFAULT_VALUE = (
 our %USP_SCOPE_ORDER = ();
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 # Unispool scope order
 our @USP_SCOPE_ORDER = qw( _Server_ _Script_ _Network_ _Local_ );
@@ -119,29 +119,9 @@ Passed to L<set_scope()>. Must be an C<ARRAY> reference. Defaults to B<[> B<'_Se
 
 =over
 
-=item diff(TO)
-
-Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown.
-
-=item set_scope(ARRAY)
-
-Set the dump scope in the comment absolutely. C<ARRAY> is the list value. Each element in the list is allowed to occur only once. Multiple occurences of the same element yield in the last occuring element to be inserted and the rest to be ignored. Default value at initialization is C<'_Server_', '_Script_', '_Network_', 'System=*'>. C<ARRAY> must at least have one element. On error an exception C<Error::Simple> is thrown.
-
-=over
-
-=item The values in C<ARRAY> must match regular expression:
-
-=over
-
-=item ^.+$
-
-=back
-
-=back
-
 =item add_scope(ARRAY)
 
-Add additional values on the dump scope in the comment. C<ARRAY> is the list value. The addition may not yield to multiple identical elements in the list. Hence, multiple occurences of the same element cause the last occurence to be inserted. On error an exception C<Error::Simple> is thrown.
+Add additional values on the dump scope in the comment. C<ARRAY> is the list value. The addition may not yield to multiple identical elements in the list. Hence, multiple occurrences of the same element cause the last occurrence to be inserted. On error an exception C<Error::Simple> is thrown.
 
 =over
 
@@ -159,9 +139,29 @@ Add additional values on the dump scope in the comment. C<ARRAY> is the list val
 
 Delete elements from the dump scope in the comment. After deleting at least one element must remain. Returns the number of deleted elements. On error an exception C<Error::Simple> is thrown.
 
+=item diff(TO)
+
+Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown.
+
 =item exists_scope(ARRAY)
 
 Returns the count of items in C<ARRAY> that are in the dump scope in the comment.
+
+=item set_scope(ARRAY)
+
+Set the dump scope in the comment absolutely. C<ARRAY> is the list value. Each element in the list is allowed to occur only once. Multiple occurrences of the same element yield in the last occurring element to be inserted and the rest to be ignored. Default value at initialization is C<'_Server_', '_Script_', '_Network_', 'System=*'>. C<ARRAY> must at least have one element. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item The values in C<ARRAY> must match regular expression:
+
+=over
+
+=item ^.+$
+
+=back
+
+=back
 
 =item values_scope()
 
@@ -246,6 +246,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -305,112 +306,6 @@ sub _initialize {
     return($self);
 }
 
-sub diff {
-    my $from = shift;
-    my $to = shift;
-
-    # Reference types must be identical
-    if ( ref($from) ne ref($to) ) {
-        my $rf = ref($from);
-        my $rt = ref($to);
-
-        throw Error::Simple("ERROR: HH::Unispool::Config::Scope::diff, FROM ($rf) and TO ($rt) reference types differ.");
-    }
-
-    # Diff message
-    my $diff = '';
-
-    # Diff scope
-    foreach my $vf ( $from->values_scope() ) {
-        $to->exists_scope($vf) && next;
-        my $ref = ref($from);
-        $diff .= "$ref: scope item missing in TO: $vf\n";
-    }
-    foreach my $vt ( $to->values_scope() ) {
-        $from->exists_scope($vt) && next;
-        my $ref = ref($from);
-        $diff .= "$ref: scope item missing in FROM: $vf\n";
-    }
-
-    # Return diff
-    return($diff);
-}
-
-sub set_scope {
-    my $self = shift;
-
-    # List value for 'scope' is not allowed to be empty
-    scalar(@_) || throw Error::Simple("ERROR: HH::Unispool::Config::Scope::set_scope, list value may not be empty.");
-
-    # Check if isas/refs/rxs/values are allowed
-    &_value_is_allowed( 'scope', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Scope::set_scope, one or more specified value(s) '@_' is/are not allowed.");
-
-    # Empty list
-    $self->{HH_Unispool_Config_Scope}{scope} = {};
-
-    # Add values
-    foreach my $val (@_) {
-        $self->{HH_Unispool_Config_Scope}{scope}{$val} = $val;
-    }
-}
-
-sub add_scope {
-    my $self = shift;
-
-    # Check if isas/refs/rxs/values are allowed
-    &_value_is_allowed( 'scope', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Scope::add_scope, one or more specified value(s) '@_' is/are not allowed.");
-
-    # Add values
-    foreach my $val (@_) {
-        $self->{HH_Unispool_Config_Scope}{scope}{$val} = $val;
-    }
-}
-
-sub delete_scope {
-    my $self = shift;
-
-    # List value for 'scope' is not allowed to be empty
-    my %would_delete = ();
-    foreach my $val (@_) {
-        $would_delete{$val} = $val if ( exists( $self->{HH_Unispool_Config_Scope}{scope}{$val} ) );
-    }
-    ( scalar( keys( %{ $self->{HH_Unispool_Config_Scope}{scope} } ) ) == scalar( keys(%would_delete) ) ) && throw Error::Simple("ERROR: HH::Unispool::Config::Scope::delete_scope, list value may not be empty.");
-
-    # Delete values
-    my $del = 0;
-    foreach my $val (@_) {
-        exists( $self->{HH_Unispool_Config_Scope}{scope}{$val} ) || next;
-        delete( $self->{HH_Unispool_Config_Scope}{scope}{$val} );
-        $del ++;
-    }
-    return($del);
-}
-
-sub exists_scope {
-    my $self = shift;
-
-    # Count occurences
-    my $count = 0;
-    foreach my $val (@_) {
-        $count += exists( $self->{HH_Unispool_Config_Scope}{scope}{$val} );
-    }
-    return($count);
-}
-
-sub values_scope {
-    my $self = shift;
-
-    # Return all values in the correct order
-    my @scope = ();
-    foreach my $scope (@USP_SCOPE_ORDER) {
-         $self->exists_scope($scope) && push( @scope, $scope );
-    }
-    foreach my $scope ( sort( values( %{ $self->{HH_Unispool_Config_Scope}{scope} } ) ) ) {
-         exists($USP_SCOPE_ORDER{$scope}) || push( @scope, $scope );
-    }
-    return(@scope);
-}
-
 sub _value_is_allowed {
     my $name = shift;
 
@@ -452,5 +347,111 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub add_scope {
+    my $self = shift;
+
+    # Check if isas/refs/rxs/values are allowed
+    &_value_is_allowed( 'scope', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Scope::add_scope, one or more specified value(s) '@_' is/are not allowed.");
+
+    # Add values
+    foreach my $val (@_) {
+        $self->{HH_Unispool_Config_Scope}{scope}{$val} = $val;
+    }
+}
+
+sub delete_scope {
+    my $self = shift;
+
+    # List value for 'scope' is not allowed to be empty
+    my %would_delete = ();
+    foreach my $val (@_) {
+        $would_delete{$val} = $val if ( exists( $self->{HH_Unispool_Config_Scope}{scope}{$val} ) );
+    }
+    ( scalar( keys( %{ $self->{HH_Unispool_Config_Scope}{scope} } ) ) == scalar( keys(%would_delete) ) ) && throw Error::Simple("ERROR: HH::Unispool::Config::Scope::delete_scope, list value may not be empty.");
+
+    # Delete values
+    my $del = 0;
+    foreach my $val (@_) {
+        exists( $self->{HH_Unispool_Config_Scope}{scope}{$val} ) || next;
+        delete( $self->{HH_Unispool_Config_Scope}{scope}{$val} );
+        $del ++;
+    }
+    return($del);
+}
+
+sub diff {
+    my $from = shift;
+    my $to = shift;
+
+    # Reference types must be identical
+    if ( ref($from) ne ref($to) ) {
+        my $rf = ref($from);
+        my $rt = ref($to);
+
+        throw Error::Simple("ERROR: HH::Unispool::Config::Scope::diff, FROM ($rf) and TO ($rt) reference types differ.");
+    }
+
+    # Diff message
+    my $diff = '';
+
+    # Diff scope
+    foreach my $vf ( $from->values_scope() ) {
+        $to->exists_scope($vf) && next;
+        my $ref = ref($from);
+        $diff .= "$ref: scope item missing in TO: $vf\n";
+    }
+    foreach my $vt ( $to->values_scope() ) {
+        $from->exists_scope($vt) && next;
+        my $ref = ref($from);
+        $diff .= "$ref: scope item missing in FROM: $vf\n";
+    }
+
+    # Return diff
+    return($diff);
+}
+
+sub exists_scope {
+    my $self = shift;
+
+    # Count occurrences
+    my $count = 0;
+    foreach my $val (@_) {
+        $count += exists( $self->{HH_Unispool_Config_Scope}{scope}{$val} );
+    }
+    return($count);
+}
+
+sub set_scope {
+    my $self = shift;
+
+    # List value for 'scope' is not allowed to be empty
+    scalar(@_) || throw Error::Simple("ERROR: HH::Unispool::Config::Scope::set_scope, list value may not be empty.");
+
+    # Check if isas/refs/rxs/values are allowed
+    &_value_is_allowed( 'scope', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Scope::set_scope, one or more specified value(s) '@_' is/are not allowed.");
+
+    # Empty list
+    $self->{HH_Unispool_Config_Scope}{scope} = {};
+
+    # Add values
+    foreach my $val (@_) {
+        $self->{HH_Unispool_Config_Scope}{scope}{$val} = $val;
+    }
+}
+
+sub values_scope {
+    my $self = shift;
+
+    # Return all values in the correct order
+    my @scope = ();
+    foreach my $scope (@USP_SCOPE_ORDER) {
+         $self->exists_scope($scope) && push( @scope, $scope );
+    }
+    foreach my $scope ( sort( values( %{ $self->{HH_Unispool_Config_Scope}{scope} } ) ) ) {
+         exists($USP_SCOPE_ORDER{$scope}) || push( @scope, $scope );
+    }
+    return(@scope);
 }
 

@@ -15,7 +15,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'member_device_name',
+             method_factory_name => 'member_device_name',
              type => 'MULTI',
              unique => 1,
              allow_rx => [ qw(^.+$) ],

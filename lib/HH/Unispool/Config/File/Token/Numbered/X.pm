@@ -28,12 +28,8 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
-our %DEFAULT_VALUE = (
-);
-
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -107,7 +103,7 @@ Passed to L<set_number()>.
 
 =item new_from_string(LINE)
 
-This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Creates a new object from the specified Unispool config file line string.
+Creates a new object from the specified Unispool config file line string.
 
 =back
 
@@ -115,13 +111,33 @@ This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Cr
 
 =over
 
+=item get_filter_name()
+
+Returns the name of the filter file to be used when printfiles for this device are generated.
+
+=item get_header_name()
+
+Returns the control procedure to be executed before printing the printfile.
+
+=item get_input_line_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Returns the line number from from which the token is read.
+
+=item get_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Returns the number of the entry.
+
+=item get_profile_name()
+
+Returns the name of the profile containing the device initialisation and status checking specification.
+
+=item get_trailer_name()
+
+Returns the control procedure to be executed after printing the printfile.
+
 =item read_string(LINE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered'>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
-
-=item write_string()
-
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered'>. Returns a Unispool config file token line string.
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
 
 =item set_filter_name(VALUE)
 
@@ -139,10 +155,6 @@ Set the name of the filter file to be used when printfiles for this device are g
 
 =back
 
-=item get_filter_name()
-
-Returns the name of the filter file to be used when printfiles for this device are generated.
-
 =item set_header_name(VALUE)
 
 Set the control procedure to be executed before printing the printfile. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -159,9 +171,37 @@ Set the control procedure to be executed before printing the printfile. C<VALUE>
 
 =back
 
-=item get_header_name()
+=item set_input_line_number(VALUE)
 
-Returns the control procedure to be executed before printing the printfile.
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Set the line number from from which the token is read. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Set the number of the entry. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
 
 =item set_profile_name(VALUE)
 
@@ -179,10 +219,6 @@ Set the name of the profile containing the device initialisation and status chec
 
 =back
 
-=item get_profile_name()
-
-Returns the name of the profile containing the device initialisation and status checking specification.
-
 =item set_trailer_name(VALUE)
 
 Set the control procedure to be executed after printing the printfile. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -199,29 +235,9 @@ Set the control procedure to be executed after printing the printfile. C<VALUE> 
 
 =back
 
-=item get_trailer_name()
+=item write_string()
 
-Returns the control procedure to be executed after printing the printfile.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token
-
-=over
-
-=item To access attribute named B<C<input_line_number>>:
-
-set_input_line_number(), get_input_line_number()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token::Numbered
-
-=over
-
-=item To access attribute named B<C<number>>:
-
-set_number(), get_number()
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered>. Returns a Unispool config file token line string.
 
 =back
 
@@ -302,6 +318,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -359,111 +376,6 @@ sub _initialize {
     return($self);
 }
 
-sub read_string {
-    my $self = shift;
-    my $line = shift;
-
-    # Parse line for name
-    my ($number, $tail) = $line =~ /$USP_X_RX/;
-    defined($number) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::X::read_string, parameter 'LINE' does not match the regular expression for this token's line string.");
-    my @tail = $self->_split_tail($tail);
-    my $profile_name = $tail[0];
-    my $header_name = $tail[1];
-    my $trailer_name = $tail[2];
-    my $filter_name = $tail[3];
-
-    # Set attributes
-    $self->set_number($number);
-    defined($profile_name) && $self->set_profile_name($profile_name);
-    defined($header_name) && $self->set_header_name($header_name);
-    defined($trailer_name) && $self->set_trailer_name($trailer_name);
-    defined($filter_name) && $self->set_filter_name($filter_name);
-}
-
-sub write_string {
-    my $self = shift;
-
-    # Make string and return it
-    return(
-        sprintf(
-            $USP_X_FRM,
-            $self->get_number() || 0,
-            $self->get_profile_name() || '',
-            $self->get_header_name() || '',
-            $self->get_trailer_name() || '',
-            $self->get_filter_name() || '',
-        )
-    );
-}
-
-sub set_filter_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'filter_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::X::set_filter_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_X}{filter_name} = $val;
-}
-
-sub get_filter_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_X}{filter_name} );
-}
-
-sub set_header_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'header_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::X::set_header_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_X}{header_name} = $val;
-}
-
-sub get_header_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_X}{header_name} );
-}
-
-sub set_profile_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'profile_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::X::set_profile_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_X}{profile_name} = $val;
-}
-
-sub get_profile_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_X}{profile_name} );
-}
-
-sub set_trailer_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'trailer_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::X::set_trailer_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_X}{trailer_name} = $val;
-}
-
-sub get_trailer_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_X}{trailer_name} );
-}
-
 sub _value_is_allowed {
     my $name = shift;
 
@@ -505,5 +417,110 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub get_filter_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_X}{filter_name} );
+}
+
+sub get_header_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_X}{header_name} );
+}
+
+sub get_profile_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_X}{profile_name} );
+}
+
+sub get_trailer_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_X}{trailer_name} );
+}
+
+sub read_string {
+    my $self = shift;
+    my $line = shift;
+
+    # Parse line for name
+    my ($number, $tail) = $line =~ /$USP_X_RX/;
+    defined($number) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::X::read_string, parameter 'LINE' does not match the regular expression for this token's line string.");
+    my @tail = $self->_split_tail($tail);
+    my $profile_name = $tail[0];
+    my $header_name = $tail[1];
+    my $trailer_name = $tail[2];
+    my $filter_name = $tail[3];
+
+    # Set attributes
+    $self->set_number($number);
+    defined($profile_name) && $self->set_profile_name($profile_name);
+    defined($header_name) && $self->set_header_name($header_name);
+    defined($trailer_name) && $self->set_trailer_name($trailer_name);
+    defined($filter_name) && $self->set_filter_name($filter_name);
+}
+
+sub set_filter_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'filter_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::X::set_filter_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_X}{filter_name} = $val;
+}
+
+sub set_header_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'header_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::X::set_header_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_X}{header_name} = $val;
+}
+
+sub set_profile_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'profile_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::X::set_profile_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_X}{profile_name} = $val;
+}
+
+sub set_trailer_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'trailer_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::X::set_trailer_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_X}{trailer_name} = $val;
+}
+
+sub write_string {
+    my $self = shift;
+
+    # Make string and return it
+    return(
+        sprintf(
+            $USP_X_FRM,
+            $self->get_number() || 0,
+            $self->get_profile_name() || '',
+            $self->get_header_name() || '',
+            $self->get_trailer_name() || '',
+            $self->get_filter_name() || '',
+        )
+    );
 }
 

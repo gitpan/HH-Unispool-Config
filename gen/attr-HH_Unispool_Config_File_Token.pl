@@ -17,7 +17,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'input_line_number',
+             method_factory_name => 'input_line_number',
              allow_rx => [ qw(^\d*$) ],
              short_description => 'the line number from from which the token is read',
         },
@@ -40,6 +40,18 @@ EOF
         },
     ],
     meth_opt => [
+        {
+            method_name => '_split_tail',
+            documented => 0,
+            body => <<'EOF',
+    my $name = shift;
+    my $tail = shift;
+
+    $tail =~ s/^\s*;\s*//;
+    $tail =~ s/\s*$//;
+    return( split(/\s*;\s*/, $tail) );
+EOF
+        },
         {
             method_name => 'read_string',
             interface => 1,

@@ -9,7 +9,7 @@ use Error qw(:try);
 use HH::Unispool::Config::File::Token qw( :rx :frm );
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -127,7 +127,7 @@ Passed to L<set_unispool_header()>.
 
 =item new_from_string(LINE)
 
-This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Creates a new object from the specified Unispool config file line string.
+Creates a new object from the specified Unispool config file line string.
 
 =back
 
@@ -135,99 +135,293 @@ This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Cr
 
 =over
 
+=item get_block_delay()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns the time in seconds UNISPOOL should pause between sending two blocks.
+
+=item get_buffer_size()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns the number of bytes sent to the printer in one write operation.
+
+=item get_connect_retry()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns the number of seconds UNISPOOL should wait if the connection can not be established immediately.
+
+=item get_device_name()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns the unique name for the device.
+
+=item get_device_password()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns the password required to access the device.
+
+=item get_execution_priority()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns the execution priority of the driver process on MPE hosts.
+
+=item get_input_line_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Returns the line number from from which the token is read.
+
+=item get_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Returns the number of the entry.
+
+=item get_page_length()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns the page length (lines) for determining the size of UNISPOOL banners.
+
+=item get_page_width()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns the page width (bytes) for determining the size of UNISPOOL banners.
+
+=item get_remote_device_name()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns the device on the remote system that will receive the output.
+
+=item get_remote_system_name()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns the name of the system to which the output for this device must be routed.
+
+=item is_initially_spooled()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns whether an automatic STARTSPOOL must be performed when UNISPOOL is started or not.
+
+=item is_networkwide()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns whether the device must be made available from each node in the configuration cluster or not.
+
+=item is_save_printfile()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns whether printfiles printed on this device should be saved or not.
+
+=item is_unispool_control()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns whether the UNISPOOL control is on (is not available on development system used) or not.
+
+=item is_unispool_header()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns whether standard UNISPOOL banners pages are printed initially or not.
+
 =item read_string(LINE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered::Device'>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
+
+=item set_block_delay(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Set the time in seconds UNISPOOL should pause between sending two blocks. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_buffer_size(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Set the number of bytes sent to the printer in one write operation. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_connect_retry(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Set the number of seconds UNISPOOL should wait if the connection can not be established immediately. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_device_name(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Set the unique name for the device. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.+$
+
+=back
+
+=back
+
+=item set_device_password(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Set the password required to access the device. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.*$
+
+=back
+
+=back
+
+=item set_execution_priority(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Set the execution priority of the driver process on MPE hosts. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must be a (sub)class of:
+
+=over
+
+=item HH::Unispool::Config::ExecPri
+
+=back
+
+=back
+
+=item set_initially_spooled(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. State that an automatic STARTSPOOL must be performed when UNISPOOL is started. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=item set_input_line_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Set the line number from from which the token is read. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_networkwide(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. State that the device must be made available from each node in the configuration cluster. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=item set_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Set the number of the entry. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_page_length(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Set the page length (lines) for determining the size of UNISPOOL banners. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_page_width(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Set the page width (bytes) for determining the size of UNISPOOL banners. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_remote_device_name(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Set the device on the remote system that will receive the output. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.*$
+
+=back
+
+=back
+
+=item set_remote_system_name(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Set the name of the system to which the output for this device must be routed. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.*$
+
+=back
+
+=back
+
+=item set_save_printfile(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. State that printfiles printed on this device should be saved. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=item set_unispool_control(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. State that the UNISPOOL control is on (is not available on development system used). C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=item set_unispool_header(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered::Device>. State that standard UNISPOOL banners pages are printed initially. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
 
 =item write_string()
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered::Device'>. Returns a Unispool config file token line string.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token
-
-=over
-
-=item To access attribute named B<C<input_line_number>>:
-
-set_input_line_number(), get_input_line_number()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token::Numbered
-
-=over
-
-=item To access attribute named B<C<number>>:
-
-set_number(), get_number()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token::Numbered::Device
-
-=over
-
-=item To access attribute named B<C<block_delay>>:
-
-set_block_delay(), get_block_delay()
-
-=item To access attribute named B<C<buffer_size>>:
-
-set_buffer_size(), get_buffer_size()
-
-=item To access attribute named B<C<connect_retry>>:
-
-set_connect_retry(), get_connect_retry()
-
-=item To access attribute named B<C<device_name>>:
-
-set_device_name(), get_device_name()
-
-=item To access attribute named B<C<device_password>>:
-
-set_device_password(), get_device_password()
-
-=item To access attribute named B<C<execution_priority>>:
-
-set_execution_priority(), get_execution_priority()
-
-=item To access attribute named B<C<initially_spooled>>:
-
-set_initially_spooled(), is_initially_spooled()
-
-=item To access attribute named B<C<networkwide>>:
-
-set_networkwide(), is_networkwide()
-
-=item To access attribute named B<C<page_length>>:
-
-set_page_length(), get_page_length()
-
-=item To access attribute named B<C<page_width>>:
-
-set_page_width(), get_page_width()
-
-=item To access attribute named B<C<remote_device_name>>:
-
-set_remote_device_name(), get_remote_device_name()
-
-=item To access attribute named B<C<remote_system_name>>:
-
-set_remote_system_name(), get_remote_system_name()
-
-=item To access attribute named B<C<save_printfile>>:
-
-set_save_printfile(), is_save_printfile()
-
-=item To access attribute named B<C<unispool_control>>:
-
-set_unispool_control(), is_unispool_control()
-
-=item To access attribute named B<C<unispool_header>>:
-
-set_unispool_header(), is_unispool_header()
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered::Device>. Returns a Unispool config file token line string.
 
 =back
 
@@ -308,6 +502,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 

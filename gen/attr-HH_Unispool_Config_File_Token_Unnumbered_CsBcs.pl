@@ -15,7 +15,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'hostname',
+             method_factory_name => 'hostname',
              allow_rx => [ qw(^.+$) ],
              mandatory => 1,
              allow_empty => 0,

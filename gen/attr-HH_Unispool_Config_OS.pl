@@ -14,7 +14,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'os',
+             method_factory_name => 'os',
              mandatory => 1,
              allow_value => [ qw( AIX DigUnix HP-UX MPE NTSERVER SCO
                      SINIX LINUX Solaris ULTRIX VMS ) ],

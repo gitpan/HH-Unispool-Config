@@ -39,7 +39,7 @@ our %ALLOW_VALUE = (
     },
 );
 
-# Used by _value_is_allowed
+# Used by _initialize
 our %DEFAULT_VALUE = (
     'block_delay' => 0,
     'connect_retry' => 0,
@@ -52,7 +52,7 @@ our %DEFAULT_VALUE = (
 );
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -216,7 +216,7 @@ Passed to L<set_number()>.
 
 =item new_from_tokenizer(TOKENIZER)
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::Device'>. Constructs a new C<HH::Unispool::Config::Entry> object using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
+This method is an implementation from package C<HH::Unispool::Config::Entry::Device>. Constructs a new C<HH::Unispool::Config::Entry> object using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -226,11 +226,79 @@ This method is an implementation from package C<'HH::Unispool::Config::Entry::De
 
 =item diff(TO [, DIFF_NUMBER])
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::Device'>. Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown. Paremeter C<DIFF_NUMBER> if specified, overrules the value of C<get_diff_number>.
+This method is an implementation from package C<HH::Unispool::Config::Entry::Device>. Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown. Paremeter C<DIFF_NUMBER> if specified, overrules the value of C<get_diff_number>.
 
-=item write(FILE_HANDLE)
+=item get_block_delay()
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::Device'>. Writes the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
+Returns the time in seconds UNISPOOL should pause between sending two blocks.
+
+=item get_connect_retry()
+
+Returns the number of seconds UNISPOOL should wait if the connection can not be established immediately.
+
+=item get_description()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Device>. Returns the description for the device.
+
+=item get_device_password()
+
+Returns the password required to access the device.
+
+=item get_execution_priority()
+
+Returns the execution priority of the driver process on MPE hosts.
+
+=item get_filter_name()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Device>. Returns the name of the filter file to be used when printfiles for this device are generated.
+
+=item get_header_name()
+
+Returns the control procedure to be executed before printing the printfile.
+
+=item get_name()
+
+This method is inherited from package C<HH::Unispool::Config::Entry>. Returns the entry name.
+
+=item get_number()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Returns the entry number.
+
+=item get_profile_name()
+
+Returns the name of the profile containing the device initialisation and status checking specification.
+
+=item get_protocol()
+
+Returns the protocol to be used for the device.
+
+=item get_remote_node_name()
+
+Returns the name of the system as it can be resolved by the network software.
+
+=item get_server_tcp_port()
+
+Returns the TCP port assigned on the print server.
+
+=item get_trailer_name()
+
+Returns the control procedure to be executed after printing the printfile.
+
+=item is_diff_number()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Returns whether L<diff()> should consider the C<number> attribtutes or not.
+
+=item is_initially_spooled()
+
+Returns whether an automatic STARTSPOOL must be performed when UNISPOOL is started or not.
+
+=item is_networkwide()
+
+Returns whether the device must be made available from each node in the configuration cluster or not.
+
+=item is_save_printfile()
+
+Returns whether printfiles printed on this device should be saved or not.
 
 =item set_block_delay(VALUE)
 
@@ -248,10 +316,6 @@ Set the time in seconds UNISPOOL should pause between sending two blocks. C<VALU
 
 =back
 
-=item get_block_delay()
-
-Returns the time in seconds UNISPOOL should pause between sending two blocks.
-
 =item set_connect_retry(VALUE)
 
 Set the number of seconds UNISPOOL should wait if the connection can not be established immediately. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
@@ -268,9 +332,21 @@ Set the number of seconds UNISPOOL should wait if the connection can not be esta
 
 =back
 
-=item get_connect_retry()
+=item set_description(VALUE)
 
-Returns the number of seconds UNISPOOL should wait if the connection can not be established immediately.
+This method is inherited from package C<HH::Unispool::Config::Entry::Device>. Set the description for the device. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.*$
+
+=back
+
+=back
 
 =item set_device_password(VALUE)
 
@@ -288,9 +364,9 @@ Set the password required to access the device. C<VALUE> is the value. On error 
 
 =back
 
-=item get_device_password()
+=item set_diff_number(VALUE)
 
-Returns the password required to access the device.
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. State that L<diff()> should consider the C<number> attribtutes. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
 
 =item set_execution_priority(VALUE)
 
@@ -308,9 +384,21 @@ Set the execution priority of the driver process on MPE hosts. C<VALUE> is the v
 
 =back
 
-=item get_execution_priority()
+=item set_filter_name(VALUE)
 
-Returns the execution priority of the driver process on MPE hosts.
+This method is inherited from package C<HH::Unispool::Config::Entry::Device>. Set the name of the filter file to be used when printfiles for this device are generated. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.*$
+
+=back
+
+=back
 
 =item set_header_name(VALUE)
 
@@ -328,25 +416,45 @@ Set the control procedure to be executed before printing the printfile. C<VALUE>
 
 =back
 
-=item get_header_name()
-
-Returns the control procedure to be executed before printing the printfile.
-
 =item set_initially_spooled(VALUE)
 
 State that an automatic STARTSPOOL must be performed when UNISPOOL is started. C<VALUE> is the value. Default value at initialization is C<1>. On error an exception C<Error::Simple> is thrown.
 
-=item is_initially_spooled()
+=item set_name(VALUE)
 
-Returns whether an automatic STARTSPOOL must be performed when UNISPOOL is started or not.
+This method is inherited from package C<HH::Unispool::Config::Entry>. Set the entry name. C<VALUE> is the value. C<VALUE> may not be C<undef>. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.+$
+
+=back
+
+=back
 
 =item set_networkwide(VALUE)
 
 State that the device must be made available from each node in the configuration cluster. C<VALUE> is the value. Default value at initialization is C<1>. On error an exception C<Error::Simple> is thrown.
 
-=item is_networkwide()
+=item set_number(VALUE)
 
-Returns whether the device must be made available from each node in the configuration cluster or not.
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Set the entry number. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
 
 =item set_profile_name(VALUE)
 
@@ -364,13 +472,9 @@ Set the name of the profile containing the device initialisation and status chec
 
 =back
 
-=item get_profile_name()
-
-Returns the name of the profile containing the device initialisation and status checking specification.
-
 =item set_protocol(VALUE)
 
-Set the protocol to be used for the device. C<VALUE> is the value. Default value at initialization is C<'TCP'>. On error an exception C<Error::Simple> is thrown.
+Set the protocol to be used for the device. C<VALUE> is the value. Default value at initialization is C<TCP>. On error an exception C<Error::Simple> is thrown.
 
 =over
 
@@ -390,10 +494,6 @@ Set the protocol to be used for the device. C<VALUE> is the value. Default value
 
 =back
 
-=item get_protocol()
-
-Returns the protocol to be used for the device.
-
 =item set_remote_node_name(VALUE)
 
 Set the name of the system as it can be resolved by the network software. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -410,17 +510,9 @@ Set the name of the system as it can be resolved by the network software. C<VALU
 
 =back
 
-=item get_remote_node_name()
-
-Returns the name of the system as it can be resolved by the network software.
-
 =item set_save_printfile(VALUE)
 
 State that printfiles printed on this device should be saved. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
-
-=item is_save_printfile()
-
-Returns whether printfiles printed on this device should be saved or not.
 
 =item set_server_tcp_port(VALUE)
 
@@ -438,10 +530,6 @@ Set the TCP port assigned on the print server. C<VALUE> is the value. Default va
 
 =back
 
-=item get_server_tcp_port()
-
-Returns the TCP port assigned on the print server.
-
 =item set_trailer_name(VALUE)
 
 Set the control procedure to be executed after printing the printfile. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -458,47 +546,9 @@ Set the control procedure to be executed after printing the printfile. C<VALUE> 
 
 =back
 
-=item get_trailer_name()
+=item write(FILE_HANDLE)
 
-Returns the control procedure to be executed after printing the printfile.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry
-
-=over
-
-=item To access attribute named B<C<name>>:
-
-set_name(), get_name()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry::Device
-
-=over
-
-=item To access attribute named B<C<description>>:
-
-set_description(), get_description()
-
-=item To access attribute named B<C<filter_name>>:
-
-set_filter_name(), get_filter_name()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry::Numbered
-
-=over
-
-=item To access attribute named B<C<diff_number>>:
-
-set_diff_number(), is_diff_number()
-
-=item To access attribute named B<C<number>>:
-
-set_number(), get_number()
+This method is an implementation from package C<HH::Unispool::Config::Entry::Device>. Writes the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -579,6 +629,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -609,6 +660,64 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA 02111-1307 USA
 
 =cut
+
+sub new_from_tokenizer {
+    my $class = shift;
+    my $tokenizer = shift;
+
+    # First token must be a HH::Unispool::Config::File::Token::Numbered::Device::6
+    my $s = $tokenizer->get();
+    $s->isa('HH::Unispool::Config::File::Token::Numbered::Device::6') || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::new_from_tokenizer, expected a first token from 'TOKENIZER' of class 'HH::Unispool::Config::File::Token::Numbered::Device::6'.");
+
+    # Fill the initialization option hash
+    my %opt = ();
+    $opt{number} = $s->get_number();
+    $opt{name} = $s->get_device_name();
+    $opt{device_password} = $s->get_device_password();
+    $opt{block_delay} = $s->get_block_delay();
+    $opt{connect_retry} = $s->get_connect_retry();
+    $opt{initially_spooled} = $s->is_initially_spooled();
+    $opt{networkwide} = $s->is_networkwide();
+    $opt{save_printfile} = $s->is_save_printfile();
+    $opt{execution_priority} = $s->get_execution_priority();
+
+    # Allow N, X and I tokens
+    my $n = undef;
+    my $x = undef;
+    my $i = undef;
+    while ( my $tok = $tokenizer->get() ) {
+        if ( ! $tok->isa('HH::Unispool::Config::File::Token::Numbered') || $tok->get_number() != $s->get_number() ) {
+            $tokenizer->unget();
+            last;
+        }
+        elsif ( $tok->isa('HH::Unispool::Config::File::Token::Numbered::Network') ) {
+            defined ($p) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::0::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::Network'.");
+            $n = $tok;
+            $opt{remote_node_name} = $n->get_remote_node_name();
+            $opt{protocol} = $n->get_protocol();
+            $opt{server_tcp_port} = $n->get_server_tcp_port();
+        }
+        elsif ( $tok->isa('HH::Unispool::Config::File::Token::Numbered::X') ) {
+            defined ($x) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::X'.");
+            $x = $tok;
+            $opt{profile_name} = $x->get_profile_name();
+            $opt{header_name} = $x->get_header_name();
+            $opt{trailer_name} = $x->get_trailer_name();
+            $opt{filter_name} = $x->get_filter_name();
+        }
+        elsif ( $tok->isa('HH::Unispool::Config::File::Token::Numbered::Device::Info') ) {
+            defined ($i) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::Device::Info'.");
+            $i = $tok;
+            $opt{description} = $i->get_description();
+        }
+        else {
+            throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::new_from_tokenizer, expected tokens from 'TOKENIZER' for entry $opt{name}/$opt{number} from either class 'HH::Unispool::Config::File::Token::Numbered::Device::Info' or 'HH::Unispool::Config::File::Token::Numbered::Network'.");
+        }
+    }
+
+    # Construct a new object and return it
+    return( HH::Unispool::Config::Entry::Device::6->new(\%opt) );
+}
 
 sub _initialize {
     my $self = shift;
@@ -662,6 +771,49 @@ sub _initialize {
 
     # Return $self
     return($self);
+}
+
+sub _value_is_allowed {
+    my $name = shift;
+
+    # Value is allowed if no ALLOW clauses exist for the named attribute
+    if ( ! exists( $ALLOW_ISA{$name} ) && ! exists( $ALLOW_REF{$name} ) && ! exists( $ALLOW_RX{$name} ) && ! exists( $ALLOW_VALUE{$name} ) ) {
+        return(1);
+    }
+
+    # At this point, all values in @_ must to be allowed
+    CHECK_VALUES:
+    foreach my $val (@_) {
+        # Check ALLOW_ISA
+        if ( ref($val) && exists( $ALLOW_ISA{$name} ) ) {
+            foreach my $class ( @{ $ALLOW_ISA{$name} } ) {
+                &UNIVERSAL::isa( $val, $class ) && next CHECK_VALUES;
+            }
+        }
+
+        # Check ALLOW_REF
+        if ( ref($val) && exists( $ALLOW_REF{$name} ) ) {
+            exists( $ALLOW_REF{$name}{ ref($val) } ) && next CHECK_VALUES;
+        }
+
+        # Check ALLOW_RX
+        if ( defined($val) && ! ref($val) && exists( $ALLOW_RX{$name} ) ) {
+            foreach my $rx ( @{ $ALLOW_RX{$name} } ) {
+                $val =~ /$rx/ && next CHECK_VALUES;
+            }
+        }
+
+        # Check ALLOW_VALUE
+        if ( ! ref($val) && exists( $ALLOW_VALUE{$name} ) ) {
+            exists( $ALLOW_VALUE{$name}{$val} ) && next CHECK_VALUES;
+        }
+
+        # We caught a not allowed value
+        return(0);
+    }
+
+    # OK, all values are allowed
+    return(1);
 }
 
 sub diff {
@@ -809,62 +961,240 @@ sub diff {
     return($diff);
 }
 
-sub new_from_tokenizer {
-    my $class = shift;
-    my $tokenizer = shift;
+sub get_block_delay {
+    my $self = shift;
 
-    # First token must be a HH::Unispool::Config::File::Token::Numbered::Device::6
-    my $s = $tokenizer->get();
-    $s->isa('HH::Unispool::Config::File::Token::Numbered::Device::6') || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::new_from_tokenizer, expected a first token from 'TOKENIZER' of class 'HH::Unispool::Config::File::Token::Numbered::Device::6'.");
+    return( $self->{HH_Unispool_Config_Entry_Device_6}{block_delay} );
+}
 
-    # Fill the initialization option hash
-    my %opt = ();
-    $opt{number} = $s->get_number();
-    $opt{name} = $s->get_device_name();
-    $opt{device_password} = $s->get_device_password();
-    $opt{block_delay} = $s->get_block_delay();
-    $opt{connect_retry} = $s->get_connect_retry();
-    $opt{initially_spooled} = $s->is_initially_spooled();
-    $opt{networkwide} = $s->is_networkwide();
-    $opt{save_printfile} = $s->is_save_printfile();
-    $opt{execution_priority} = $s->get_execution_priority();
+sub get_connect_retry {
+    my $self = shift;
 
-    # Allow N, X and I tokens
-    my $n = undef;
-    my $x = undef;
-    my $i = undef;
-    while ( my $tok = $tokenizer->get() ) {
-        if ( ! $tok->isa('HH::Unispool::Config::File::Token::Numbered') || $tok->get_number() != $s->get_number() ) {
-            $tokenizer->unget();
-            last;
-        }
-        elsif ( $tok->isa('HH::Unispool::Config::File::Token::Numbered::Network') ) {
-            defined ($p) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::0::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::Network'.");
-            $n = $tok;
-            $opt{remote_node_name} = $n->get_remote_node_name();
-            $opt{protocol} = $n->get_protocol();
-            $opt{server_tcp_port} = $n->get_server_tcp_port();
-        }
-        elsif ( $tok->isa('HH::Unispool::Config::File::Token::Numbered::X') ) {
-            defined ($x) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::X'.");
-            $x = $tok;
-            $opt{profile_name} = $x->get_profile_name();
-            $opt{header_name} = $x->get_header_name();
-            $opt{trailer_name} = $x->get_trailer_name();
-            $opt{filter_name} = $x->get_filter_name();
-        }
-        elsif ( $tok->isa('HH::Unispool::Config::File::Token::Numbered::Device::Info') ) {
-            defined ($i) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::Device::Info'.");
-            $i = $tok;
-            $opt{description} = $i->get_description();
-        }
-        else {
-            throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::new_from_tokenizer, expected tokens from 'TOKENIZER' for entry $opt{name}/$opt{number} from either class 'HH::Unispool::Config::File::Token::Numbered::Device::Info' or 'HH::Unispool::Config::File::Token::Numbered::Network'.");
-        }
+    return( $self->{HH_Unispool_Config_Entry_Device_6}{connect_retry} );
+}
+
+sub get_device_password {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_Device_6}{device_password} );
+}
+
+sub get_execution_priority {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_Device_6}{execution_priority} );
+}
+
+sub get_header_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_Device_6}{header_name} );
+}
+
+sub get_profile_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_Device_6}{profile_name} );
+}
+
+sub get_protocol {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_Device_6}{protocol} );
+}
+
+sub get_remote_node_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_Device_6}{remote_node_name} );
+}
+
+sub get_server_tcp_port {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_Device_6}{server_tcp_port} );
+}
+
+sub get_trailer_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_Device_6}{trailer_name} );
+}
+
+sub is_initially_spooled {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_Entry_Device_6}{initially_spooled} ) {
+        return(1);
     }
+    else {
+        return(0);
+    }
+}
 
-    # Construct a new object and return it
-    return( HH::Unispool::Config::Entry::Device::6->new(\%opt) );
+sub is_networkwide {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_Entry_Device_6}{networkwide} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub is_save_printfile {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_Entry_Device_6}{save_printfile} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub set_block_delay {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'block_delay', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_block_delay, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_6}{block_delay} = $val;
+}
+
+sub set_connect_retry {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'connect_retry', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_connect_retry, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_6}{connect_retry} = $val;
+}
+
+sub set_device_password {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'device_password', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_device_password, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_6}{device_password} = $val;
+}
+
+sub set_execution_priority {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'execution_priority', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_execution_priority, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_6}{execution_priority} = $val;
+}
+
+sub set_header_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'header_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_header_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_6}{header_name} = $val;
+}
+
+sub set_initially_spooled {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_Entry_Device_6}{initially_spooled} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_Entry_Device_6}{initially_spooled} = 0;
+    }
+}
+
+sub set_networkwide {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_Entry_Device_6}{networkwide} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_Entry_Device_6}{networkwide} = 0;
+    }
+}
+
+sub set_profile_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'profile_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_profile_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_6}{profile_name} = $val;
+}
+
+sub set_protocol {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'protocol', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_protocol, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_6}{protocol} = $val;
+}
+
+sub set_remote_node_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'remote_node_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_remote_node_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_6}{remote_node_name} = $val;
+}
+
+sub set_save_printfile {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_Entry_Device_6}{save_printfile} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_Entry_Device_6}{save_printfile} = 0;
+    }
+}
+
+sub set_server_tcp_port {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'server_tcp_port', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_server_tcp_port, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_6}{server_tcp_port} = $val;
+}
+
+sub set_trailer_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'trailer_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_trailer_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_6}{trailer_name} = $val;
 }
 
 sub write {
@@ -914,284 +1244,5 @@ sub write {
     $fh->print( $i->write_string() );
     $fh->print( $n->write_string() );
     $fh->print( $x->write_string() );
-}
-
-sub set_block_delay {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'block_delay', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_block_delay, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_6}{block_delay} = $val;
-}
-
-sub get_block_delay {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_6}{block_delay} );
-}
-
-sub set_connect_retry {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'connect_retry', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_connect_retry, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_6}{connect_retry} = $val;
-}
-
-sub get_connect_retry {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_6}{connect_retry} );
-}
-
-sub set_device_password {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'device_password', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_device_password, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_6}{device_password} = $val;
-}
-
-sub get_device_password {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_6}{device_password} );
-}
-
-sub set_execution_priority {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'execution_priority', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_execution_priority, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_6}{execution_priority} = $val;
-}
-
-sub get_execution_priority {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_6}{execution_priority} );
-}
-
-sub set_header_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'header_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_header_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_6}{header_name} = $val;
-}
-
-sub get_header_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_6}{header_name} );
-}
-
-sub set_initially_spooled {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_Entry_Device_6}{initially_spooled} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_Entry_Device_6}{initially_spooled} = 0;
-    }
-}
-
-sub is_initially_spooled {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_Entry_Device_6}{initially_spooled} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_networkwide {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_Entry_Device_6}{networkwide} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_Entry_Device_6}{networkwide} = 0;
-    }
-}
-
-sub is_networkwide {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_Entry_Device_6}{networkwide} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_profile_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'profile_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_profile_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_6}{profile_name} = $val;
-}
-
-sub get_profile_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_6}{profile_name} );
-}
-
-sub set_protocol {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'protocol', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_protocol, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_6}{protocol} = $val;
-}
-
-sub get_protocol {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_6}{protocol} );
-}
-
-sub set_remote_node_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'remote_node_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_remote_node_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_6}{remote_node_name} = $val;
-}
-
-sub get_remote_node_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_6}{remote_node_name} );
-}
-
-sub set_save_printfile {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_Entry_Device_6}{save_printfile} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_Entry_Device_6}{save_printfile} = 0;
-    }
-}
-
-sub is_save_printfile {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_Entry_Device_6}{save_printfile} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_server_tcp_port {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'server_tcp_port', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_server_tcp_port, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_6}{server_tcp_port} = $val;
-}
-
-sub get_server_tcp_port {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_6}{server_tcp_port} );
-}
-
-sub set_trailer_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'trailer_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::6::set_trailer_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_6}{trailer_name} = $val;
-}
-
-sub get_trailer_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_6}{trailer_name} );
-}
-
-sub _value_is_allowed {
-    my $name = shift;
-
-    # Value is allowed if no ALLOW clauses exist for the named attribute
-    if ( ! exists( $ALLOW_ISA{$name} ) && ! exists( $ALLOW_REF{$name} ) && ! exists( $ALLOW_RX{$name} ) && ! exists( $ALLOW_VALUE{$name} ) ) {
-        return(1);
-    }
-
-    # At this point, all values in @_ must to be allowed
-    CHECK_VALUES:
-    foreach my $val (@_) {
-        # Check ALLOW_ISA
-        if ( ref($val) && exists( $ALLOW_ISA{$name} ) ) {
-            foreach my $class ( @{ $ALLOW_ISA{$name} } ) {
-                &UNIVERSAL::isa( $val, $class ) && next CHECK_VALUES;
-            }
-        }
-
-        # Check ALLOW_REF
-        if ( ref($val) && exists( $ALLOW_REF{$name} ) ) {
-            exists( $ALLOW_REF{$name}{ ref($val) } ) && next CHECK_VALUES;
-        }
-
-        # Check ALLOW_RX
-        if ( defined($val) && ! ref($val) && exists( $ALLOW_RX{$name} ) ) {
-            foreach my $rx ( @{ $ALLOW_RX{$name} } ) {
-                $val =~ /$rx/ && next CHECK_VALUES;
-            }
-        }
-
-        # Check ALLOW_VALUE
-        if ( ! ref($val) && exists( $ALLOW_VALUE{$name} ) ) {
-            exists( $ALLOW_VALUE{$name}{$val} ) && next CHECK_VALUES;
-        }
-
-        # We caught a not allowed value
-        return(0);
-    }
-
-    # OK, all values are allowed
-    return(1);
 }
 

@@ -14,7 +14,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'type',
+             method_factory_name => 'type',
              allow_rx => [ qw(^.+$) ],
              allow_empty => 0,
              allow_value => [ qw ( default lp lpr ) ],

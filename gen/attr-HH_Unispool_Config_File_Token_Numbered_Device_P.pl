@@ -15,7 +15,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'device_file',
+             method_factory_name => 'device_file',
              allow_rx => [ qw(^.*$) ],
              short_description => 'the device file to which the device is connected',
         },

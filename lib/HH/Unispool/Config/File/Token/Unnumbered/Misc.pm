@@ -34,7 +34,7 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
+# Used by _initialize
 our %DEFAULT_VALUE = (
     'clean_on_weekdays_only' => 0,
     'maximum_delay_time' => 15,
@@ -47,7 +47,7 @@ our %DEFAULT_VALUE = (
 );
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -139,7 +139,7 @@ Passed to L<set_input_line_number()>.
 
 =item new_from_string(LINE)
 
-This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Creates a new object from the specified Unispool config file line string.
+Creates a new object from the specified Unispool config file line string.
 
 =back
 
@@ -147,21 +147,61 @@ This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Cr
 
 =over
 
-=item read_string(LINE)
+=item get_date_format()
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Unnumbered'>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
+Returns the format in which UNISPOOL will show and accept date information.
 
-=item write_string()
+=item get_default_printer()
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Unnumbered'>. Returns a Unispool config file token line string.
+Returns the printer to be used when no other one is specified.
 
-=item set_clean_on_weekdays_only(VALUE)
+=item get_input_line_number()
 
-State that saved printfiles are deleted on weekdays only. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Returns the line number from from which the token is read.
+
+=item get_local_system_name()
+
+Returns the name of the system UNISPOOL is running on.
+
+=item get_maximum_delay_time()
+
+Returns the number of seconds the UNISPOOL main process is allowed to sleep between consecutive scans for printfiles.
+
+=item get_maximum_print_file_space()
+
+Returns the maximum number of bytes available to store UNISPOOL printfiles.
+
+=item get_maximum_save_file_space()
+
+Returns the maximum number of bytes available to store saved printfiles.
+
+=item get_save_groups()
+
+Returns the number of savegroups (not found in UNISPOOL C<config -screen>).
+
+=item get_save_time_in_days()
+
+Returns the number of days saved printfiles will be kept on disk before they are automatically removed.
+
+=item get_start_time_clean_job_hour()
+
+Returns the hour part of the time that the clean job must be started on a 24-hour clock.
+
+=item get_start_time_clean_job_minute()
+
+Returns the minute part of the time that the clean job must be started on a 24-hour clock.
 
 =item is_clean_on_weekdays_only()
 
 Returns whether saved printfiles are deleted on weekdays only or not.
+
+=item read_string(LINE)
+
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Unnumbered>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
+
+=item set_clean_on_weekdays_only(VALUE)
+
+State that saved printfiles are deleted on weekdays only. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
 
 =item set_date_format(VALUE)
 
@@ -179,10 +219,6 @@ Set the format in which UNISPOOL will show and accept date information. C<VALUE>
 
 =back
 
-=item get_date_format()
-
-Returns the format in which UNISPOOL will show and accept date information.
-
 =item set_default_printer(VALUE)
 
 Set the printer to be used when no other one is specified. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -199,9 +235,21 @@ Set the printer to be used when no other one is specified. C<VALUE> is the value
 
 =back
 
-=item get_default_printer()
+=item set_input_line_number(VALUE)
 
-Returns the printer to be used when no other one is specified.
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Set the line number from from which the token is read. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
 
 =item set_local_system_name(VALUE)
 
@@ -219,10 +267,6 @@ Set the name of the system UNISPOOL is running on. C<VALUE> is the value. C<VALU
 
 =back
 
-=item get_local_system_name()
-
-Returns the name of the system UNISPOOL is running on.
-
 =item set_maximum_delay_time(VALUE)
 
 Set the number of seconds the UNISPOOL main process is allowed to sleep between consecutive scans for printfiles. C<VALUE> is the value. Default value at initialization is C<15>. On error an exception C<Error::Simple> is thrown.
@@ -238,10 +282,6 @@ Set the number of seconds the UNISPOOL main process is allowed to sleep between 
 =back
 
 =back
-
-=item get_maximum_delay_time()
-
-Returns the number of seconds the UNISPOOL main process is allowed to sleep between consecutive scans for printfiles.
 
 =item set_maximum_print_file_space(VALUE)
 
@@ -259,10 +299,6 @@ Set the maximum number of bytes available to store UNISPOOL printfiles. C<VALUE>
 
 =back
 
-=item get_maximum_print_file_space()
-
-Returns the maximum number of bytes available to store UNISPOOL printfiles.
-
 =item set_maximum_save_file_space(VALUE)
 
 Set the maximum number of bytes available to store saved printfiles. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
@@ -278,10 +314,6 @@ Set the maximum number of bytes available to store saved printfiles. C<VALUE> is
 =back
 
 =back
-
-=item get_maximum_save_file_space()
-
-Returns the maximum number of bytes available to store saved printfiles.
 
 =item set_save_groups(VALUE)
 
@@ -299,10 +331,6 @@ Set the number of savegroups (not found in UNISPOOL C<config -screen>). C<VALUE>
 
 =back
 
-=item get_save_groups()
-
-Returns the number of savegroups (not found in UNISPOOL C<config -screen>).
-
 =item set_save_time_in_days(VALUE)
 
 Set the number of days saved printfiles will be kept on disk before they are automatically removed. C<VALUE> is the value. Default value at initialization is C<3>. On error an exception C<Error::Simple> is thrown.
@@ -318,10 +346,6 @@ Set the number of days saved printfiles will be kept on disk before they are aut
 =back
 
 =back
-
-=item get_save_time_in_days()
-
-Returns the number of days saved printfiles will be kept on disk before they are automatically removed.
 
 =item set_start_time_clean_job_hour(VALUE)
 
@@ -339,10 +363,6 @@ Set the hour part of the time that the clean job must be started on a 24-hour cl
 
 =back
 
-=item get_start_time_clean_job_hour()
-
-Returns the hour part of the time that the clean job must be started on a 24-hour clock.
-
 =item set_start_time_clean_job_minute(VALUE)
 
 Set the minute part of the time that the clean job must be started on a 24-hour clock. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
@@ -359,19 +379,9 @@ Set the minute part of the time that the clean job must be started on a 24-hour 
 
 =back
 
-=item get_start_time_clean_job_minute()
+=item write_string()
 
-Returns the minute part of the time that the clean job must be started on a 24-hour clock.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token
-
-=over
-
-=item To access attribute named B<C<input_line_number>>:
-
-set_input_line_number(), get_input_line_number()
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Unnumbered>. Returns a Unispool config file token line string.
 
 =back
 
@@ -452,6 +462,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -531,265 +542,6 @@ sub _initialize {
     return($self);
 }
 
-sub read_string {
-    my $self = shift;
-    my $line = shift;
-
-    # Parse line for name
-    my ($name, $tail) = $line =~ /$USP_M_RX/;
-    defined($name) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::read_string, parameter 'LINE' does not match the regular expression for this token's line string.");
-
-    # Parse line for other entries
-    my @tail = $self->_split_tail($tail);
-    ( scalar(@tail) > 8 ) && throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::read_string, parameter 'LINE' contains too many ';' separated entries after the local system name '$name'.");
-    my $mdt = shift(@tail);
-    my $st_str = shift(@tail);
-    my ($stid, $cowo) = split(/\//, $st_str);
-    $cowo = ( lc($cowo) eq 'w' ) if ( defined($cowo) );
-    my $sg = shift(@tail);
-    my $df = shift(@tail);
-    my $stcj_str = shift(@tail);
-    my ( $stcj_h, $stcj_m ) = split( /:/, $stcj_str);
-    my $mpfs = shift(@tail);
-    my $msfs = shift(@tail);
-    my $dp = shift(@tail);
-
-    # Set attributes
-    $self->set_local_system_name($name);
-    defined($mdt) && $self->set_maximum_delay_time($mdt);
-    defined($stid) && $self->set_save_time_in_days($stid);
-    defined($cowo) && $self->set_clean_on_weekdays_only($cowo);
-    defined($sg) && $self->set_save_groups($sg);
-    if ($df) {
-        require HH::Unispool::Config::DateFormat;
-        $self->set_date_format( HH::Unispool::Config::DateFormat->new( { date_format => $df } ) );
-    }
-    defined($stcj_h) && $self->set_start_time_clean_job_hour($stcj_h);
-    defined($stcj_m) && $self->set_start_time_clean_job_minute($stcj_m);
-    defined($mpfs) && $self->set_maximum_print_file_space($mpfs);
-    defined($msfs) && $self->set_maximum_save_file_space($msfs);
-    defined($dp) && $self->set_default_printer($dp);
-}
-
-sub write_string {
-    my $self = shift;
-
-    # Make string and return it
-    my $wc = $self->is_clean_on_weekdays_only() ? 'W' : 'C';
-    return(
-        sprintf(
-            $USP_M_FRM,
-            $self->get_local_system_name() || '',
-            $self->get_maximum_delay_time() || 0,
-            $self->get_save_time_in_days() . "/$wc",
-            $self->get_save_groups() || '',
-            $self->get_date_format()->get_date_format() || '',
-            sprintf("%d:%02d",
-                $self->get_start_time_clean_job_hour() || 0,
-                $self->get_start_time_clean_job_minute() || 0,
-            ),
-            $self->get_maximum_print_file_space() || 0,
-            $self->get_maximum_save_file_space() || 0,
-            $self->get_default_printer() || '',
-        )
-    );
-}
-
-sub set_clean_on_weekdays_only {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{clean_on_weekdays_only} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{clean_on_weekdays_only} = 0;
-    }
-}
-
-sub is_clean_on_weekdays_only {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{clean_on_weekdays_only} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_date_format {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'date_format', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_date_format, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{date_format} = $val;
-}
-
-sub get_date_format {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{date_format} );
-}
-
-sub set_default_printer {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'default_printer', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_default_printer, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{default_printer} = $val;
-}
-
-sub get_default_printer {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{default_printer} );
-}
-
-sub set_local_system_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Value for 'local_system_name' is not allowed to be empty
-    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_local_system_name, value may not be empty.");
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'local_system_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_local_system_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{local_system_name} = $val;
-}
-
-sub get_local_system_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{local_system_name} );
-}
-
-sub set_maximum_delay_time {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'maximum_delay_time', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_maximum_delay_time, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{maximum_delay_time} = $val;
-}
-
-sub get_maximum_delay_time {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{maximum_delay_time} );
-}
-
-sub set_maximum_print_file_space {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'maximum_print_file_space', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_maximum_print_file_space, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{maximum_print_file_space} = $val;
-}
-
-sub get_maximum_print_file_space {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{maximum_print_file_space} );
-}
-
-sub set_maximum_save_file_space {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'maximum_save_file_space', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_maximum_save_file_space, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{maximum_save_file_space} = $val;
-}
-
-sub get_maximum_save_file_space {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{maximum_save_file_space} );
-}
-
-sub set_save_groups {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'save_groups', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_save_groups, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{save_groups} = $val;
-}
-
-sub get_save_groups {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{save_groups} );
-}
-
-sub set_save_time_in_days {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'save_time_in_days', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_save_time_in_days, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{save_time_in_days} = $val;
-}
-
-sub get_save_time_in_days {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{save_time_in_days} );
-}
-
-sub set_start_time_clean_job_hour {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'start_time_clean_job_hour', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_start_time_clean_job_hour, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{start_time_clean_job_hour} = $val;
-}
-
-sub get_start_time_clean_job_hour {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{start_time_clean_job_hour} );
-}
-
-sub set_start_time_clean_job_minute {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'start_time_clean_job_minute', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_start_time_clean_job_minute, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{start_time_clean_job_minute} = $val;
-}
-
-sub get_start_time_clean_job_minute {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{start_time_clean_job_minute} );
-}
-
 sub _value_is_allowed {
     my $name = shift;
 
@@ -831,5 +583,264 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub get_date_format {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{date_format} );
+}
+
+sub get_default_printer {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{default_printer} );
+}
+
+sub get_local_system_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{local_system_name} );
+}
+
+sub get_maximum_delay_time {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{maximum_delay_time} );
+}
+
+sub get_maximum_print_file_space {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{maximum_print_file_space} );
+}
+
+sub get_maximum_save_file_space {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{maximum_save_file_space} );
+}
+
+sub get_save_groups {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{save_groups} );
+}
+
+sub get_save_time_in_days {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{save_time_in_days} );
+}
+
+sub get_start_time_clean_job_hour {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{start_time_clean_job_hour} );
+}
+
+sub get_start_time_clean_job_minute {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{start_time_clean_job_minute} );
+}
+
+sub is_clean_on_weekdays_only {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{clean_on_weekdays_only} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub read_string {
+    my $self = shift;
+    my $line = shift;
+
+    # Parse line for name
+    my ($name, $tail) = $line =~ /$USP_M_RX/;
+    defined($name) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::read_string, parameter 'LINE' does not match the regular expression for this token's line string.");
+
+    # Parse line for other entries
+    my @tail = $self->_split_tail($tail);
+    ( scalar(@tail) > 8 ) && throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::read_string, parameter 'LINE' contains too many ';' separated entries after the local system name '$name'.");
+    my $mdt = shift(@tail);
+    my $st_str = shift(@tail);
+    my ($stid, $cowo) = split(/\//, $st_str);
+    $cowo = ( lc($cowo) eq 'w' ) if ( defined($cowo) );
+    my $sg = shift(@tail);
+    my $df = shift(@tail);
+    my $stcj_str = shift(@tail);
+    my ( $stcj_h, $stcj_m ) = split( /:/, $stcj_str);
+    my $mpfs = shift(@tail);
+    my $msfs = shift(@tail);
+    my $dp = shift(@tail);
+
+    # Set attributes
+    $self->set_local_system_name($name);
+    defined($mdt) && $self->set_maximum_delay_time($mdt);
+    defined($stid) && $self->set_save_time_in_days($stid);
+    defined($cowo) && $self->set_clean_on_weekdays_only($cowo);
+    defined($sg) && $self->set_save_groups($sg);
+    if ($df) {
+        require HH::Unispool::Config::DateFormat;
+        $self->set_date_format( HH::Unispool::Config::DateFormat->new( { date_format => $df } ) );
+    }
+    defined($stcj_h) && $self->set_start_time_clean_job_hour($stcj_h);
+    defined($stcj_m) && $self->set_start_time_clean_job_minute($stcj_m);
+    defined($mpfs) && $self->set_maximum_print_file_space($mpfs);
+    defined($msfs) && $self->set_maximum_save_file_space($msfs);
+    defined($dp) && $self->set_default_printer($dp);
+}
+
+sub set_clean_on_weekdays_only {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{clean_on_weekdays_only} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{clean_on_weekdays_only} = 0;
+    }
+}
+
+sub set_date_format {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'date_format', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_date_format, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{date_format} = $val;
+}
+
+sub set_default_printer {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'default_printer', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_default_printer, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{default_printer} = $val;
+}
+
+sub set_local_system_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Value for 'local_system_name' is not allowed to be empty
+    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_local_system_name, value may not be empty.");
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'local_system_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_local_system_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{local_system_name} = $val;
+}
+
+sub set_maximum_delay_time {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'maximum_delay_time', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_maximum_delay_time, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{maximum_delay_time} = $val;
+}
+
+sub set_maximum_print_file_space {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'maximum_print_file_space', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_maximum_print_file_space, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{maximum_print_file_space} = $val;
+}
+
+sub set_maximum_save_file_space {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'maximum_save_file_space', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_maximum_save_file_space, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{maximum_save_file_space} = $val;
+}
+
+sub set_save_groups {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'save_groups', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_save_groups, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{save_groups} = $val;
+}
+
+sub set_save_time_in_days {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'save_time_in_days', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_save_time_in_days, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{save_time_in_days} = $val;
+}
+
+sub set_start_time_clean_job_hour {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'start_time_clean_job_hour', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_start_time_clean_job_hour, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{start_time_clean_job_hour} = $val;
+}
+
+sub set_start_time_clean_job_minute {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'start_time_clean_job_minute', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Unnumbered::Misc::set_start_time_clean_job_minute, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Unnumbered_Misc}{start_time_clean_job_minute} = $val;
+}
+
+sub write_string {
+    my $self = shift;
+
+    # Make string and return it
+    my $wc = $self->is_clean_on_weekdays_only() ? 'W' : 'C';
+    return(
+        sprintf(
+            $USP_M_FRM,
+            $self->get_local_system_name() || '',
+            $self->get_maximum_delay_time() || 0,
+            $self->get_save_time_in_days() . "/$wc",
+            $self->get_save_groups() || '',
+            $self->get_date_format()->get_date_format() || '',
+            sprintf("%d:%02d",
+                $self->get_start_time_clean_job_hour() || 0,
+                $self->get_start_time_clean_job_minute() || 0,
+            ),
+            $self->get_maximum_print_file_space() || 0,
+            $self->get_maximum_save_file_space() || 0,
+            $self->get_default_printer() || '',
+        )
+    );
 }
 

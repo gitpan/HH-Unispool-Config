@@ -15,7 +15,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'description',
+             method_factory_name => 'description',
              allow_rx => [ qw(^.*$) ],
              short_description => 'the description for the system,',
         },

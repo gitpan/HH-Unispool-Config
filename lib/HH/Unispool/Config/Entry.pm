@@ -23,12 +23,8 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
-our %DEFAULT_VALUE = (
-);
-
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -85,9 +81,9 @@ This is an interface method. Constructs a new C<HH::Unispool::Config::Entry> obj
 
 Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown.
 
-=item write(FILE_HANDLE)
+=item get_name()
 
-This is an interface method. Writes the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
+Returns the entry name.
 
 =item set_name(VALUE)
 
@@ -105,9 +101,9 @@ Set the entry name. C<VALUE> is the value. C<VALUE> may not be C<undef>. On erro
 
 =back
 
-=item get_name()
+=item write(FILE_HANDLE)
 
-Returns the entry name.
+This is an interface method. Writes the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -188,6 +184,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -227,6 +224,10 @@ sub new {
     return( $self->_initialize(@_) );
 }
 
+sub new_from_tokenizer {
+    throw Error::Simple("ERROR: HH::Unispool::Config::Entry::new_from_tokenizer, call this method in a subclass that has implemented it.");
+}
+
 sub _initialize {
     my $self = shift;
     my $opt = defined($_[0]) ? shift : {};
@@ -240,61 +241,6 @@ sub _initialize {
 
     # Return $self
     return($self);
-}
-
-sub diff {
-    my $from = shift;
-    my $to = shift;
-
-    # Reference types must be identical
-    if ( ref($from) ne ref($to) ) {
-        my $rf = ref($from);
-        my $rt = ref($to);
-
-        throw Error::Simple("ERROR: HH::Unispool::Config::Entry::diff, FROM ($rf) and TO ($rt) reference types differ.");
-    }
-
-    # Diff message
-    my $diff = '';
-
-    # Diff the name
-    if ( $from->get_name() ne $to->get_name() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_name();
-        my $vt = $to->get_name();
-        $diff .= "$ref: name difference: $vf <-> $vt\n";
-    }
-
-    # Return diff
-    return($diff);
-}
-
-sub new_from_tokenizer {
-    throw Error::Simple("ERROR: HH::Unispool::Config::Entry::new_from_tokenizer, call this method in a subclass that has implemented it.");
-}
-
-sub write {
-    throw Error::Simple("ERROR: HH::Unispool::Config::Entry::write, call this method in a subclass that has implemented it.");
-}
-
-sub set_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Value for 'name' is not allowed to be empty
-    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::set_name, value may not be empty.");
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::set_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry}{name} = $val;
-}
-
-sub get_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry}{name} );
 }
 
 sub _value_is_allowed {
@@ -338,5 +284,56 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub diff {
+    my $from = shift;
+    my $to = shift;
+
+    # Reference types must be identical
+    if ( ref($from) ne ref($to) ) {
+        my $rf = ref($from);
+        my $rt = ref($to);
+
+        throw Error::Simple("ERROR: HH::Unispool::Config::Entry::diff, FROM ($rf) and TO ($rt) reference types differ.");
+    }
+
+    # Diff message
+    my $diff = '';
+
+    # Diff the name
+    if ( $from->get_name() ne $to->get_name() ) {
+        my $ref = ref($from);
+        my $vf = $from->get_name();
+        my $vt = $to->get_name();
+        $diff .= "$ref: name difference: $vf <-> $vt\n";
+    }
+
+    # Return diff
+    return($diff);
+}
+
+sub get_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry}{name} );
+}
+
+sub set_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Value for 'name' is not allowed to be empty
+    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::set_name, value may not be empty.");
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::set_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry}{name} = $val;
+}
+
+sub write {
+    throw Error::Simple("ERROR: HH::Unispool::Config::Entry::write, call this method in a subclass that has implemented it.");
 }
 

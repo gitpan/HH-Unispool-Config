@@ -44,7 +44,7 @@ our %ALLOW_VALUE = (
     },
 );
 
-# Used by _value_is_allowed
+# Used by _initialize
 our %DEFAULT_VALUE = (
     'central_console_node' => 'SYSLOG',
     'clean_on_weekdays_only' => 0,
@@ -58,10 +58,11 @@ our %DEFAULT_VALUE = (
     'save_time_in_days' => 3,
     'start_time_clean_job_hour' => 0,
     'start_time_clean_job_minute' => 0,
+    'type' => 'cc',
 );
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -276,7 +277,7 @@ Passed to L<set_start_time_clean_job_minute()>. Defaults to B<0>.
 
 =item B<C<type>>
 
-Passed to L<set_type()>.
+Passed to L<set_type()>. Defaults to B<'cc'>.
 
 =back
 
@@ -292,7 +293,7 @@ Passed to L<set_name()>. Mandatory option.
 
 =item new_from_tokenizer(TOKENIZER)
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry'>. Constructs a new C<HH::Unispool::Config::Entry> object using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
+This method is an implementation from package C<HH::Unispool::Config::Entry>. Constructs a new C<HH::Unispool::Config::Entry> object using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -300,13 +301,133 @@ This method is an implementation from package C<'HH::Unispool::Config::Entry'>. 
 
 =over
 
+=item add_device( [ VALUE ... ] )
+
+Add additional values on the list of devices for the system. Each C<VALUE> is an object out of which the id is obtained through method C<get_name()>. The obtained B<key> is used to store the value and may be used for deletion and to fetch the value. 0 or more values may be supplied. Multiple occurrences of the same key yield in the last occurring key to be inserted and the rest to be ignored. Each key of the specified values is allowed to occur only once. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item The values in C<ARRAY> must be a (sub)class of:
+
+=over
+
+=item HH::Unispool::Config::Entry::Device
+
+=back
+
+=back
+
+=item add_remote_system( [ VALUE ... ] )
+
+Add additional values on the list of remote systems for the system. Each C<VALUE> is an object out of which the id is obtained through method C<get_name()>. The obtained B<key> is used to store the value and may be used for deletion and to fetch the value. 0 or more values may be supplied. Multiple occurrences of the same key yield in the last occurring key to be inserted and the rest to be ignored. Each key of the specified values is allowed to occur only once. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item The values in C<ARRAY> must be a (sub)class of:
+
+=over
+
+=item HH::Unispool::Config::Entry::RemoteSystem
+
+=back
+
+=back
+
+=item delete_device(ARRAY)
+
+Delete elements from the list of devices for the system. Returns the number of deleted elements. On error an exception C<Error::Simple> is thrown.
+
+=item delete_remote_system(ARRAY)
+
+Delete elements from the list of remote systems for the system. Returns the number of deleted elements. On error an exception C<Error::Simple> is thrown.
+
 =item diff(TO [, DIFF_NUMBER])
 
-This method is overloaded from package C<'HH::Unispool::Config::Entry'>. Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown. Paremeter C<DIFF_NUMBER> if specified, overrules the value of C<get_diff_number>.
+This method is overloaded from package C<HH::Unispool::Config::Entry>. Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown. Paremeter C<DIFF_NUMBER> if specified, overrules the value of C<get_diff_number>.
 
-=item write(FILE_HANDLE)
+=item exists_device(ARRAY)
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry'>. Writes the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
+Returns the count of items in C<ARRAY> that are in the list of devices for the system.
+
+=item exists_remote_system(ARRAY)
+
+Returns the count of items in C<ARRAY> that are in the list of remote systems for the system.
+
+=item get_central_console_node()
+
+Returns the name of the system on which the console messages must be displayed.
+
+=item get_date_format()
+
+Returns the format in which UNISPOOL will show and accept date information.
+
+=item get_default_printer()
+
+Returns the printer to be used when no other one is specified.
+
+=item get_local_system_name()
+
+Returns the name of the system UNISPOOL is running on.
+
+=item get_maximum_delay_time()
+
+Returns the number of seconds the UNISPOOL main process is allowed to sleep between consecutive scans for printfiles.
+
+=item get_maximum_print_file_space()
+
+Returns the maximum number of bytes available to store UNISPOOL printfiles.
+
+=item get_maximum_save_file_space()
+
+Returns the maximum number of bytes available to store saved printfiles.
+
+=item get_name()
+
+This method is inherited from package C<HH::Unispool::Config::Entry>. Returns the entry name.
+
+=item get_network_name()
+
+Returns the network name of the system.
+
+=item get_os()
+
+Returns the operating system running on this system.
+
+=item get_save_groups()
+
+Returns the number of savegroups (not found in UNISPOOL C<config -screen>).
+
+=item get_save_time_in_days()
+
+Returns the number of days saved printfiles will be kept on disk before they are automatically removed.
+
+=item get_start_time_clean_job_hour()
+
+Returns the hour part of the time that the clean job must be started on a 24-hour clock.
+
+=item get_start_time_clean_job_minute()
+
+Returns the minute part of the time that the clean job must be started on a 24-hour clock.
+
+=item get_type()
+
+Returns the system type.
+
+=item is_clean_on_weekdays_only()
+
+Returns whether saved printfiles are deleted on weekdays only or not.
+
+=item is_diff_number()
+
+Returns whether L<diff()> should consider the C<number> attribtutes or not.
+
+=item keys_device()
+
+Returns an C<ARRAY> containing the keys of the list of devices for the system.
+
+=item keys_remote_system()
+
+Returns an C<ARRAY> containing the keys of the list of remote systems for the system.
 
 =item set_central_console_node(VALUE)
 
@@ -324,17 +445,9 @@ Set the name of the system on which the console messages must be displayed. C<VA
 
 =back
 
-=item get_central_console_node()
-
-Returns the name of the system on which the console messages must be displayed.
-
 =item set_clean_on_weekdays_only(VALUE)
 
 State that saved printfiles are deleted on weekdays only. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
-
-=item is_clean_on_weekdays_only()
-
-Returns whether saved printfiles are deleted on weekdays only or not.
 
 =item set_date_format(VALUE)
 
@@ -352,13 +465,9 @@ Set the format in which UNISPOOL will show and accept date information. C<VALUE>
 
 =back
 
-=item get_date_format()
-
-Returns the format in which UNISPOOL will show and accept date information.
-
 =item set_default_printer(VALUE)
 
-Set the printer to be used when no other one is specified. C<VALUE> is the value. Default value at initialization is C<'lp'>. On error an exception C<Error::Simple> is thrown.
+Set the printer to be used when no other one is specified. C<VALUE> is the value. Default value at initialization is C<lp>. On error an exception C<Error::Simple> is thrown.
 
 =over
 
@@ -372,13 +481,9 @@ Set the printer to be used when no other one is specified. C<VALUE> is the value
 
 =back
 
-=item get_default_printer()
-
-Returns the printer to be used when no other one is specified.
-
 =item set_device( [ VALUE ... ] )
 
-Set the list of devices for the system absolutely using values. Each C<VALUE> is an object out of which the id is obtained through method C<get_name()>. The obtained B<key> is used to store the value and may be used for deletion and to fetch the value. 0 or more values may be supplied. Multiple occurences of the same key yield in the last occuring key to be inserted and the rest to be ignored. Each key of the specified values is allowed to occur only once. On error an exception C<Error::Simple> is thrown.
+Set the list of devices for the system absolutely using values. Each C<VALUE> is an object out of which the id is obtained through method C<get_name()>. The obtained B<key> is used to store the value and may be used for deletion and to fetch the value. 0 or more values may be supplied. Multiple occurrences of the same key yield in the last occurring key to be inserted and the rest to be ignored. Each key of the specified values is allowed to occur only once. On error an exception C<Error::Simple> is thrown.
 
 =over
 
@@ -391,46 +496,10 @@ Set the list of devices for the system absolutely using values. Each C<VALUE> is
 =back
 
 =back
-
-=item add_device( [ VALUE ... ] )
-
-Add additional values on the list of devices for the system. Each C<VALUE> is an object out of which the id is obtained through method C<get_name()>. The obtained B<key> is used to store the value and may be used for deletion and to fetch the value. 0 or more values may be supplied. Multiple occurences of the same key yield in the last occuring key to be inserted and the rest to be ignored. Each key of the specified values is allowed to occur only once. On error an exception C<Error::Simple> is thrown.
-
-=over
-
-=item The values in C<ARRAY> must be a (sub)class of:
-
-=over
-
-=item HH::Unispool::Config::Entry::Device
-
-=back
-
-=back
-
-=item delete_device(ARRAY)
-
-Delete elements from the list of devices for the system. Returns the number of deleted elements. On error an exception C<Error::Simple> is thrown.
-
-=item exists_device(ARRAY)
-
-Returns the count of items in C<ARRAY> that are in the list of devices for the system.
-
-=item keys_device()
-
-Returns an C<ARRAY> containing the keys of the list of devices for the system.
-
-=item values_device( [ KEY_ARRAY ] )
-
-Returns an C<ARRAY> containing the values of the list of devices for the system. If C<KEY_ARRAY> contains one or more C<KEY>s the values related to the C<KEY>s are returned. If no C<KEY>s specified all values are returned.
 
 =item set_diff_number(VALUE)
 
 State that L<diff()> should consider the C<number> attribtutes. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
-
-=item is_diff_number()
-
-Returns whether L<diff()> should consider the C<number> attribtutes or not.
 
 =item set_local_system_name(VALUE)
 
@@ -448,10 +517,6 @@ Set the name of the system UNISPOOL is running on. C<VALUE> is the value. C<VALU
 
 =back
 
-=item get_local_system_name()
-
-Returns the name of the system UNISPOOL is running on.
-
 =item set_maximum_delay_time(VALUE)
 
 Set the number of seconds the UNISPOOL main process is allowed to sleep between consecutive scans for printfiles. C<VALUE> is the value. Default value at initialization is C<15>. On error an exception C<Error::Simple> is thrown.
@@ -467,10 +532,6 @@ Set the number of seconds the UNISPOOL main process is allowed to sleep between 
 =back
 
 =back
-
-=item get_maximum_delay_time()
-
-Returns the number of seconds the UNISPOOL main process is allowed to sleep between consecutive scans for printfiles.
 
 =item set_maximum_print_file_space(VALUE)
 
@@ -488,10 +549,6 @@ Set the maximum number of bytes available to store UNISPOOL printfiles. C<VALUE>
 
 =back
 
-=item get_maximum_print_file_space()
-
-Returns the maximum number of bytes available to store UNISPOOL printfiles.
-
 =item set_maximum_save_file_space(VALUE)
 
 Set the maximum number of bytes available to store saved printfiles. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
@@ -508,9 +565,21 @@ Set the maximum number of bytes available to store saved printfiles. C<VALUE> is
 
 =back
 
-=item get_maximum_save_file_space()
+=item set_name(VALUE)
 
-Returns the maximum number of bytes available to store saved printfiles.
+This method is inherited from package C<HH::Unispool::Config::Entry>. Set the entry name. C<VALUE> is the value. C<VALUE> may not be C<undef>. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.+$
+
+=back
+
+=back
 
 =item set_network_name(VALUE)
 
@@ -528,10 +597,6 @@ Set the network name of the system. C<VALUE> is the value. C<VALUE> may not be C
 
 =back
 
-=item get_network_name()
-
-Returns the network name of the system.
-
 =item set_os(VALUE)
 
 Set the operating system running on this system. C<VALUE> is the value. C<VALUE> may not be C<undef>. On error an exception C<Error::Simple> is thrown.
@@ -548,13 +613,9 @@ Set the operating system running on this system. C<VALUE> is the value. C<VALUE>
 
 =back
 
-=item get_os()
-
-Returns the operating system running on this system.
-
 =item set_remote_system( [ VALUE ... ] )
 
-Set the list of remote systems for the system absolutely using values. Each C<VALUE> is an object out of which the id is obtained through method C<get_name()>. The obtained B<key> is used to store the value and may be used for deletion and to fetch the value. 0 or more values may be supplied. Multiple occurences of the same key yield in the last occuring key to be inserted and the rest to be ignored. Each key of the specified values is allowed to occur only once. On error an exception C<Error::Simple> is thrown.
+Set the list of remote systems for the system absolutely using values. Each C<VALUE> is an object out of which the id is obtained through method C<get_name()>. The obtained B<key> is used to store the value and may be used for deletion and to fetch the value. 0 or more values may be supplied. Multiple occurrences of the same key yield in the last occurring key to be inserted and the rest to be ignored. Each key of the specified values is allowed to occur only once. On error an exception C<Error::Simple> is thrown.
 
 =over
 
@@ -567,38 +628,6 @@ Set the list of remote systems for the system absolutely using values. Each C<VA
 =back
 
 =back
-
-=item add_remote_system( [ VALUE ... ] )
-
-Add additional values on the list of remote systems for the system. Each C<VALUE> is an object out of which the id is obtained through method C<get_name()>. The obtained B<key> is used to store the value and may be used for deletion and to fetch the value. 0 or more values may be supplied. Multiple occurences of the same key yield in the last occuring key to be inserted and the rest to be ignored. Each key of the specified values is allowed to occur only once. On error an exception C<Error::Simple> is thrown.
-
-=over
-
-=item The values in C<ARRAY> must be a (sub)class of:
-
-=over
-
-=item HH::Unispool::Config::Entry::RemoteSystem
-
-=back
-
-=back
-
-=item delete_remote_system(ARRAY)
-
-Delete elements from the list of remote systems for the system. Returns the number of deleted elements. On error an exception C<Error::Simple> is thrown.
-
-=item exists_remote_system(ARRAY)
-
-Returns the count of items in C<ARRAY> that are in the list of remote systems for the system.
-
-=item keys_remote_system()
-
-Returns an C<ARRAY> containing the keys of the list of remote systems for the system.
-
-=item values_remote_system( [ KEY_ARRAY ] )
-
-Returns an C<ARRAY> containing the values of the list of remote systems for the system. If C<KEY_ARRAY> contains one or more C<KEY>s the values related to the C<KEY>s are returned. If no C<KEY>s specified all values are returned.
 
 =item set_save_groups(VALUE)
 
@@ -616,10 +645,6 @@ Set the number of savegroups (not found in UNISPOOL C<config -screen>). C<VALUE>
 
 =back
 
-=item get_save_groups()
-
-Returns the number of savegroups (not found in UNISPOOL C<config -screen>).
-
 =item set_save_time_in_days(VALUE)
 
 Set the number of days saved printfiles will be kept on disk before they are automatically removed. C<VALUE> is the value. Default value at initialization is C<3>. On error an exception C<Error::Simple> is thrown.
@@ -635,10 +660,6 @@ Set the number of days saved printfiles will be kept on disk before they are aut
 =back
 
 =back
-
-=item get_save_time_in_days()
-
-Returns the number of days saved printfiles will be kept on disk before they are automatically removed.
 
 =item set_start_time_clean_job_hour(VALUE)
 
@@ -656,10 +677,6 @@ Set the hour part of the time that the clean job must be started on a 24-hour cl
 
 =back
 
-=item get_start_time_clean_job_hour()
-
-Returns the hour part of the time that the clean job must be started on a 24-hour clock.
-
 =item set_start_time_clean_job_minute(VALUE)
 
 Set the minute part of the time that the clean job must be started on a 24-hour clock. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
@@ -676,13 +693,9 @@ Set the minute part of the time that the clean job must be started on a 24-hour 
 
 =back
 
-=item get_start_time_clean_job_minute()
-
-Returns the minute part of the time that the clean job must be started on a 24-hour clock.
-
 =item set_type(VALUE)
 
-Set the system type. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+Set the system type. C<VALUE> is the value. Default value at initialization is C<cc>. On error an exception C<Error::Simple> is thrown.
 
 =over
 
@@ -700,19 +713,17 @@ Set the system type. C<VALUE> is the value. On error an exception C<Error::Simpl
 
 =back
 
-=item get_type()
+=item values_device( [ KEY_ARRAY ] )
 
-Returns the system type.
+Returns an C<ARRAY> containing the values of the list of devices for the system. If C<KEY_ARRAY> contains one or more C<KEY>s the values related to the C<KEY>s are returned. If no C<KEY>s specified all values are returned.
 
-=back
+=item values_remote_system( [ KEY_ARRAY ] )
 
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry
+Returns an C<ARRAY> containing the values of the list of remote systems for the system. If C<KEY_ARRAY> contains one or more C<KEY>s the values related to the C<KEY>s are returned. If no C<KEY>s specified all values are returned.
 
-=over
+=item write(FILE_HANDLE)
 
-=item To access attribute named B<C<name>>:
-
-set_name(), get_name()
+This method is an implementation from package C<HH::Unispool::Config::Entry>. Writes the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -793,6 +804,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -823,301 +835,6 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA 02111-1307 USA
 
 =cut
-
-sub _initialize {
-    my $self = shift;
-    my $opt = defined($_[0]) ? shift : {};
-
-    # Check $opt
-    ref($opt) eq 'HASH' || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::_initialize, first argument must be 'HASH' reference.");
-
-    # Check/allow exceptional situations
-    if ($opt->{name} eq '_Network_') {
-        $opt->{network_name} = '[Network]';
-        $opt->{local_system_name} = 'BOGUS';
-        require HH::Unispool::Config::OS;
-        $opt->{os} = HH::Unispool::Config::OS->new( { os => 'Solaris' } );
-    }
-
-    # central_console_node, SINGLE, with default value
-    $self->set_central_console_node( exists( $opt->{central_console_node} ) ? $opt->{central_console_node} : $DEFAULT_VALUE{central_console_node} );
-
-    # clean_on_weekdays_only, BOOLEAN, with default value
-    $self->set_clean_on_weekdays_only( exists( $opt->{clean_on_weekdays_only} ) ? $opt->{clean_on_weekdays_only} : $DEFAULT_VALUE{clean_on_weekdays_only} );
-
-    # date_format, SINGLE, with default value
-    $self->set_date_format( exists( $opt->{date_format} ) ? $opt->{date_format} : HH::Unispool::Config::DateFormat->new( { date_format => 'DD/MM/YY' } ) );
-
-    # default_printer, SINGLE, with default value
-    $self->set_default_printer( exists( $opt->{default_printer} ) ? $opt->{default_printer} : $DEFAULT_VALUE{default_printer} );
-
-    # device, MULTI
-    if ( exists( $opt->{device} ) ) {
-        ref( $opt->{device} ) eq 'ARRAY' || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::_initialize, specified value for option 'device' must be an 'ARRAY' reference.");
-        $self->set_device( @{ $opt->{device} } );
-    }
-    else {
-        $self->set_device();
-    }
-
-    # diff_number, BOOLEAN, with default value
-    $self->set_diff_number( exists( $opt->{diff_number} ) ? $opt->{diff_number} : $DEFAULT_VALUE{diff_number} );
-
-    # local_system_name, SINGLE, mandatory
-    exists( $opt->{local_system_name} ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::_initialize, option 'local_system_name' is mandatory.");
-    $self->set_local_system_name( $opt->{local_system_name} );
-
-    # maximum_delay_time, SINGLE, with default value
-    $self->set_maximum_delay_time( exists( $opt->{maximum_delay_time} ) ? $opt->{maximum_delay_time} : $DEFAULT_VALUE{maximum_delay_time} );
-
-    # maximum_print_file_space, SINGLE, with default value
-    $self->set_maximum_print_file_space( exists( $opt->{maximum_print_file_space} ) ? $opt->{maximum_print_file_space} : $DEFAULT_VALUE{maximum_print_file_space} );
-
-    # maximum_save_file_space, SINGLE, with default value
-    $self->set_maximum_save_file_space( exists( $opt->{maximum_save_file_space} ) ? $opt->{maximum_save_file_space} : $DEFAULT_VALUE{maximum_save_file_space} );
-
-    # network_name, SINGLE, mandatory
-    exists( $opt->{network_name} ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::_initialize, option 'network_name' is mandatory.");
-    $self->set_network_name( $opt->{network_name} );
-
-    # os, SINGLE, mandatory
-    exists( $opt->{os} ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::_initialize, option 'os' is mandatory.");
-    $self->set_os( $opt->{os} );
-
-    # remote_system, MULTI
-    if ( exists( $opt->{remote_system} ) ) {
-        ref( $opt->{remote_system} ) eq 'ARRAY' || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::_initialize, specified value for option 'remote_system' must be an 'ARRAY' reference.");
-        $self->set_remote_system( @{ $opt->{remote_system} } );
-    }
-    else {
-        $self->set_remote_system();
-    }
-
-    # save_groups, SINGLE, with default value
-    $self->set_save_groups( exists( $opt->{save_groups} ) ? $opt->{save_groups} : $DEFAULT_VALUE{save_groups} );
-
-    # save_time_in_days, SINGLE, with default value
-    $self->set_save_time_in_days( exists( $opt->{save_time_in_days} ) ? $opt->{save_time_in_days} : $DEFAULT_VALUE{save_time_in_days} );
-
-    # start_time_clean_job_hour, SINGLE, with default value
-    $self->set_start_time_clean_job_hour( exists( $opt->{start_time_clean_job_hour} ) ? $opt->{start_time_clean_job_hour} : $DEFAULT_VALUE{start_time_clean_job_hour} );
-
-    # start_time_clean_job_minute, SINGLE, with default value
-    $self->set_start_time_clean_job_minute( exists( $opt->{start_time_clean_job_minute} ) ? $opt->{start_time_clean_job_minute} : $DEFAULT_VALUE{start_time_clean_job_minute} );
-
-    # type, SINGLE
-    exists( $opt->{type} ) && $self->set_type( $opt->{type} );
-
-    # Call the superclass' _initialize
-    $self->SUPER::_initialize($opt);
-
-    # Return $self
-    return($self);
-}
-
-sub diff {
-    my $from = shift;
-    my $to = shift;
-    my $diff_number = shift;
-    $diff_number = $from->is_diff_number() if ( ! defined( $diff_number ) );
-
-    # Reference types must be identical
-    if ( ref($from) ne ref($to) ) {
-        my $rf = ref($from);
-        my $rt = ref($to);
-
-        throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::diff, FROM ($rf) and TO ($rt) reference types differ.");
-    }
-
-    # Diff message
-    my $diff = $from->SUPER::diff($to);
-
-    # Diff the central console node
-    if ( $from->get_central_console_node() ne $to->get_central_console_node() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_central_console_node();
-        my $vt = $to->get_central_console_node();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: central console node difference: $vf <-> $vt\n";
-    }
-
-    # Diff the clean on weekdays only state
-    if ( $from->is_clean_on_weekdays_only() != $to->is_clean_on_weekdays_only() ) {
-        my $ref = ref($from);
-        my $vf = $from->is_clean_on_weekdays_only();
-        my $vt = $to->is_clean_on_weekdays_only();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: clean on weekdays only difference: $vf <-> $vt\n";
-    }
-
-    # Diff the date format
-    $diff .= $from->get_date_format()->diff( $to->get_date_format() );
-
-    # Diff the default printer
-    if ( $from->get_default_printer() ne $to->get_default_printer() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_default_printer();
-        my $vt = $to->get_default_printer();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: default printer difference: $vf <-> $vt\n";
-    }
-
-    # Diff the local system name
-    if ( $from->get_local_system_name() ne $to->get_local_system_name() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_local_system_name();
-        my $vt = $to->get_local_system_name();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: local system name difference: $vf <-> $vt\n";
-    }
-
-    # Diff the maximum delay time
-    if ( $from->get_maximum_delay_time() ne $to->get_maximum_delay_time() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_maximum_delay_time();
-        my $vt = $to->get_maximum_delay_time();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: maximum delay time difference: $vf <-> $vt\n";
-    }
-
-    # Diff the maximum print file space
-    if ( $from->get_maximum_print_file_space() ne $to->get_maximum_print_file_space() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_maximum_print_file_space();
-        my $vt = $to->get_maximum_print_file_space();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: maximum print file space difference: $vf <-> $vt\n";
-    }
-
-    # Diff the maximum save file space
-    if ( $from->get_maximum_save_file_space() ne $to->get_maximum_save_file_space() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_maximum_save_file_space();
-        my $vt = $to->get_maximum_save_file_space();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: maximum save file space difference: $vf <-> $vt\n";
-    }
-
-    # Diff the network name
-    if ( $from->get_network_name() ne $to->get_network_name() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_network_name();
-        my $vt = $to->get_network_name();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: network name difference: $vf <-> $vt\n";
-    }
-
-    # Diff the os
-    if ( defined( $from->get_os() ) && defined( $to->get_os() ) ) {
-        $diff .= $from->get_os()->diff( $to->get_os() );
-    }
-    elsif ( defined( $from->get_os() ) ) {
-        my $ref = ref($from);
-        my $vf = $from->get_os()->get_os();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: os missing in TO: $vf\n";
-    }
-    elsif ( defined( $to->get_os() ) ) {
-        my $ref = ref($to);
-        my $vt = $to->get_os()->get_os();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: os missing in FROM: $vt\n";
-    }
-
-    # Diff the save groups
-    if ( $from->get_save_groups() ne $to->get_save_groups() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_save_groups();
-        my $vt = $to->get_save_groups();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: save groups difference: $vf <-> $vt\n";
-    }
-
-    # Diff the save time in days
-    if ( $from->get_save_time_in_days() ne $to->get_save_time_in_days() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_save_time_in_days();
-        my $vt = $to->get_save_time_in_days();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: save time in days difference: $vf <-> $vt\n";
-    }
-
-    # Diff the start time clean job hour
-    if ( $from->get_start_time_clean_job_hour() ne $to->get_start_time_clean_job_hour() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_start_time_clean_job_hour();
-        my $vt = $to->get_start_time_clean_job_hour();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: start time clean job hour difference: $vf <-> $vt\n";
-    }
-
-    # Diff the start time clean job minute
-    if ( $from->get_start_time_clean_job_minute() ne $to->get_start_time_clean_job_minute() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_start_time_clean_job_minute();
-        my $vt = $to->get_start_time_clean_job_minute();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: start time clean job minute difference: $vf <-> $vt\n";
-    }
-
-    # Diff the type
-    if ( $from->get_type() ne $to->get_type() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_type();
-        my $vt = $to->get_type();
-        my $name = $from->get_name();
-        $diff .= "$ref/$name: type difference: $vf <-> $vt\n";
-    }
-
-    # Diff the remote system
-    foreach my $kf ( sort( $from->keys_remote_system() ) ) {
-        if ( $to->exists_remote_system($kf) ) {
-            $diff .= ( $from->values_remote_system($kf) )[0]->diff(
-                ( $to->values_remote_system($kf) )[0], $diff_number);
-        }
-        else {
-            my $ref = ref($from);
-            my $name = $from->get_name();
-            $diff .= "$ref/$name: remote system missing in TO: $kf\n";
-        }
-    }
-    foreach my $kt ( sort( $to->keys_remote_system() ) ) {
-        if ( $from->exists_remote_system($kt) ) {
-            next;
-        }
-        else {
-            my $ref = ref($from);
-            my $name = $from->get_name();
-            $diff .= "$ref/$name: remote system missing in FROM: $kt\n";
-        }
-    }
-
-    # Diff the device
-    foreach my $kf ( sort( $from->keys_device() ) ) {
-        if ( $to->exists_device($kf) ) {
-            $diff .= ( $from->values_device($kf) )[0]->diff(
-                ( $to->values_device($kf) )[0], $diff_number);
-        }
-        else {
-            my $ref = ref($from);
-            my $name = $from->get_name();
-            $diff .= "$ref/$name: device missing in TO: $kf\n";
-        }
-    }
-    foreach my $kt ( sort( $to->keys_device() ) ) {
-        if ( $from->exists_device($kt) ) {
-            next;
-        }
-        else {
-            my $ref = ref($from);
-            my $name = $from->get_name();
-            $diff .= "$ref/$name: device missing in FROM: $kt\n";
-        }
-    }
-
-    # Return diff
-    return($diff);
-}
 
 sub new_from_tokenizer {
     my $class = shift;
@@ -1400,6 +1117,783 @@ sub new_from_tokenizer {
     return($self);
 }
 
+sub _initialize {
+    my $self = shift;
+    my $opt = defined($_[0]) ? shift : {};
+
+    # Check $opt
+    ref($opt) eq 'HASH' || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::_initialize, first argument must be 'HASH' reference.");
+
+    # Check/allow exceptional situations
+    if ($opt->{name} eq '_Network_') {
+        $opt->{network_name} = '[Network]';
+        $opt->{local_system_name} = 'BOGUS';
+        require HH::Unispool::Config::OS;
+        $opt->{os} = HH::Unispool::Config::OS->new( { os => 'Solaris' } );
+    }
+
+    # central_console_node, SINGLE, with default value
+    $self->set_central_console_node( exists( $opt->{central_console_node} ) ? $opt->{central_console_node} : $DEFAULT_VALUE{central_console_node} );
+
+    # clean_on_weekdays_only, BOOLEAN, with default value
+    $self->set_clean_on_weekdays_only( exists( $opt->{clean_on_weekdays_only} ) ? $opt->{clean_on_weekdays_only} : $DEFAULT_VALUE{clean_on_weekdays_only} );
+
+    # date_format, SINGLE, with default value
+    $self->set_date_format( exists( $opt->{date_format} ) ? $opt->{date_format} : HH::Unispool::Config::DateFormat->new( { date_format => 'DD/MM/YY' } ) );
+
+    # default_printer, SINGLE, with default value
+    $self->set_default_printer( exists( $opt->{default_printer} ) ? $opt->{default_printer} : $DEFAULT_VALUE{default_printer} );
+
+    # device, MULTI
+    if ( exists( $opt->{device} ) ) {
+        ref( $opt->{device} ) eq 'ARRAY' || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::_initialize, specified value for option 'device' must be an 'ARRAY' reference.");
+        $self->set_device( @{ $opt->{device} } );
+    }
+    else {
+        $self->set_device();
+    }
+
+    # diff_number, BOOLEAN, with default value
+    $self->set_diff_number( exists( $opt->{diff_number} ) ? $opt->{diff_number} : $DEFAULT_VALUE{diff_number} );
+
+    # local_system_name, SINGLE, mandatory
+    exists( $opt->{local_system_name} ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::_initialize, option 'local_system_name' is mandatory.");
+    $self->set_local_system_name( $opt->{local_system_name} );
+
+    # maximum_delay_time, SINGLE, with default value
+    $self->set_maximum_delay_time( exists( $opt->{maximum_delay_time} ) ? $opt->{maximum_delay_time} : $DEFAULT_VALUE{maximum_delay_time} );
+
+    # maximum_print_file_space, SINGLE, with default value
+    $self->set_maximum_print_file_space( exists( $opt->{maximum_print_file_space} ) ? $opt->{maximum_print_file_space} : $DEFAULT_VALUE{maximum_print_file_space} );
+
+    # maximum_save_file_space, SINGLE, with default value
+    $self->set_maximum_save_file_space( exists( $opt->{maximum_save_file_space} ) ? $opt->{maximum_save_file_space} : $DEFAULT_VALUE{maximum_save_file_space} );
+
+    # network_name, SINGLE, mandatory
+    exists( $opt->{network_name} ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::_initialize, option 'network_name' is mandatory.");
+    $self->set_network_name( $opt->{network_name} );
+
+    # os, SINGLE, mandatory
+    exists( $opt->{os} ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::_initialize, option 'os' is mandatory.");
+    $self->set_os( $opt->{os} );
+
+    # remote_system, MULTI
+    if ( exists( $opt->{remote_system} ) ) {
+        ref( $opt->{remote_system} ) eq 'ARRAY' || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::_initialize, specified value for option 'remote_system' must be an 'ARRAY' reference.");
+        $self->set_remote_system( @{ $opt->{remote_system} } );
+    }
+    else {
+        $self->set_remote_system();
+    }
+
+    # save_groups, SINGLE, with default value
+    $self->set_save_groups( exists( $opt->{save_groups} ) ? $opt->{save_groups} : $DEFAULT_VALUE{save_groups} );
+
+    # save_time_in_days, SINGLE, with default value
+    $self->set_save_time_in_days( exists( $opt->{save_time_in_days} ) ? $opt->{save_time_in_days} : $DEFAULT_VALUE{save_time_in_days} );
+
+    # start_time_clean_job_hour, SINGLE, with default value
+    $self->set_start_time_clean_job_hour( exists( $opt->{start_time_clean_job_hour} ) ? $opt->{start_time_clean_job_hour} : $DEFAULT_VALUE{start_time_clean_job_hour} );
+
+    # start_time_clean_job_minute, SINGLE, with default value
+    $self->set_start_time_clean_job_minute( exists( $opt->{start_time_clean_job_minute} ) ? $opt->{start_time_clean_job_minute} : $DEFAULT_VALUE{start_time_clean_job_minute} );
+
+    # type, SINGLE, with default value
+    $self->set_type( exists( $opt->{type} ) ? $opt->{type} : $DEFAULT_VALUE{type} );
+
+    # Call the superclass' _initialize
+    $self->SUPER::_initialize($opt);
+
+    # Return $self
+    return($self);
+}
+
+sub _value_is_allowed {
+    my $name = shift;
+
+    # Value is allowed if no ALLOW clauses exist for the named attribute
+    if ( ! exists( $ALLOW_ISA{$name} ) && ! exists( $ALLOW_REF{$name} ) && ! exists( $ALLOW_RX{$name} ) && ! exists( $ALLOW_VALUE{$name} ) ) {
+        return(1);
+    }
+
+    # At this point, all values in @_ must to be allowed
+    CHECK_VALUES:
+    foreach my $val (@_) {
+        # Check ALLOW_ISA
+        if ( ref($val) && exists( $ALLOW_ISA{$name} ) ) {
+            foreach my $class ( @{ $ALLOW_ISA{$name} } ) {
+                &UNIVERSAL::isa( $val, $class ) && next CHECK_VALUES;
+            }
+        }
+
+        # Check ALLOW_REF
+        if ( ref($val) && exists( $ALLOW_REF{$name} ) ) {
+            exists( $ALLOW_REF{$name}{ ref($val) } ) && next CHECK_VALUES;
+        }
+
+        # Check ALLOW_RX
+        if ( defined($val) && ! ref($val) && exists( $ALLOW_RX{$name} ) ) {
+            foreach my $rx ( @{ $ALLOW_RX{$name} } ) {
+                $val =~ /$rx/ && next CHECK_VALUES;
+            }
+        }
+
+        # Check ALLOW_VALUE
+        if ( ! ref($val) && exists( $ALLOW_VALUE{$name} ) ) {
+            exists( $ALLOW_VALUE{$name}{$val} ) && next CHECK_VALUES;
+        }
+
+        # We caught a not allowed value
+        return(0);
+    }
+
+    # OK, all values are allowed
+    return(1);
+}
+
+sub add_device {
+    my $self = shift;
+
+    # Check if isas/refs/rxs/values are allowed
+    &_value_is_allowed( 'device', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::add_device, one or more specified value(s) '@_' is/are not allowed.");
+
+    # Add keys/values
+    foreach my $val (@_) {
+        $self->{HH_Unispool_Config_Entry_System}{device}{ $val->get_name() } = $val;
+    }
+}
+
+sub add_remote_system {
+    my $self = shift;
+
+    # Check if isas/refs/rxs/values are allowed
+    &_value_is_allowed( 'remote_system', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::add_remote_system, one or more specified value(s) '@_' is/are not allowed.");
+
+    # Add keys/values
+    foreach my $val (@_) {
+        $self->{HH_Unispool_Config_Entry_System}{remote_system}{ $val->get_name() } = $val;
+    }
+}
+
+sub delete_device {
+    my $self = shift;
+
+    # Delete values
+    my $del = 0;
+    foreach my $val (@_) {
+        exists( $self->{HH_Unispool_Config_Entry_System}{device}{$val} ) || next;
+        delete( $self->{HH_Unispool_Config_Entry_System}{device}{$val} );
+        $del ++;
+    }
+    return($del);
+}
+
+sub delete_remote_system {
+    my $self = shift;
+
+    # Delete values
+    my $del = 0;
+    foreach my $val (@_) {
+        exists( $self->{HH_Unispool_Config_Entry_System}{remote_system}{$val} ) || next;
+        delete( $self->{HH_Unispool_Config_Entry_System}{remote_system}{$val} );
+        $del ++;
+    }
+    return($del);
+}
+
+sub diff {
+    my $from = shift;
+    my $to = shift;
+    my $diff_number = shift;
+    $diff_number = $from->is_diff_number() if ( ! defined( $diff_number ) );
+
+    # Reference types must be identical
+    if ( ref($from) ne ref($to) ) {
+        my $rf = ref($from);
+        my $rt = ref($to);
+
+        throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::diff, FROM ($rf) and TO ($rt) reference types differ.");
+    }
+
+    # Diff message
+    my $diff = $from->SUPER::diff($to);
+
+    # Diff the central console node
+    if ( $from->get_central_console_node() ne $to->get_central_console_node() ) {
+        my $ref = ref($from);
+        my $vf = $from->get_central_console_node();
+        my $vt = $to->get_central_console_node();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: central console node difference: $vf <-> $vt\n";
+    }
+
+    # Diff the clean on weekdays only state
+    if ( $from->is_clean_on_weekdays_only() != $to->is_clean_on_weekdays_only() ) {
+        my $ref = ref($from);
+        my $vf = $from->is_clean_on_weekdays_only();
+        my $vt = $to->is_clean_on_weekdays_only();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: clean on weekdays only difference: $vf <-> $vt\n";
+    }
+
+    # Diff the date format
+    $diff .= $from->get_date_format()->diff( $to->get_date_format() );
+
+    # Diff the default printer
+    if ( $from->get_default_printer() ne $to->get_default_printer() ) {
+        my $ref = ref($from);
+        my $vf = $from->get_default_printer();
+        my $vt = $to->get_default_printer();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: default printer difference: $vf <-> $vt\n";
+    }
+
+    # Diff the local system name
+    if ( $from->get_local_system_name() ne $to->get_local_system_name() ) {
+        my $ref = ref($from);
+        my $vf = $from->get_local_system_name();
+        my $vt = $to->get_local_system_name();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: local system name difference: $vf <-> $vt\n";
+    }
+
+    # Diff the maximum delay time
+    if ( $from->get_maximum_delay_time() ne $to->get_maximum_delay_time() ) {
+        my $ref = ref($from);
+        my $vf = $from->get_maximum_delay_time();
+        my $vt = $to->get_maximum_delay_time();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: maximum delay time difference: $vf <-> $vt\n";
+    }
+
+    # Diff the maximum print file space
+    if ( $from->get_maximum_print_file_space() ne $to->get_maximum_print_file_space() ) {
+        my $ref = ref($from);
+        my $vf = $from->get_maximum_print_file_space();
+        my $vt = $to->get_maximum_print_file_space();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: maximum print file space difference: $vf <-> $vt\n";
+    }
+
+    # Diff the maximum save file space
+    if ( $from->get_maximum_save_file_space() ne $to->get_maximum_save_file_space() ) {
+        my $ref = ref($from);
+        my $vf = $from->get_maximum_save_file_space();
+        my $vt = $to->get_maximum_save_file_space();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: maximum save file space difference: $vf <-> $vt\n";
+    }
+
+    # Diff the network name
+    if ( $from->get_network_name() ne $to->get_network_name() ) {
+        my $ref = ref($from);
+        my $vf = $from->get_network_name();
+        my $vt = $to->get_network_name();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: network name difference: $vf <-> $vt\n";
+    }
+
+    # Diff the os
+    if ( defined( $from->get_os() ) && defined( $to->get_os() ) ) {
+        $diff .= $from->get_os()->diff( $to->get_os() );
+    }
+    elsif ( defined( $from->get_os() ) ) {
+        my $ref = ref($from);
+        my $vf = $from->get_os()->get_os();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: os missing in TO: $vf\n";
+    }
+    elsif ( defined( $to->get_os() ) ) {
+        my $ref = ref($to);
+        my $vt = $to->get_os()->get_os();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: os missing in FROM: $vt\n";
+    }
+
+    # Diff the save groups
+    if ( $from->get_save_groups() ne $to->get_save_groups() ) {
+        my $ref = ref($from);
+        my $vf = $from->get_save_groups();
+        my $vt = $to->get_save_groups();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: save groups difference: $vf <-> $vt\n";
+    }
+
+    # Diff the save time in days
+    if ( $from->get_save_time_in_days() ne $to->get_save_time_in_days() ) {
+        my $ref = ref($from);
+        my $vf = $from->get_save_time_in_days();
+        my $vt = $to->get_save_time_in_days();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: save time in days difference: $vf <-> $vt\n";
+    }
+
+    # Diff the start time clean job hour
+    if ( int( $from->get_start_time_clean_job_hour() ) != int( $to->get_start_time_clean_job_hour() ) ) {
+        my $ref = ref($from);
+        my $vf = $from->get_start_time_clean_job_hour();
+        my $vt = $to->get_start_time_clean_job_hour();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: start time clean job hour difference: $vf <-> $vt\n";
+    }
+
+    # Diff the start time clean job minute
+    if ( int( $from->get_start_time_clean_job_minute() ) != int( $to->get_start_time_clean_job_minute() ) ) {
+        my $ref = ref($from);
+        my $vf = $from->get_start_time_clean_job_minute();
+        my $vt = $to->get_start_time_clean_job_minute();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: start time clean job minute difference: $vf <-> $vt\n";
+    }
+
+    # Diff the type
+    if ( $from->get_type() ne $to->get_type() ) {
+        my $ref = ref($from);
+        my $vf = $from->get_type();
+        my $vt = $to->get_type();
+        my $name = $from->get_name();
+        $diff .= "$ref/$name: type difference: $vf <-> $vt\n";
+    }
+
+    # Diff the remote system
+    foreach my $kf ( sort( $from->keys_remote_system() ) ) {
+        if ( $to->exists_remote_system($kf) ) {
+            $diff .= ( $from->values_remote_system($kf) )[0]->diff(
+                ( $to->values_remote_system($kf) )[0], $diff_number);
+        }
+        else {
+            my $ref = ref($from);
+            my $name = $from->get_name();
+            $diff .= "$ref/$name: remote system missing in TO: $kf\n";
+        }
+    }
+    foreach my $kt ( sort( $to->keys_remote_system() ) ) {
+        if ( $from->exists_remote_system($kt) ) {
+            next;
+        }
+        else {
+            my $ref = ref($from);
+            my $name = $from->get_name();
+            $diff .= "$ref/$name: remote system missing in FROM: $kt\n";
+        }
+    }
+
+    # Diff the device
+    foreach my $kf ( sort( $from->keys_device() ) ) {
+        if ( $to->exists_device($kf) ) {
+            $diff .= ( $from->values_device($kf) )[0]->diff(
+                ( $to->values_device($kf) )[0], $diff_number);
+        }
+        else {
+            my $ref = ref($from);
+            my $name = $from->get_name();
+            $diff .= "$ref/$name: device missing in TO: $kf\n";
+        }
+    }
+    foreach my $kt ( sort( $to->keys_device() ) ) {
+        if ( $from->exists_device($kt) ) {
+            next;
+        }
+        else {
+            my $ref = ref($from);
+            my $name = $from->get_name();
+            $diff .= "$ref/$name: device missing in FROM: $kt\n";
+        }
+    }
+
+    # Return diff
+    return($diff);
+}
+
+sub exists_device {
+    my $self = shift;
+
+    # Count occurrences
+    my $count = 0;
+    foreach my $val (@_) {
+        $count += exists( $self->{HH_Unispool_Config_Entry_System}{device}{$val} );
+    }
+    return($count);
+}
+
+sub exists_remote_system {
+    my $self = shift;
+
+    # Count occurrences
+    my $count = 0;
+    foreach my $val (@_) {
+        $count += exists( $self->{HH_Unispool_Config_Entry_System}{remote_system}{$val} );
+    }
+    return($count);
+}
+
+sub get_central_console_node {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_System}{central_console_node} );
+}
+
+sub get_date_format {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_System}{date_format} );
+}
+
+sub get_default_printer {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_System}{default_printer} );
+}
+
+sub get_local_system_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_System}{local_system_name} );
+}
+
+sub get_maximum_delay_time {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_System}{maximum_delay_time} );
+}
+
+sub get_maximum_print_file_space {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_System}{maximum_print_file_space} );
+}
+
+sub get_maximum_save_file_space {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_System}{maximum_save_file_space} );
+}
+
+sub get_network_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_System}{network_name} );
+}
+
+sub get_os {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_System}{os} );
+}
+
+sub get_save_groups {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_System}{save_groups} );
+}
+
+sub get_save_time_in_days {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_System}{save_time_in_days} );
+}
+
+sub get_start_time_clean_job_hour {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_System}{start_time_clean_job_hour} );
+}
+
+sub get_start_time_clean_job_minute {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_System}{start_time_clean_job_minute} );
+}
+
+sub get_type {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_System}{type} );
+}
+
+sub is_clean_on_weekdays_only {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_Entry_System}{clean_on_weekdays_only} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub is_diff_number {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_Entry_System}{diff_number} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub keys_device {
+    my $self = shift;
+
+    # Return all keys
+    return( keys( %{ $self->{HH_Unispool_Config_Entry_System}{device} } ) );
+}
+
+sub keys_remote_system {
+    my $self = shift;
+
+    # Return all keys
+    return( keys( %{ $self->{HH_Unispool_Config_Entry_System}{remote_system} } ) );
+}
+
+sub set_central_console_node {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'central_console_node', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_central_console_node, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_System}{central_console_node} = $val;
+}
+
+sub set_clean_on_weekdays_only {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_Entry_System}{clean_on_weekdays_only} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_Entry_System}{clean_on_weekdays_only} = 0;
+    }
+}
+
+sub set_date_format {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'date_format', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_date_format, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_System}{date_format} = $val;
+}
+
+sub set_default_printer {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'default_printer', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_default_printer, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_System}{default_printer} = $val;
+}
+
+sub set_device {
+    my $self = shift;
+
+    # Check if isas/refs/rxs/values are allowed
+    &_value_is_allowed( 'device', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_device, one or more specified value(s) '@_' is/are not allowed.");
+
+    # Empty list
+    $self->{HH_Unispool_Config_Entry_System}{device} = {};
+
+    # Add keys/values
+    foreach my $val (@_) {
+        $self->{HH_Unispool_Config_Entry_System}{device}{ $val->get_name() } = $val;
+    }
+}
+
+sub set_diff_number {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_Entry_System}{diff_number} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_Entry_System}{diff_number} = 0;
+    }
+}
+
+sub set_local_system_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Value for 'local_system_name' is not allowed to be empty
+    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_local_system_name, value may not be empty.");
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'local_system_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_local_system_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_System}{local_system_name} = $val;
+}
+
+sub set_maximum_delay_time {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'maximum_delay_time', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_maximum_delay_time, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_System}{maximum_delay_time} = $val;
+}
+
+sub set_maximum_print_file_space {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'maximum_print_file_space', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_maximum_print_file_space, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_System}{maximum_print_file_space} = $val;
+}
+
+sub set_maximum_save_file_space {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'maximum_save_file_space', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_maximum_save_file_space, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_System}{maximum_save_file_space} = $val;
+}
+
+sub set_network_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Value for 'network_name' is not allowed to be empty
+    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_network_name, value may not be empty.");
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'network_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_network_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_System}{network_name} = $val;
+}
+
+sub set_os {
+    my $self = shift;
+    my $val = shift;
+
+    # Value for 'os' is not allowed to be empty
+    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_os, value may not be empty.");
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'os', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_os, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_System}{os} = $val;
+}
+
+sub set_remote_system {
+    my $self = shift;
+
+    # Check if isas/refs/rxs/values are allowed
+    &_value_is_allowed( 'remote_system', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_remote_system, one or more specified value(s) '@_' is/are not allowed.");
+
+    # Empty list
+    $self->{HH_Unispool_Config_Entry_System}{remote_system} = {};
+
+    # Add keys/values
+    foreach my $val (@_) {
+        $self->{HH_Unispool_Config_Entry_System}{remote_system}{ $val->get_name() } = $val;
+    }
+}
+
+sub set_save_groups {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'save_groups', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_save_groups, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_System}{save_groups} = $val;
+}
+
+sub set_save_time_in_days {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'save_time_in_days', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_save_time_in_days, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_System}{save_time_in_days} = $val;
+}
+
+sub set_start_time_clean_job_hour {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'start_time_clean_job_hour', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_start_time_clean_job_hour, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_System}{start_time_clean_job_hour} = $val;
+}
+
+sub set_start_time_clean_job_minute {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'start_time_clean_job_minute', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_start_time_clean_job_minute, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_System}{start_time_clean_job_minute} = $val;
+}
+
+sub set_type {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'type', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_type, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_System}{type} = $val;
+}
+
+sub values_device {
+    my $self = shift;
+
+    if ( scalar(@_) ) {
+        my @ret = ();
+        foreach my $key (@_) {
+            exists( $self->{HH_Unispool_Config_Entry_System}{device}{$key} ) && push( @ret, $self->{HH_Unispool_Config_Entry_System}{device}{$key} );
+        }
+        return(@ret);
+    }
+    else {
+        # Return all values
+        return( values( %{ $self->{HH_Unispool_Config_Entry_System}{device} } ) );
+    }
+}
+
+sub values_remote_system {
+    my $self = shift;
+
+    if ( scalar(@_) ) {
+        my @ret = ();
+        foreach my $key (@_) {
+            exists( $self->{HH_Unispool_Config_Entry_System}{remote_system}{$key} ) && push( @ret, $self->{HH_Unispool_Config_Entry_System}{remote_system}{$key} );
+        }
+        return(@ret);
+    }
+    else {
+        # Return all values
+        return( values( %{ $self->{HH_Unispool_Config_Entry_System}{remote_system} } ) );
+    }
+}
+
 sub write {
     my $self = shift;
     my $fh = shift;
@@ -1516,487 +2010,5 @@ sub write {
     # Empty lines
     $fh->print( "\n" );
     $fh->print( "\n" );
-}
-
-sub set_central_console_node {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'central_console_node', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_central_console_node, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_System}{central_console_node} = $val;
-}
-
-sub get_central_console_node {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_System}{central_console_node} );
-}
-
-sub set_clean_on_weekdays_only {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_Entry_System}{clean_on_weekdays_only} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_Entry_System}{clean_on_weekdays_only} = 0;
-    }
-}
-
-sub is_clean_on_weekdays_only {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_Entry_System}{clean_on_weekdays_only} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_date_format {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'date_format', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_date_format, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_System}{date_format} = $val;
-}
-
-sub get_date_format {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_System}{date_format} );
-}
-
-sub set_default_printer {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'default_printer', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_default_printer, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_System}{default_printer} = $val;
-}
-
-sub get_default_printer {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_System}{default_printer} );
-}
-
-sub set_device {
-    my $self = shift;
-
-    # Check if isas/refs/rxs/values are allowed
-    &_value_is_allowed( 'device', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_device, one or more specified value(s) '@_' is/are not allowed.");
-
-    # Empty list
-    $self->{HH_Unispool_Config_Entry_System}{device} = {};
-
-    # Add keys/values
-    foreach my $val (@_) {
-        $self->{HH_Unispool_Config_Entry_System}{device}{ $val->get_name() } = $val;
-    }
-}
-
-sub add_device {
-    my $self = shift;
-
-    # Check if isas/refs/rxs/values are allowed
-    &_value_is_allowed( 'device', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::add_device, one or more specified value(s) '@_' is/are not allowed.");
-
-    # Add keys/values
-    foreach my $val (@_) {
-        $self->{HH_Unispool_Config_Entry_System}{device}{ $val->get_name() } = $val;
-    }
-}
-
-sub delete_device {
-    my $self = shift;
-
-    # Delete values
-    my $del = 0;
-    foreach my $val (@_) {
-        exists( $self->{HH_Unispool_Config_Entry_System}{device}{$val} ) || next;
-        delete( $self->{HH_Unispool_Config_Entry_System}{device}{$val} );
-        $del ++;
-    }
-    return($del);
-}
-
-sub exists_device {
-    my $self = shift;
-
-    # Count occurences
-    my $count = 0;
-    foreach my $val (@_) {
-        $count += exists( $self->{HH_Unispool_Config_Entry_System}{device}{$val} );
-    }
-    return($count);
-}
-
-sub keys_device {
-    my $self = shift;
-
-    # Return all keys
-    return( keys( %{ $self->{HH_Unispool_Config_Entry_System}{device} } ) );
-}
-
-sub values_device {
-    my $self = shift;
-
-    if ( scalar(@_) ) {
-        my @ret = ();
-        foreach my $key (@_) {
-            exists( $self->{HH_Unispool_Config_Entry_System}{device}{$key} ) && push( @ret, $self->{HH_Unispool_Config_Entry_System}{device}{$key} );
-        }
-        return(@ret);
-    }
-    else {
-        # Return all values
-        return( values( %{ $self->{HH_Unispool_Config_Entry_System}{device} } ) );
-    }
-}
-
-sub set_diff_number {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_Entry_System}{diff_number} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_Entry_System}{diff_number} = 0;
-    }
-}
-
-sub is_diff_number {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_Entry_System}{diff_number} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_local_system_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Value for 'local_system_name' is not allowed to be empty
-    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_local_system_name, value may not be empty.");
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'local_system_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_local_system_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_System}{local_system_name} = $val;
-}
-
-sub get_local_system_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_System}{local_system_name} );
-}
-
-sub set_maximum_delay_time {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'maximum_delay_time', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_maximum_delay_time, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_System}{maximum_delay_time} = $val;
-}
-
-sub get_maximum_delay_time {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_System}{maximum_delay_time} );
-}
-
-sub set_maximum_print_file_space {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'maximum_print_file_space', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_maximum_print_file_space, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_System}{maximum_print_file_space} = $val;
-}
-
-sub get_maximum_print_file_space {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_System}{maximum_print_file_space} );
-}
-
-sub set_maximum_save_file_space {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'maximum_save_file_space', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_maximum_save_file_space, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_System}{maximum_save_file_space} = $val;
-}
-
-sub get_maximum_save_file_space {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_System}{maximum_save_file_space} );
-}
-
-sub set_network_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Value for 'network_name' is not allowed to be empty
-    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_network_name, value may not be empty.");
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'network_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_network_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_System}{network_name} = $val;
-}
-
-sub get_network_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_System}{network_name} );
-}
-
-sub set_os {
-    my $self = shift;
-    my $val = shift;
-
-    # Value for 'os' is not allowed to be empty
-    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_os, value may not be empty.");
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'os', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_os, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_System}{os} = $val;
-}
-
-sub get_os {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_System}{os} );
-}
-
-sub set_remote_system {
-    my $self = shift;
-
-    # Check if isas/refs/rxs/values are allowed
-    &_value_is_allowed( 'remote_system', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_remote_system, one or more specified value(s) '@_' is/are not allowed.");
-
-    # Empty list
-    $self->{HH_Unispool_Config_Entry_System}{remote_system} = {};
-
-    # Add keys/values
-    foreach my $val (@_) {
-        $self->{HH_Unispool_Config_Entry_System}{remote_system}{ $val->get_name() } = $val;
-    }
-}
-
-sub add_remote_system {
-    my $self = shift;
-
-    # Check if isas/refs/rxs/values are allowed
-    &_value_is_allowed( 'remote_system', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::add_remote_system, one or more specified value(s) '@_' is/are not allowed.");
-
-    # Add keys/values
-    foreach my $val (@_) {
-        $self->{HH_Unispool_Config_Entry_System}{remote_system}{ $val->get_name() } = $val;
-    }
-}
-
-sub delete_remote_system {
-    my $self = shift;
-
-    # Delete values
-    my $del = 0;
-    foreach my $val (@_) {
-        exists( $self->{HH_Unispool_Config_Entry_System}{remote_system}{$val} ) || next;
-        delete( $self->{HH_Unispool_Config_Entry_System}{remote_system}{$val} );
-        $del ++;
-    }
-    return($del);
-}
-
-sub exists_remote_system {
-    my $self = shift;
-
-    # Count occurences
-    my $count = 0;
-    foreach my $val (@_) {
-        $count += exists( $self->{HH_Unispool_Config_Entry_System}{remote_system}{$val} );
-    }
-    return($count);
-}
-
-sub keys_remote_system {
-    my $self = shift;
-
-    # Return all keys
-    return( keys( %{ $self->{HH_Unispool_Config_Entry_System}{remote_system} } ) );
-}
-
-sub values_remote_system {
-    my $self = shift;
-
-    if ( scalar(@_) ) {
-        my @ret = ();
-        foreach my $key (@_) {
-            exists( $self->{HH_Unispool_Config_Entry_System}{remote_system}{$key} ) && push( @ret, $self->{HH_Unispool_Config_Entry_System}{remote_system}{$key} );
-        }
-        return(@ret);
-    }
-    else {
-        # Return all values
-        return( values( %{ $self->{HH_Unispool_Config_Entry_System}{remote_system} } ) );
-    }
-}
-
-sub set_save_groups {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'save_groups', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_save_groups, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_System}{save_groups} = $val;
-}
-
-sub get_save_groups {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_System}{save_groups} );
-}
-
-sub set_save_time_in_days {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'save_time_in_days', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_save_time_in_days, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_System}{save_time_in_days} = $val;
-}
-
-sub get_save_time_in_days {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_System}{save_time_in_days} );
-}
-
-sub set_start_time_clean_job_hour {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'start_time_clean_job_hour', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_start_time_clean_job_hour, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_System}{start_time_clean_job_hour} = $val;
-}
-
-sub get_start_time_clean_job_hour {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_System}{start_time_clean_job_hour} );
-}
-
-sub set_start_time_clean_job_minute {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'start_time_clean_job_minute', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_start_time_clean_job_minute, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_System}{start_time_clean_job_minute} = $val;
-}
-
-sub get_start_time_clean_job_minute {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_System}{start_time_clean_job_minute} );
-}
-
-sub set_type {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'type', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::System::set_type, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_System}{type} = $val;
-}
-
-sub get_type {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_System}{type} );
-}
-
-sub _value_is_allowed {
-    my $name = shift;
-
-    # Value is allowed if no ALLOW clauses exist for the named attribute
-    if ( ! exists( $ALLOW_ISA{$name} ) && ! exists( $ALLOW_REF{$name} ) && ! exists( $ALLOW_RX{$name} ) && ! exists( $ALLOW_VALUE{$name} ) ) {
-        return(1);
-    }
-
-    # At this point, all values in @_ must to be allowed
-    CHECK_VALUES:
-    foreach my $val (@_) {
-        # Check ALLOW_ISA
-        if ( ref($val) && exists( $ALLOW_ISA{$name} ) ) {
-            foreach my $class ( @{ $ALLOW_ISA{$name} } ) {
-                &UNIVERSAL::isa( $val, $class ) && next CHECK_VALUES;
-            }
-        }
-
-        # Check ALLOW_REF
-        if ( ref($val) && exists( $ALLOW_REF{$name} ) ) {
-            exists( $ALLOW_REF{$name}{ ref($val) } ) && next CHECK_VALUES;
-        }
-
-        # Check ALLOW_RX
-        if ( defined($val) && ! ref($val) && exists( $ALLOW_RX{$name} ) ) {
-            foreach my $rx ( @{ $ALLOW_RX{$name} } ) {
-                $val =~ /$rx/ && next CHECK_VALUES;
-            }
-        }
-
-        # Check ALLOW_VALUE
-        if ( ! ref($val) && exists( $ALLOW_VALUE{$name} ) ) {
-            exists( $ALLOW_VALUE{$name}{$val} ) && next CHECK_VALUES;
-        }
-
-        # We caught a not allowed value
-        return(0);
-    }
-
-    # OK, all values are allowed
-    return(1);
 }
 

@@ -15,13 +15,13 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'filter_name',
+             method_factory_name => 'filter_name',
              allow_rx => [ qw(^.*$) ],
              short_description => 'the name of the filter file to be used when printfiles for this device are generated',
              mandatory => 1,
         },
         {
-             attribute_name => 'description',
+             method_factory_name => 'description',
              allow_rx => [ qw(^.*$) ],
              short_description => 'the description for the device',
         },

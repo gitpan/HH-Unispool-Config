@@ -30,12 +30,8 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
-our %DEFAULT_VALUE = (
-);
-
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -129,7 +125,7 @@ Passed to L<set_number()>.
 
 =item new_from_string(LINE)
 
-This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Creates a new object from the specified Unispool config file line string.
+Creates a new object from the specified Unispool config file line string.
 
 =back
 
@@ -137,13 +133,53 @@ This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Cr
 
 =over
 
+=item get_acct()
+
+Returns the remote login account (is not available on development system used).
+
+=item get_apass()
+
+Returns the account password (is not available on development system used).
+
+=item get_block_delay()
+
+Returns the time in seconds UNISPOOL should pause between sending two blocks.
+
+=item get_execution_priority()
+
+Returns the execution priority of the driver process on MPE hosts.
+
+=item get_input_line_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Returns the line number from from which the token is read.
+
+=item get_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Returns the number of the entry.
+
+=item get_remote_system_name()
+
+Returns the unique name for the remote system.
+
+=item get_timeout()
+
+Returns the delay before closing the link after transfering the last request (in seconds) (is not available on development system used).
+
+=item get_upass()
+
+Returns the user paccword (is not available on development system used).
+
+=item is_high_priority_login()
+
+Returns whether the login must be high priotity (is not available on development system used) or not.
+
+=item is_initially_open()
+
+Returns whether the communication link should be opened at the moment UNISPOOL is started or not.
+
 =item read_string(LINE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered'>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
-
-=item write_string()
-
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Numbered'>. Returns a Unispool config file token line string.
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
 
 =item set_acct(VALUE)
 
@@ -161,10 +197,6 @@ Set the remote login account (is not available on development system used). C<VA
 
 =back
 
-=item get_acct()
-
-Returns the remote login account (is not available on development system used).
-
 =item set_apass(VALUE)
 
 Set the account password (is not available on development system used). C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -180,10 +212,6 @@ Set the account password (is not available on development system used). C<VALUE>
 =back
 
 =back
-
-=item get_apass()
-
-Returns the account password (is not available on development system used).
 
 =item set_block_delay(VALUE)
 
@@ -201,10 +229,6 @@ Set the time in seconds UNISPOOL should pause between sending two blocks. C<VALU
 
 =back
 
-=item get_block_delay()
-
-Returns the time in seconds UNISPOOL should pause between sending two blocks.
-
 =item set_execution_priority(VALUE)
 
 Set the execution priority of the driver process on MPE hosts. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -221,25 +245,45 @@ Set the execution priority of the driver process on MPE hosts. C<VALUE> is the v
 
 =back
 
-=item get_execution_priority()
-
-Returns the execution priority of the driver process on MPE hosts.
-
 =item set_high_priority_login(VALUE)
 
 State that the login must be high priotity (is not available on development system used). C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
-
-=item is_high_priority_login()
-
-Returns whether the login must be high priotity (is not available on development system used) or not.
 
 =item set_initially_open(VALUE)
 
 State that the communication link should be opened at the moment UNISPOOL is started. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
 
-=item is_initially_open()
+=item set_input_line_number(VALUE)
 
-Returns whether the communication link should be opened at the moment UNISPOOL is started or not.
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Set the line number from from which the token is read. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
+
+=item set_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Numbered>. Set the number of the entry. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
 
 =item set_remote_system_name(VALUE)
 
@@ -257,10 +301,6 @@ Set the unique name for the remote system. C<VALUE> is the value. On error an ex
 
 =back
 
-=item get_remote_system_name()
-
-Returns the unique name for the remote system.
-
 =item set_timeout(VALUE)
 
 Set the delay before closing the link after transfering the last request (in seconds) (is not available on development system used). C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
@@ -276,10 +316,6 @@ Set the delay before closing the link after transfering the last request (in sec
 =back
 
 =back
-
-=item get_timeout()
-
-Returns the delay before closing the link after transfering the last request (in seconds) (is not available on development system used).
 
 =item set_upass(VALUE)
 
@@ -297,29 +333,9 @@ Set the user paccword (is not available on development system used). C<VALUE> is
 
 =back
 
-=item get_upass()
+=item write_string()
 
-Returns the user paccword (is not available on development system used).
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token
-
-=over
-
-=item To access attribute named B<C<input_line_number>>:
-
-set_input_line_number(), get_input_line_number()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token::Numbered
-
-=over
-
-=item To access attribute named B<C<number>>:
-
-set_number(), get_number()
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Numbered>. Returns a Unispool config file token line string.
 
 =back
 
@@ -400,6 +416,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -473,181 +490,6 @@ sub _initialize {
     return($self);
 }
 
-sub read_string {
-    my $self = shift;
-
-    $self->SUPER::read_string(@_);
-}
-
-sub write_string {
-    my $self = shift;
-
-    $self->SUPER::read_string(@_);
-}
-
-sub set_acct {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'acct', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::System::set_acct, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_System}{acct} = $val;
-}
-
-sub get_acct {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_System}{acct} );
-}
-
-sub set_apass {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'apass', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::System::set_apass, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_System}{apass} = $val;
-}
-
-sub get_apass {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_System}{apass} );
-}
-
-sub set_block_delay {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'block_delay', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::System::set_block_delay, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_System}{block_delay} = $val;
-}
-
-sub get_block_delay {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_System}{block_delay} );
-}
-
-sub set_execution_priority {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'execution_priority', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::System::set_execution_priority, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_System}{execution_priority} = $val;
-}
-
-sub get_execution_priority {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_System}{execution_priority} );
-}
-
-sub set_high_priority_login {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_File_Token_Numbered_System}{high_priority_login} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_File_Token_Numbered_System}{high_priority_login} = 0;
-    }
-}
-
-sub is_high_priority_login {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_File_Token_Numbered_System}{high_priority_login} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_initially_open {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_File_Token_Numbered_System}{initially_open} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_File_Token_Numbered_System}{initially_open} = 0;
-    }
-}
-
-sub is_initially_open {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_File_Token_Numbered_System}{initially_open} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_remote_system_name {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'remote_system_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::System::set_remote_system_name, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_System}{remote_system_name} = $val;
-}
-
-sub get_remote_system_name {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_System}{remote_system_name} );
-}
-
-sub set_timeout {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'timeout', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::System::set_timeout, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_System}{timeout} = $val;
-}
-
-sub get_timeout {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_System}{timeout} );
-}
-
-sub set_upass {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'upass', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::System::set_upass, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Numbered_System}{upass} = $val;
-}
-
-sub get_upass {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Numbered_System}{upass} );
-}
-
 sub _value_is_allowed {
     my $name = shift;
 
@@ -689,5 +531,180 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub get_acct {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_System}{acct} );
+}
+
+sub get_apass {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_System}{apass} );
+}
+
+sub get_block_delay {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_System}{block_delay} );
+}
+
+sub get_execution_priority {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_System}{execution_priority} );
+}
+
+sub get_remote_system_name {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_System}{remote_system_name} );
+}
+
+sub get_timeout {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_System}{timeout} );
+}
+
+sub get_upass {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Numbered_System}{upass} );
+}
+
+sub is_high_priority_login {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_File_Token_Numbered_System}{high_priority_login} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub is_initially_open {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_File_Token_Numbered_System}{initially_open} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub read_string {
+    my $self = shift;
+
+    $self->SUPER::read_string(@_);
+}
+
+sub set_acct {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'acct', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::System::set_acct, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_System}{acct} = $val;
+}
+
+sub set_apass {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'apass', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::System::set_apass, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_System}{apass} = $val;
+}
+
+sub set_block_delay {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'block_delay', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::System::set_block_delay, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_System}{block_delay} = $val;
+}
+
+sub set_execution_priority {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'execution_priority', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::System::set_execution_priority, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_System}{execution_priority} = $val;
+}
+
+sub set_high_priority_login {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_File_Token_Numbered_System}{high_priority_login} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_File_Token_Numbered_System}{high_priority_login} = 0;
+    }
+}
+
+sub set_initially_open {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_File_Token_Numbered_System}{initially_open} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_File_Token_Numbered_System}{initially_open} = 0;
+    }
+}
+
+sub set_remote_system_name {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'remote_system_name', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::System::set_remote_system_name, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_System}{remote_system_name} = $val;
+}
+
+sub set_timeout {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'timeout', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::System::set_timeout, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_System}{timeout} = $val;
+}
+
+sub set_upass {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'upass', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Numbered::System::set_upass, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Numbered_System}{upass} = $val;
+}
+
+sub write_string {
+    my $self = shift;
+
+    $self->SUPER::read_string(@_);
 }
 

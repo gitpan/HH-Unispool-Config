@@ -14,7 +14,7 @@ EOF
     },
     attr_opt => [
         {
-            attribute_name => 'file',
+            method_factory_name => 'file',
             type => 'SINGLE',
             mandatory => 1,
             allow_isa => [ qw(IO::Handle) ],
@@ -22,14 +22,14 @@ EOF
             short_description => 'the file handle to read from',
         },
         {
-            attribute_name => 'got_buffer',
+            method_factory_name => 'got_buffer',
             type => 'MULTI',
             ordered => 1,
             allow_isa => [ qw(HH::Unispool::Config::File::Token) ],
             short_description => 'the I<got> buffer',
         },
         {
-            attribute_name => 'unget_buffer',
+            method_factory_name => 'unget_buffer',
             type => 'MULTI',
             ordered => 1,
             allow_isa => [ qw(HH::Unispool::Config::File::Token) ],

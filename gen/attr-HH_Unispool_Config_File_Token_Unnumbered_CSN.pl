@@ -15,7 +15,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'central_console_node',
+             method_factory_name => 'central_console_node',
              allow_rx => [ qw(^.+$) ],
              short_description => 'the name of the system on which the console messages must be displayed',
         },

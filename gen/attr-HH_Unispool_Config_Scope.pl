@@ -14,7 +14,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'scope',
+             method_factory_name => 'scope',
              type => 'MULTI',
              unique => 1,
              allow_rx => [ qw(^.+$) ],

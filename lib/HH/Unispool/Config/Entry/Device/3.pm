@@ -26,7 +26,7 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
+# Used by _initialize
 our %DEFAULT_VALUE = (
     'execution_priority' => HH::Unispool::Config::ExecPri->new( { execution_priority => '' } ),
     'initially_spooled' => 1,
@@ -34,7 +34,7 @@ our %DEFAULT_VALUE = (
 );
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -181,7 +181,7 @@ Passed to L<set_number()>.
 
 =item new_from_tokenizer(TOKENIZER)
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::Device'>. Constructs a new C<HH::Unispool::Config::Entry> object using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
+This method is an implementation from package C<HH::Unispool::Config::Entry::Device>. Constructs a new C<HH::Unispool::Config::Entry> object using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -189,25 +189,93 @@ This method is an implementation from package C<'HH::Unispool::Config::Entry::De
 
 =over
 
+=item add_member_device_name(ARRAY)
+
+Add additional values on the list of names of the devices that can be accessed through the group device. C<ARRAY> is the list value. The addition may not yield to multiple identical elements in the list. Hence, multiple occurrences of the same element cause the last occurrence to be inserted. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item The values in C<ARRAY> must match regular expression:
+
+=over
+
+=item ^\w+$
+
+=back
+
+=back
+
 =item add_members_from_tokenizer(TOKENIZER)
 
 Adds group members to using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
 
+=item delete_member_device_name(ARRAY)
+
+Delete elements from the list of names of the devices that can be accessed through the group device. Returns the number of deleted elements. On error an exception C<Error::Simple> is thrown.
+
 =item diff(TO [, DIFF_NUMBER])
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::Device'>. Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown. Paremeter C<DIFF_NUMBER> if specified, overrules the value of C<get_diff_number>.
+This method is an implementation from package C<HH::Unispool::Config::Entry::Device>. Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown. Paremeter C<DIFF_NUMBER> if specified, overrules the value of C<get_diff_number>.
 
-=item write(FILE_HANDLE)
+=item exists_member_device_name(ARRAY)
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::Device'>. Writes the entry to the specified file handle, omitting the group members (see L<write_group()>). C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
+Returns the count of items in C<ARRAY> that are in the list of names of the devices that can be accessed through the group device.
 
-=item write_group(FILE_HANDLE)
+=item get_description()
 
-Writes the group members of the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
+This method is inherited from package C<HH::Unispool::Config::Entry::Device>. Returns the description for the device.
+
+=item get_execution_priority()
+
+Returns the execution priority of the driver process on MPE hosts.
+
+=item get_filter_name()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Device>. Returns the name of the filter file to be used when printfiles for this device are generated.
+
+=item get_name()
+
+This method is inherited from package C<HH::Unispool::Config::Entry>. Returns the entry name.
+
+=item get_number()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Returns the entry number.
+
+=item is_diff_number()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Returns whether L<diff()> should consider the C<number> attribtutes or not.
+
+=item is_initially_spooled()
+
+Returns whether an automatic STARTSPOOL must be performed when UNISPOOL is started or not.
+
+=item is_networkwide()
+
+Returns whether the device must be made available from each node in the configuration cluster or not.
+
+=item set_description(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Device>. Set the description for the device. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.*$
+
+=back
+
+=back
+
+=item set_diff_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. State that L<diff()> should consider the C<number> attribtutes. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
 
 =item set_execution_priority(VALUE)
 
-Set the execution priority of the driver process on MPE hosts. C<VALUE> is the value. Default value at initialization is C<HH::Unispool::Config::ExecPri-E<gt>new( { execution_priority => '' } )>. On error an exception C<Error::Simple> is thrown.
+Set the execution priority of the driver process on MPE hosts. C<VALUE> is the value. Default value at initialization is C<HH::Unispool::Config::ExecPri->new( { execution_priority => '' } )>. On error an exception C<Error::Simple> is thrown.
 
 =over
 
@@ -221,21 +289,29 @@ Set the execution priority of the driver process on MPE hosts. C<VALUE> is the v
 
 =back
 
-=item get_execution_priority()
+=item set_filter_name(VALUE)
 
-Returns the execution priority of the driver process on MPE hosts.
+This method is inherited from package C<HH::Unispool::Config::Entry::Device>. Set the name of the filter file to be used when printfiles for this device are generated. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.*$
+
+=back
+
+=back
 
 =item set_initially_spooled(VALUE)
 
 State that an automatic STARTSPOOL must be performed when UNISPOOL is started. C<VALUE> is the value. Default value at initialization is C<1>. On error an exception C<Error::Simple> is thrown.
 
-=item is_initially_spooled()
-
-Returns whether an automatic STARTSPOOL must be performed when UNISPOOL is started or not.
-
 =item set_member_device_name(ARRAY)
 
-Set the list of names of the devices that can be accessed through the group device absolutely. C<ARRAY> is the list value. Each element in the list is allowed to occur only once. Multiple occurences of the same element yield in the last occuring element to be inserted and the rest to be ignored. On error an exception C<Error::Simple> is thrown.
+Set the list of names of the devices that can be accessed through the group device absolutely. C<ARRAY> is the list value. Each element in the list is allowed to occur only once. Multiple occurrences of the same element yield in the last occurring element to be inserted and the rest to be ignored. On error an exception C<Error::Simple> is thrown.
 
 =over
 
@@ -249,79 +325,53 @@ Set the list of names of the devices that can be accessed through the group devi
 
 =back
 
-=item add_member_device_name(ARRAY)
+=item set_name(VALUE)
 
-Add additional values on the list of names of the devices that can be accessed through the group device. C<ARRAY> is the list value. The addition may not yield to multiple identical elements in the list. Hence, multiple occurences of the same element cause the last occurence to be inserted. On error an exception C<Error::Simple> is thrown.
-
-=over
-
-=item The values in C<ARRAY> must match regular expression:
+This method is inherited from package C<HH::Unispool::Config::Entry>. Set the entry name. C<VALUE> is the value. C<VALUE> may not be C<undef>. On error an exception C<Error::Simple> is thrown.
 
 =over
 
-=item ^\w+$
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.+$
 
 =back
 
 =back
-
-=item delete_member_device_name(ARRAY)
-
-Delete elements from the list of names of the devices that can be accessed through the group device. Returns the number of deleted elements. On error an exception C<Error::Simple> is thrown.
-
-=item exists_member_device_name(ARRAY)
-
-Returns the count of items in C<ARRAY> that are in the list of names of the devices that can be accessed through the group device.
-
-=item values_member_device_name()
-
-Returns an C<ARRAY> containing all values of the list of names of the devices that can be accessed through the group device.
 
 =item set_networkwide(VALUE)
 
 State that the device must be made available from each node in the configuration cluster. C<VALUE> is the value. Default value at initialization is C<1>. On error an exception C<Error::Simple> is thrown.
 
-=item is_networkwide()
+=item set_number(VALUE)
 
-Returns whether the device must be made available from each node in the configuration cluster or not.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Set the entry number. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
 
 =over
 
-=item To access attribute named B<C<name>>:
-
-set_name(), get_name()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry::Device
+=item VALUE must match regular expression:
 
 =over
 
-=item To access attribute named B<C<description>>:
-
-set_description(), get_description()
-
-=item To access attribute named B<C<filter_name>>:
-
-set_filter_name(), get_filter_name()
+=item ^\d*$
 
 =back
 
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry::Numbered
+=back
 
-=over
+=item values_member_device_name()
 
-=item To access attribute named B<C<diff_number>>:
+Returns an C<ARRAY> containing all values of the list of names of the devices that can be accessed through the group device.
 
-set_diff_number(), is_diff_number()
+=item write(FILE_HANDLE)
 
-=item To access attribute named B<C<number>>:
+This method is an implementation from package C<HH::Unispool::Config::Entry::Device>. Writes the entry to the specified file handle, omitting the group members (see L<write_group()>). C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
 
-set_number(), get_number()
+=item write_group(FILE_HANDLE)
+
+Writes the group members of the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -402,6 +452,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -433,6 +484,49 @@ Boston, MA 02111-1307 USA
 
 =cut
 
+sub new_from_tokenizer {
+    my $class = shift;
+    my $tokenizer = shift;
+
+    # First token must be a HH::Unispool::Config::File::Token::Numbered::Device::3
+    my $d = $tokenizer->get();
+    $d->isa('HH::Unispool::Config::File::Token::Numbered::Device::3') || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::new_from_tokenizer, expected a first token from 'TOKENIZER' of class 'HH::Unispool::Config::File::Token::Numbered::Device::3'.");
+
+    # Fill the initialization option hash
+    my %opt = ();
+    $opt{number} = $d->get_number();
+    $opt{name} = $d->get_device_name();
+    $opt{networkwide} = $d->is_networkwide();
+    $opt{initially_spooled} = $d->is_initially_spooled();
+    $opt{execution_priority} = $d->get_execution_priority();
+
+    # Allow X and I tokens
+    my $x = undef;
+    my $i = undef;
+    while ( my $tok = $tokenizer->get() ) {
+        if ( ! $tok->isa('HH::Unispool::Config::File::Token::Numbered') || $tok->get_number() != $d->get_number() ) {
+            $tokenizer->unget();
+            last;
+        }
+        elsif ( $tok->isa('HH::Unispool::Config::File::Token::Numbered::X') ) {
+            defined ($x) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::X'.");
+            $x = $tok;
+            $opt{filter_name} = $x->get_filter_name();
+        }
+        elsif ( $tok->isa('HH::Unispool::Config::File::Token::Numbered::Device::Info') ) {
+            defined ($i) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::Device::Info'.");
+            $i = $tok;
+            $opt{description} = $i->get_description();
+        }
+        else {
+            throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::new_from_tokenizer, expected tokens from 'TOKENIZER' for entry $opt{name}/$opt{number} from either class 'HH::Unispool::Config::File::Token::Numbered::Device::Info' or 'HH::Unispool::Config::File::Token::Numbered::Network'.");
+        }
+    }
+
+    # Construct a new object and return it
+    return( HH::Unispool::Config::Entry::Device::3->new(\%opt) );
+}
+
 sub _initialize {
     my $self = shift;
     my $opt = defined($_[0]) ? shift : {};
@@ -440,7 +534,7 @@ sub _initialize {
     # Check $opt
     ref($opt) eq 'HASH' || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::_initialize, first argument must be 'HASH' reference.");
 
-    # execution_priority, SINGLE
+    # execution_priority, SINGLE, with default value
     $self->set_execution_priority( exists( $opt->{execution_priority} ) ? $opt->{execution_priority} : $DEFAULT_VALUE{execution_priority} );
 
     # initially_spooled, BOOLEAN, with default value
@@ -465,6 +559,61 @@ sub _initialize {
     return($self);
 }
 
+sub _value_is_allowed {
+    my $name = shift;
+
+    # Value is allowed if no ALLOW clauses exist for the named attribute
+    if ( ! exists( $ALLOW_ISA{$name} ) && ! exists( $ALLOW_REF{$name} ) && ! exists( $ALLOW_RX{$name} ) && ! exists( $ALLOW_VALUE{$name} ) ) {
+        return(1);
+    }
+
+    # At this point, all values in @_ must to be allowed
+    CHECK_VALUES:
+    foreach my $val (@_) {
+        # Check ALLOW_ISA
+        if ( ref($val) && exists( $ALLOW_ISA{$name} ) ) {
+            foreach my $class ( @{ $ALLOW_ISA{$name} } ) {
+                &UNIVERSAL::isa( $val, $class ) && next CHECK_VALUES;
+            }
+        }
+
+        # Check ALLOW_REF
+        if ( ref($val) && exists( $ALLOW_REF{$name} ) ) {
+            exists( $ALLOW_REF{$name}{ ref($val) } ) && next CHECK_VALUES;
+        }
+
+        # Check ALLOW_RX
+        if ( defined($val) && ! ref($val) && exists( $ALLOW_RX{$name} ) ) {
+            foreach my $rx ( @{ $ALLOW_RX{$name} } ) {
+                $val =~ /$rx/ && next CHECK_VALUES;
+            }
+        }
+
+        # Check ALLOW_VALUE
+        if ( ! ref($val) && exists( $ALLOW_VALUE{$name} ) ) {
+            exists( $ALLOW_VALUE{$name}{$val} ) && next CHECK_VALUES;
+        }
+
+        # We caught a not allowed value
+        return(0);
+    }
+
+    # OK, all values are allowed
+    return(1);
+}
+
+sub add_member_device_name {
+    my $self = shift;
+
+    # Check if isas/refs/rxs/values are allowed
+    &_value_is_allowed( 'member_device_name', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::add_member_device_name, one or more specified value(s) '@_' is/are not allowed.");
+
+    # Add values
+    foreach my $val (@_) {
+        $self->{HH_Unispool_Config_Entry_Device_3}{member_device_name}{$val} = $val;
+    }
+}
+
 sub add_members_from_tokenizer {
     my $self = shift;
     my $tokenizer = shift;
@@ -481,6 +630,19 @@ sub add_members_from_tokenizer {
         # Add the members
         $self->add_member_device_name( $tok->values_member_device_name() );
     }
+}
+
+sub delete_member_device_name {
+    my $self = shift;
+
+    # Delete values
+    my $del = 0;
+    foreach my $val (@_) {
+        exists( $self->{HH_Unispool_Config_Entry_Device_3}{member_device_name}{$val} ) || next;
+        delete( $self->{HH_Unispool_Config_Entry_Device_3}{member_device_name}{$val} );
+        $del ++;
+    }
+    return($del);
 }
 
 sub diff {
@@ -544,47 +706,98 @@ sub diff {
     return($diff);
 }
 
-sub new_from_tokenizer {
-    my $class = shift;
-    my $tokenizer = shift;
+sub exists_member_device_name {
+    my $self = shift;
 
-    # First token must be a HH::Unispool::Config::File::Token::Numbered::Device::3
-    my $d = $tokenizer->get();
-    $d->isa('HH::Unispool::Config::File::Token::Numbered::Device::3') || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::new_from_tokenizer, expected a first token from 'TOKENIZER' of class 'HH::Unispool::Config::File::Token::Numbered::Device::3'.");
-
-    # Fill the initialization option hash
-    my %opt = ();
-    $opt{number} = $d->get_number();
-    $opt{name} = $d->get_device_name();
-    $opt{networkwide} = $d->is_networkwide();
-    $opt{initially_spooled} = $d->is_initially_spooled();
-    $opt{execution_priority} = $d->get_execution_priority();
-
-    # Allow X and I tokens
-    my $x = undef;
-    my $i = undef;
-    while ( my $tok = $tokenizer->get() ) {
-        if ( ! $tok->isa('HH::Unispool::Config::File::Token::Numbered') || $tok->get_number() != $d->get_number() ) {
-            $tokenizer->unget();
-            last;
-        }
-        elsif ( $tok->isa('HH::Unispool::Config::File::Token::Numbered::X') ) {
-            defined ($x) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::X'.");
-            $x = $tok;
-            $opt{filter_name} = $x->get_filter_name();
-        }
-        elsif ( $tok->isa('HH::Unispool::Config::File::Token::Numbered::Device::Info') ) {
-            defined ($i) && throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::new_from_tokenizer, multiple tokens obtained from 'TOKENIZER' for entry $opt{name}/$opt{number} from class 'HH::Unispool::Config::File::Token::Numbered::Device::Info'.");
-            $i = $tok;
-            $opt{description} = $i->get_description();
-        }
-        else {
-            throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::new_from_tokenizer, expected tokens from 'TOKENIZER' for entry $opt{name}/$opt{number} from either class 'HH::Unispool::Config::File::Token::Numbered::Device::Info' or 'HH::Unispool::Config::File::Token::Numbered::Network'.");
-        }
+    # Count occurrences
+    my $count = 0;
+    foreach my $val (@_) {
+        $count += exists( $self->{HH_Unispool_Config_Entry_Device_3}{member_device_name}{$val} );
     }
+    return($count);
+}
 
-    # Construct a new object and return it
-    return( HH::Unispool::Config::Entry::Device::3->new(\%opt) );
+sub get_execution_priority {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_Device_3}{execution_priority} );
+}
+
+sub is_initially_spooled {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_Entry_Device_3}{initially_spooled} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub is_networkwide {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_Entry_Device_3}{networkwide} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub set_execution_priority {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'execution_priority', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::set_execution_priority, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_Device_3}{execution_priority} = $val;
+}
+
+sub set_initially_spooled {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_Entry_Device_3}{initially_spooled} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_Entry_Device_3}{initially_spooled} = 0;
+    }
+}
+
+sub set_member_device_name {
+    my $self = shift;
+
+    # Check if isas/refs/rxs/values are allowed
+    &_value_is_allowed( 'member_device_name', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::set_member_device_name, one or more specified value(s) '@_' is/are not allowed.");
+
+    # Empty list
+    $self->{HH_Unispool_Config_Entry_Device_3}{member_device_name} = {};
+
+    # Add values
+    foreach my $val (@_) {
+        $self->{HH_Unispool_Config_Entry_Device_3}{member_device_name}{$val} = $val;
+    }
+}
+
+sub set_networkwide {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_Entry_Device_3}{networkwide} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_Entry_Device_3}{networkwide} = 0;
+    }
+}
+
+sub values_member_device_name {
+    my $self = shift;
+
+    # Return all values
+    return( values( %{ $self->{HH_Unispool_Config_Entry_Device_3}{member_device_name} } ) );
 }
 
 sub write {
@@ -641,167 +854,5 @@ sub write_group {
 
         $fh->print( $tok->write_string() );
     }
-}
-
-sub set_execution_priority {
-    my $self = shift;
-    my $val = shift;
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'execution_priority', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::set_execution_priority, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_Device_3}{execution_priority} = $val;
-}
-
-sub get_execution_priority {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_Device_3}{execution_priority} );
-}
-
-sub set_initially_spooled {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_Entry_Device_3}{initially_spooled} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_Entry_Device_3}{initially_spooled} = 0;
-    }
-}
-
-sub is_initially_spooled {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_Entry_Device_3}{initially_spooled} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub set_member_device_name {
-    my $self = shift;
-
-    # Check if isas/refs/rxs/values are allowed
-    &_value_is_allowed( 'member_device_name', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::set_member_device_name, one or more specified value(s) '@_' is/are not allowed.");
-
-    # Empty list
-    $self->{HH_Unispool_Config_Entry_Device_3}{member_device_name} = {};
-
-    # Add values
-    foreach my $val (@_) {
-        $self->{HH_Unispool_Config_Entry_Device_3}{member_device_name}{$val} = $val;
-    }
-}
-
-sub add_member_device_name {
-    my $self = shift;
-
-    # Check if isas/refs/rxs/values are allowed
-    &_value_is_allowed( 'member_device_name', @_ ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::Device::3::add_member_device_name, one or more specified value(s) '@_' is/are not allowed.");
-
-    # Add values
-    foreach my $val (@_) {
-        $self->{HH_Unispool_Config_Entry_Device_3}{member_device_name}{$val} = $val;
-    }
-}
-
-sub delete_member_device_name {
-    my $self = shift;
-
-    # Delete values
-    my $del = 0;
-    foreach my $val (@_) {
-        exists( $self->{HH_Unispool_Config_Entry_Device_3}{member_device_name}{$val} ) || next;
-        delete( $self->{HH_Unispool_Config_Entry_Device_3}{member_device_name}{$val} );
-        $del ++;
-    }
-    return($del);
-}
-
-sub exists_member_device_name {
-    my $self = shift;
-
-    # Count occurences
-    my $count = 0;
-    foreach my $val (@_) {
-        $count += exists( $self->{HH_Unispool_Config_Entry_Device_3}{member_device_name}{$val} );
-    }
-    return($count);
-}
-
-sub values_member_device_name {
-    my $self = shift;
-
-    # Return all values
-    return( values( %{ $self->{HH_Unispool_Config_Entry_Device_3}{member_device_name} } ) );
-}
-
-sub set_networkwide {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_Entry_Device_3}{networkwide} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_Entry_Device_3}{networkwide} = 0;
-    }
-}
-
-sub is_networkwide {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_Entry_Device_3}{networkwide} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
-}
-
-sub _value_is_allowed {
-    my $name = shift;
-
-    # Value is allowed if no ALLOW clauses exist for the named attribute
-    if ( ! exists( $ALLOW_ISA{$name} ) && ! exists( $ALLOW_REF{$name} ) && ! exists( $ALLOW_RX{$name} ) && ! exists( $ALLOW_VALUE{$name} ) ) {
-        return(1);
-    }
-
-    # At this point, all values in @_ must to be allowed
-    CHECK_VALUES:
-    foreach my $val (@_) {
-        # Check ALLOW_ISA
-        if ( ref($val) && exists( $ALLOW_ISA{$name} ) ) {
-            foreach my $class ( @{ $ALLOW_ISA{$name} } ) {
-                &UNIVERSAL::isa( $val, $class ) && next CHECK_VALUES;
-            }
-        }
-
-        # Check ALLOW_REF
-        if ( ref($val) && exists( $ALLOW_REF{$name} ) ) {
-            exists( $ALLOW_REF{$name}{ ref($val) } ) && next CHECK_VALUES;
-        }
-
-        # Check ALLOW_RX
-        if ( defined($val) && ! ref($val) && exists( $ALLOW_RX{$name} ) ) {
-            foreach my $rx ( @{ $ALLOW_RX{$name} } ) {
-                $val =~ /$rx/ && next CHECK_VALUES;
-            }
-        }
-
-        # Check ALLOW_VALUE
-        if ( ! ref($val) && exists( $ALLOW_VALUE{$name} ) ) {
-            exists( $ALLOW_VALUE{$name}{$val} ) && next CHECK_VALUES;
-        }
-
-        # We caught a not allowed value
-        return(0);
-    }
-
-    # OK, all values are allowed
-    return(1);
 }
 

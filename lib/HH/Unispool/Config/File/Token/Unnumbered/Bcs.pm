@@ -9,7 +9,7 @@ use Error qw(:try);
 use HH::Unispool::Config::File::Token qw( :rx :frm );
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -61,7 +61,7 @@ Passed to L<set_hostname()>. Mandatory option.
 
 =item new_from_string(LINE)
 
-This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Creates a new object from the specified Unispool config file line string.
+Creates a new object from the specified Unispool config file line string.
 
 =back
 
@@ -69,33 +69,53 @@ This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Cr
 
 =over
 
+=item get_hostname()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Unnumbered::CsBcs>. Returns the host name in the comment.
+
+=item get_input_line_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Returns the line number from from which the token is read.
+
 =item read_string(LINE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Unnumbered'>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Unnumbered>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
+
+=item set_hostname(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token::Unnumbered::CsBcs>. Set the host name in the comment. C<VALUE> is the value. C<VALUE> may not be C<undef>. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.+$
+
+=back
+
+=back
+
+=item set_input_line_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Set the line number from from which the token is read. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
 
 =item write_string()
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Unnumbered'>. Returns a Unispool config file token line string.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token
-
-=over
-
-=item To access attribute named B<C<input_line_number>>:
-
-set_input_line_number(), get_input_line_number()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token::Unnumbered::CsBcs
-
-=over
-
-=item To access attribute named B<C<hostname>>:
-
-set_hostname(), get_hostname()
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Unnumbered>. Returns a Unispool config file token line string.
 
 =back
 
@@ -176,6 +196,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 

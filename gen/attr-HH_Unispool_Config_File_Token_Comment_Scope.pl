@@ -15,7 +15,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'scope',
+             method_factory_name => 'scope',
              allow_isa => [ qw(HH::Unispool::Config::Scope) ],
              mandatory => 1,
              allow_empty => 0,
@@ -40,14 +40,14 @@ EOF
         },
         {
             method_name => 'write_string',
-            body => <<EOF,
-    my \$self = shift;
+            body => <<'EOF',
+    my $self = shift;
 
     # Make string and return it
     return(
         sprintf(
-            \$USP_SCOPE_FRM,
-            join( ', ', \$self->get_scope()->values_scope() ) || '',
+            $USP_SCOPE_FRM,
+            join( ', ', $self->get_scope()->values_scope() ) || '',
         )
     );
 EOF

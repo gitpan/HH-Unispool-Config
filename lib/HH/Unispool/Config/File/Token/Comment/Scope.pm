@@ -25,12 +25,8 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
-our %DEFAULT_VALUE = (
-);
-
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -82,7 +78,7 @@ Passed to L<set_input_line_number()>.
 
 =item new_from_string(LINE)
 
-This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Creates a new object from the specified Unispool config file line string.
+Creates a new object from the specified Unispool config file line string.
 
 =back
 
@@ -90,13 +86,33 @@ This method is inherited from package C<'HH::Unispool::Config::File::Token'>. Cr
 
 =over
 
+=item get_input_line_number()
+
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Returns the line number from from which the token is read.
+
+=item get_scope()
+
+Returns the dump scope in the comment.
+
 =item read_string(LINE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Comment'>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Comment>. Reads the Unispool config file token from a line string. C<LINE> is a plain line string. On error an exception C<Error::Simple> is thrown.
 
-=item write_string()
+=item set_input_line_number(VALUE)
 
-This method is overloaded from package C<'HH::Unispool::Config::File::Token::Comment'>. Returns a Unispool config file token line string.
+This method is inherited from package C<HH::Unispool::Config::File::Token>. Set the line number from from which the token is read. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^\d*$
+
+=back
+
+=back
 
 =item set_scope(VALUE)
 
@@ -114,19 +130,9 @@ Set the dump scope in the comment. C<VALUE> is the value. C<VALUE> may not be C<
 
 =back
 
-=item get_scope()
+=item write_string()
 
-Returns the dump scope in the comment.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::File::Token
-
-=over
-
-=item To access attribute named B<C<input_line_number>>:
-
-set_input_line_number(), get_input_line_number()
+This method is overloaded from package C<HH::Unispool::Config::File::Token::Comment>. Returns a Unispool config file token line string.
 
 =back
 
@@ -207,6 +213,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -256,51 +263,6 @@ sub _initialize {
     return($self);
 }
 
-sub read_string {
-    my $self = shift;
-    my $line = shift;
-
-    # Parse line
-    my ($scope) = $line =~ /$USP_SCOPE_RX/;
-    defined($scope) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Comment::Scope::read_string, parameter 'LINE' does not match the regular expression for this token's line string.");
-
-    # Set attributes
-    require HH::Unispool::Config::Scope;
-    $self->set_scope( HH::Unispool::Config::Scope->new( { scope => [ split(/\s*,\s*/, $scope) ] } ) );
-}
-
-sub write_string {
-    my $self = shift;
-
-    # Make string and return it
-    return(
-        sprintf(
-            $USP_SCOPE_FRM,
-            join( ', ', $self->get_scope()->values_scope() ) || '',
-        )
-    );
-}
-
-sub set_scope {
-    my $self = shift;
-    my $val = shift;
-
-    # Value for 'scope' is not allowed to be empty
-    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Comment::Scope::set_scope, value may not be empty.");
-
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'scope', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Comment::Scope::set_scope, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_File_Token_Comment_Scope}{scope} = $val;
-}
-
-sub get_scope {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_File_Token_Comment_Scope}{scope} );
-}
-
 sub _value_is_allowed {
     my $name = shift;
 
@@ -342,5 +304,50 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub get_scope {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_File_Token_Comment_Scope}{scope} );
+}
+
+sub read_string {
+    my $self = shift;
+    my $line = shift;
+
+    # Parse line
+    my ($scope) = $line =~ /$USP_SCOPE_RX/;
+    defined($scope) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Comment::Scope::read_string, parameter 'LINE' does not match the regular expression for this token's line string.");
+
+    # Set attributes
+    require HH::Unispool::Config::Scope;
+    $self->set_scope( HH::Unispool::Config::Scope->new( { scope => [ split(/\s*,\s*/, $scope) ] } ) );
+}
+
+sub set_scope {
+    my $self = shift;
+    my $val = shift;
+
+    # Value for 'scope' is not allowed to be empty
+    defined($val) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Comment::Scope::set_scope, value may not be empty.");
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'scope', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::File::Token::Comment::Scope::set_scope, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_File_Token_Comment_Scope}{scope} = $val;
+}
+
+sub write_string {
+    my $self = shift;
+
+    # Make string and return it
+    return(
+        sprintf(
+            $USP_SCOPE_FRM,
+            join( ', ', $self->get_scope()->values_scope() ) || '',
+        )
+    );
 }
 

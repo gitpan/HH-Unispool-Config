@@ -15,7 +15,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'net_desc',
+             method_factory_name => 'net_desc',
              allow_rx => [ qw(^.+$) ],
              mandatory => 1,
              allow_empty => 0,

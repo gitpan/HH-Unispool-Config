@@ -3,7 +3,7 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
-my ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+my ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 WriteMakefile(
     
@@ -20,6 +20,6 @@ WriteMakefile(
         ) : ()
     ),
     clean => {
-        FILES => 'gen/tmp pod-all sdiff-all t/*.out',
+        FILES => 'gen/tmp diff-all pod-all sdiff-all t/*.out',
     },
 );

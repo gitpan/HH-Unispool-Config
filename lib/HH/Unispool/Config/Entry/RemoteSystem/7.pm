@@ -24,14 +24,14 @@ our %ALLOW_RX = (
 our %ALLOW_VALUE = (
 );
 
-# Used by _value_is_allowed
+# Used by _initialize
 our %DEFAULT_VALUE = (
     'block_delay' => 0,
     'initially_open' => 1,
 );
 
 # Package version
-our ($VERSION) = '$Revision: 0.2 $' =~ /\$Revision:\s+([^\s]+)/;
+our ($VERSION) = '$Revision: 0.3 $' =~ /\$Revision:\s+([^\s]+)/;
 
 1;
 
@@ -148,7 +148,7 @@ Passed to L<set_execution_priority()>. Defaults to B<HH::Unispool::Config::ExecP
 
 =item new_from_tokenizer(TOKENIZER)
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::RemoteSystem'>. Constructs a new C<HH::Unispool::Config::Entry> object using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
+This method is an implementation from package C<HH::Unispool::Config::Entry::RemoteSystem>. Constructs a new C<HH::Unispool::Config::Entry> object using tokens. C<TOKENIZER> is an C<HH::Unispool::Config::File::Tokenizer> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -158,11 +158,35 @@ This method is an implementation from package C<'HH::Unispool::Config::Entry::Re
 
 =item diff(TO [, DIFF_NUMBER])
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::RemoteSystem'>. Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown. Paremeter C<DIFF_NUMBER> if specified, overrules the value of C<get_diff_number>.
+This method is an implementation from package C<HH::Unispool::Config::Entry::RemoteSystem>. Finds differences between two objects. In C<diff> terms, the object is the B<from> object and the specified C<TO> parameter the B<to> object. C<TO> is a reference to an identical object class. Returns an empty string if no difference found and a difference descritpion string otherwise. On error an exception C<Error::Simple> is thrown. Paremeter C<DIFF_NUMBER> if specified, overrules the value of C<get_diff_number>.
 
-=item write(FILE_HANDLE)
+=item get_block_delay()
 
-This method is an implementation from package C<'HH::Unispool::Config::Entry::RemoteSystem'>. Writes the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
+Returns the time in seconds UNISPOOL should pause between sending two blocks.
+
+=item get_description()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::RemoteSystem>. Returns the description for the remote system.
+
+=item get_execution_priority()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::RemoteSystem>. Returns the execution priority of the driver process on MPE hosts.
+
+=item get_name()
+
+This method is inherited from package C<HH::Unispool::Config::Entry>. Returns the entry name.
+
+=item get_number()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Returns the entry number.
+
+=item is_diff_number()
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Returns whether L<diff()> should consider the C<number> attribtutes or not.
+
+=item is_initially_open()
+
+Returns whether the communication link should be opened at the moment UNISPOOL is started or not.
 
 =item set_block_delay(VALUE)
 
@@ -180,55 +204,81 @@ Set the time in seconds UNISPOOL should pause between sending two blocks. C<VALU
 
 =back
 
-=item get_block_delay()
+=item set_description(VALUE)
 
-Returns the time in seconds UNISPOOL should pause between sending two blocks.
+This method is inherited from package C<HH::Unispool::Config::Entry::RemoteSystem>. Set the description for the remote system. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must match regular expression:
+
+=over
+
+=item ^.*$
+
+=back
+
+=back
+
+=item set_diff_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. State that L<diff()> should consider the C<number> attribtutes. C<VALUE> is the value. Default value at initialization is C<0>. On error an exception C<Error::Simple> is thrown.
+
+=item set_execution_priority(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::Entry::RemoteSystem>. Set the execution priority of the driver process on MPE hosts. C<VALUE> is the value. Default value at initialization is C<HH::Unispool::Config::ExecPri->new( { execution_priority => '' } )>. On error an exception C<Error::Simple> is thrown.
+
+=over
+
+=item VALUE must be a (sub)class of:
+
+=over
+
+=item HH::Unispool::Config::ExecPri
+
+=back
+
+=back
 
 =item set_initially_open(VALUE)
 
 State that the communication link should be opened at the moment UNISPOOL is started. C<VALUE> is the value. Default value at initialization is C<1>. On error an exception C<Error::Simple> is thrown.
 
-=item is_initially_open()
+=item set_name(VALUE)
 
-Returns whether the communication link should be opened at the moment UNISPOOL is started or not.
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry
+This method is inherited from package C<HH::Unispool::Config::Entry>. Set the entry name. C<VALUE> is the value. C<VALUE> may not be C<undef>. On error an exception C<Error::Simple> is thrown.
 
 =over
 
-=item To access attribute named B<C<name>>:
-
-set_name(), get_name()
-
-=back
-
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry::Numbered
+=item VALUE must match regular expression:
 
 =over
 
-=item To access attribute named B<C<diff_number>>:
-
-set_diff_number(), is_diff_number()
-
-=item To access attribute named B<C<number>>:
-
-set_number(), get_number()
+=item ^.+$
 
 =back
 
-=head1 INHERITED METHODS FROM HH::Unispool::Config::Entry::RemoteSystem
+=back
+
+=item set_number(VALUE)
+
+This method is inherited from package C<HH::Unispool::Config::Entry::Numbered>. Set the entry number. C<VALUE> is the value. On error an exception C<Error::Simple> is thrown.
 
 =over
 
-=item To access attribute named B<C<description>>:
+=item VALUE must match regular expression:
 
-set_description(), get_description()
+=over
 
-=item To access attribute named B<C<execution_priority>>:
+=item ^\d*$
 
-set_execution_priority(), get_execution_priority()
+=back
+
+=back
+
+=item write(FILE_HANDLE)
+
+This method is an implementation from package C<HH::Unispool::Config::Entry::RemoteSystem>. Writes the entry to the specified file handle. C<FILE_HANDLE> is an C<IO::Handle> reference. On error an exception C<Error::Simple> is thrown.
 
 =back
 
@@ -309,6 +359,7 @@ None known (yet.)
 =head1 HISTORY
 
 First development: February 2003
+Last update: September 2003
 
 =head1 AUTHOR
 
@@ -339,67 +390,6 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA 02111-1307 USA
 
 =cut
-
-sub _initialize {
-    my $self = shift;
-    my $opt = defined($_[0]) ? shift : {};
-
-    # Check $opt
-    ref($opt) eq 'HASH' || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::7::_initialize, first argument must be 'HASH' reference.");
-
-    # block_delay, SINGLE, with default value
-    $self->set_block_delay( exists( $opt->{block_delay} ) ? $opt->{block_delay} : $DEFAULT_VALUE{block_delay} );
-
-    # initially_open, BOOLEAN, with default value
-    $self->set_initially_open( exists( $opt->{initially_open} ) ? $opt->{initially_open} : $DEFAULT_VALUE{initially_open} );
-
-    # Call the superclass' _initialize
-    $self->SUPER::_initialize($opt);
-
-    # Return $self
-    return($self);
-}
-
-sub diff {
-    my $from = shift;
-    my $to = shift;
-    my $diff_number = shift;
-    $diff_number = $from->is_diff_number() if ( ! defined( $diff_number ) );
-
-    # Reference types must be identical
-    if ( ref($from) ne ref($to) ) {
-        my $rf = ref($from);
-        my $rt = ref($to);
-
-        throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::7::diff, FROM ($rf) and TO ($rt) reference types differ.");
-    }
-
-    # Diff message
-    my $diff = $from->SUPER::diff($to, $diff_number);
-
-    # Diff the block delay
-    if ( $from->get_block_delay() ne $to->get_block_delay() ) {
-        my $ref = ref($from);
-        my $vf = $from->get_block_delay();
-        my $vt = $to->get_block_delay();
-        my $name = $from->get_name();
-        my $number = $from->get_number();
-        $diff .= "$ref/$name/$number: block delay difference: $vf <-> $vt\n";
-    }
-
-    # Diff the initially open state
-    if ( $from->is_initially_open() != $to->is_initially_open() ) {
-        my $ref = ref($from);
-        my $vf = $from->is_initially_open();
-        my $vt = $to->is_initially_open();
-        my $name = $from->get_name();
-        my $number = $from->get_number();
-        $diff .= "$ref/$name/$number: initially open difference: $vf <-> $vt\n";
-    }
-
-    # Return diff
-    return($diff);
-}
 
 sub new_from_tokenizer {
     my $class = shift;
@@ -438,68 +428,24 @@ sub new_from_tokenizer {
     return( HH::Unispool::Config::Entry::RemoteSystem::7->new(\%opt) );
 }
 
-sub write {
+sub _initialize {
     my $self = shift;
-    my $fh = shift;
+    my $opt = defined($_[0]) ? shift : {};
 
-    # Make the three tokens
-    require HH::Unispool::Config::File::Token::Numbered::System::7;
-    my $s = HH::Unispool::Config::File::Token::Numbered::System::7->new( {
-        number => $self->get_number(),
-        remote_system_name => $self->get_name(),
-        block_delay => $self->get_block_delay(),
-        initially_open => $self->is_initially_open(),
-        execution_priority => $self->get_execution_priority(),
-    } );
+    # Check $opt
+    ref($opt) eq 'HASH' || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::7::_initialize, first argument must be 'HASH' reference.");
 
-    require HH::Unispool::Config::File::Token::Numbered::System::Info;
-    my $i = HH::Unispool::Config::File::Token::Numbered::System::Info->new( {
-        number => $self->get_number(),
-        description => $self->get_description(),
-    } );
+    # block_delay, SINGLE, with default value
+    $self->set_block_delay( exists( $opt->{block_delay} ) ? $opt->{block_delay} : $DEFAULT_VALUE{block_delay} );
 
-    # Print the tokens
-    $fh->print( $s->write_string() );
-    $fh->print( $i->write_string() );
-}
+    # initially_open, BOOLEAN, with default value
+    $self->set_initially_open( exists( $opt->{initially_open} ) ? $opt->{initially_open} : $DEFAULT_VALUE{initially_open} );
 
-sub set_block_delay {
-    my $self = shift;
-    my $val = shift;
+    # Call the superclass' _initialize
+    $self->SUPER::_initialize($opt);
 
-    # Check if isa/ref/rx/value is allowed
-    &_value_is_allowed( 'block_delay', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::7::set_block_delay, the specified value '$val' is not allowed.");
-
-    # Assignment
-    $self->{HH_Unispool_Config_Entry_RemoteSystem_7}{block_delay} = $val;
-}
-
-sub get_block_delay {
-    my $self = shift;
-
-    return( $self->{HH_Unispool_Config_Entry_RemoteSystem_7}{block_delay} );
-}
-
-sub set_initially_open {
-    my $self = shift;
-
-    if (shift) {
-        $self->{HH_Unispool_Config_Entry_RemoteSystem_7}{initially_open} = 1;
-    }
-    else {
-        $self->{HH_Unispool_Config_Entry_RemoteSystem_7}{initially_open} = 0;
-    }
-}
-
-sub is_initially_open {
-    my $self = shift;
-
-    if ( $self->{HH_Unispool_Config_Entry_RemoteSystem_7}{initially_open} ) {
-        return(1);
-    }
-    else {
-        return(0);
-    }
+    # Return $self
+    return($self);
 }
 
 sub _value_is_allowed {
@@ -543,5 +489,110 @@ sub _value_is_allowed {
 
     # OK, all values are allowed
     return(1);
+}
+
+sub diff {
+    my $from = shift;
+    my $to = shift;
+    my $diff_number = shift;
+    $diff_number = $from->is_diff_number() if ( ! defined( $diff_number ) );
+
+    # Reference types must be identical
+    if ( ref($from) ne ref($to) ) {
+        my $rf = ref($from);
+        my $rt = ref($to);
+
+        throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::7::diff, FROM ($rf) and TO ($rt) reference types differ.");
+    }
+
+    # Diff message
+    my $diff = $from->SUPER::diff($to, $diff_number);
+
+    # Diff the block delay
+    if ( $from->get_block_delay() ne $to->get_block_delay() ) {
+        my $ref = ref($from);
+        my $vf = $from->get_block_delay();
+        my $vt = $to->get_block_delay();
+        my $name = $from->get_name();
+        my $number = $from->get_number();
+        $diff .= "$ref/$name/$number: block delay difference: $vf <-> $vt\n";
+    }
+
+    # Diff the initially open state
+    if ( $from->is_initially_open() != $to->is_initially_open() ) {
+        my $ref = ref($from);
+        my $vf = $from->is_initially_open();
+        my $vt = $to->is_initially_open();
+        my $name = $from->get_name();
+        my $number = $from->get_number();
+        $diff .= "$ref/$name/$number: initially open difference: $vf <-> $vt\n";
+    }
+
+    # Return diff
+    return($diff);
+}
+
+sub get_block_delay {
+    my $self = shift;
+
+    return( $self->{HH_Unispool_Config_Entry_RemoteSystem_7}{block_delay} );
+}
+
+sub is_initially_open {
+    my $self = shift;
+
+    if ( $self->{HH_Unispool_Config_Entry_RemoteSystem_7}{initially_open} ) {
+        return(1);
+    }
+    else {
+        return(0);
+    }
+}
+
+sub set_block_delay {
+    my $self = shift;
+    my $val = shift;
+
+    # Check if isa/ref/rx/value is allowed
+    &_value_is_allowed( 'block_delay', $val ) || throw Error::Simple("ERROR: HH::Unispool::Config::Entry::RemoteSystem::7::set_block_delay, the specified value '$val' is not allowed.");
+
+    # Assignment
+    $self->{HH_Unispool_Config_Entry_RemoteSystem_7}{block_delay} = $val;
+}
+
+sub set_initially_open {
+    my $self = shift;
+
+    if (shift) {
+        $self->{HH_Unispool_Config_Entry_RemoteSystem_7}{initially_open} = 1;
+    }
+    else {
+        $self->{HH_Unispool_Config_Entry_RemoteSystem_7}{initially_open} = 0;
+    }
+}
+
+sub write {
+    my $self = shift;
+    my $fh = shift;
+
+    # Make the three tokens
+    require HH::Unispool::Config::File::Token::Numbered::System::7;
+    my $s = HH::Unispool::Config::File::Token::Numbered::System::7->new( {
+        number => $self->get_number(),
+        remote_system_name => $self->get_name(),
+        block_delay => $self->get_block_delay(),
+        initially_open => $self->is_initially_open(),
+        execution_priority => $self->get_execution_priority(),
+    } );
+
+    require HH::Unispool::Config::File::Token::Numbered::System::Info;
+    my $i = HH::Unispool::Config::File::Token::Numbered::System::Info->new( {
+        number => $self->get_number(),
+        description => $self->get_description(),
+    } );
+
+    # Print the tokens
+    $fh->print( $s->write_string() );
+    $fh->print( $i->write_string() );
 }
 

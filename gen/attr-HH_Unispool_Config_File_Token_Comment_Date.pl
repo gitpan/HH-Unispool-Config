@@ -15,7 +15,7 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'time',
+             method_factory_name => 'time',
              allow_rx => [ qw(^\d+$) ],
              default_value => 0,
              allow_empty => 0,
@@ -65,13 +65,13 @@ EOF
     return(
         sprintf(
             \$USP_DATE_FRM,
-            \$UNIX2USP_WDAY[ \$time[6] ],
-            \$UNIX2USP_MONTH{ \$time[4] },
-            \$time[3],
-            \$time[5] + 1900,
-            \$hour12,
-            \$time[1],
-            \$am_pm
+            \$UNIX2USP_WDAY[ \$time[6] ] || '',
+            \$UNIX2USP_MONTH{ \$time[4] } || '',
+            \$time[3] || 0,
+            \$time[5] + 1900 || 0,
+            \$hour12 || 0,
+            \$time[1] || 0,
+            \$am_pm || 0,
         )
     );
 EOF

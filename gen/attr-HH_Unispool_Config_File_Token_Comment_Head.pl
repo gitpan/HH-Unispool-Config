@@ -15,14 +15,14 @@ EOF
     },
     attr_opt => [
         {
-             attribute_name => 'version',
+             method_factory_name => 'version',
              allow_rx => [ qw(^.+$) ],
              mandatory => 1,
              allow_empty => 0,
              short_description => 'the version in the comment',
         },
         {
-             attribute_name => 'host',
+             method_factory_name => 'host',
              allow_rx => [ qw(^.+$) ],
              mandatory => 1,
              allow_empty => 0,
